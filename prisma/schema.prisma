@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://postgres:WkPJGaQmY2dH3aom9Xc3GALZAnQhUNVd@119.59.102.130:5432/tsat-db"
 }
 
 // CMS 
