@@ -21,6 +21,10 @@ app.use(`${versionApi}/cms/home`, cmsHomeRouter);
 app.use(`${versionApi}/car-model`, carModelRouter);
 app.use(`${versionApi}/sub-car-model`, subCarModelRouter);
 
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
 const server = http.createServer(app);
 
 server.listen(PORT, () => {
