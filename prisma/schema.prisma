@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// CMS 
+model CMSHOME {
+  id                       Int      @id @default(autoincrement())
+  headerTitle              String   @default("Top Service Auto Technic (TSAT)")
+  headerSubTitle           String   @default("ศูนย์บริการ ซ่อมบำรุงรักษา รถปอร์เช่ (Porsche) ที่ใหญ่เเละทันสมัยที่สุด การันตีงานซ่อม มากกว่า 1,500 คัน ดูแลรถลูกค้า เหมือนรถเราเอง")
+  headerSlide              String   @default("รีวิวงาน Service ของ TSAT")
+  headerChooseService      String   @default("เลือกดูบริการจาก Model Porsche ของท่าน")
+  SubChooseService         String   @default("TSAT คือที่สุดของการดูแล Porsche ที่ตอบโจทย์ทุกความต้องการของคนรักรถหรู เราคือทีมมืออาชีพที่เชี่ยวชาญด้าน Porsche โดยเฉพาะ ด้วยประสบการณ์ยาวนานและความใส่ใจในทุกรายละเอียด")
+  headerServiceInteresting String   @default("เลือกจากบริการที่ท่านสนใจ")
+  SubServiceinIeresting    String   @default("ปรึกษา")
+  reasonHeader             String   @default("เหตุผลที่เราเป็นที่1")
+  reasonSub1               String   @default("TSAT เราเริ่มจากการเป็นผู้ใช้รถ Porsche และรถสมรรถนะสูงที่นำเข้าทั่วไปในสมัยก่อนมานานกว่า 10 ปีและจากผู้ใช้รถ มาสู่ผู้เชี่ยวชาญในการซ่อมบำรุงรักษา ตั้งแต่ปี 2017 จนถึงวันนี้ เราผ่านงานซ่อมรถ Porsche ทุกรุ่นมามากกว่า 1000 คัน เรากล้าการันตีว่าอู่ของเราเป็นอู่ที่มีความมุ่งมั่นจริงใจ ทั้งในด้านคุณภาพงานซ่อม และ ในด้านการให้บริการสำหรับท่านเจ้าของรถ Porsche ทุกท่าน ที่ดีที่สุดในประเทศไทย")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+// CMS 
+
+model CarModel {
+  id           String        @id @default(uuid()) @db.Uuid
+  name         String        @unique
+  showActive   Boolean       @default(false)
+  createdAt    DateTime      @default(now()) @db.Timestamptz
+  updatedAt    DateTime      @default(now()) @db.Timestamptz
+  carSubModels CarSubModel[] // เพิ่มการเชื่อมโยงไปยัง CarSubModel
+}
+
+model CarSubModel {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String
+  carModelId  String       @db.Uuid // แก้ไขให้เป็น @db.Uuid
+  createdAt   DateTime     @default(now()) @db.Timestamptz
+  updatedAt   DateTime     @default(now()) @db.Timestamptz
+  carModel    CarModel     @relation(fields: [carModelId], references: [id])
+  carServices CarService[]
+}
+
+model CategoryService {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique
+  subtitle  String?
+  detail    String?
+  createdAt DateTime  @default(now()) @db.Timestamptz
+  updatedAt DateTime  @default(now()) @db.Timestamptz
+  services  Service[] // เพิ่มการเชื่อมโยงไปยัง Service
+}
+
+model Service {
+  id            String          @id @default(uuid()) @db.Uuid
+  serviceName   String          @unique
+  serviceDetail String?
+  createdAt     DateTime        @default(now()) @db.Timestamptz
+  updatedAt     DateTime        @default(now()) @db.Timestamptz
+  carServices   CarService[] // เพิ่มการเชื่อมโยงไปยัง CarService
+  categoryId    String          @db.Uuid
+  category      CategoryService @relation(fields: [categoryId], references: [id])
+}
+
+model CarService {
+  id            String      @id @default(uuid()) @db.Uuid
+  carSubModelId String      @db.Uuid
+  serviceId     String      @db.Uuid
+  createdAt     DateTime    @default(now()) @db.Timestamptz
+  updatedAt     DateTime    @default(now()) @db.Timestamptz
+  carSubModel   CarSubModel @relation(fields: [carSubModelId], references: [id])
+  service       Service     @relation(fields: [serviceId], references: [id])
+}
+
+model Blog {
+  id            String    @id @default(uuid()) @db.Uuid
+  header        String
+  detail        String
+  facebookLink  String?   @db.VarChar(255)
+  lineLink      String?   @db.VarChar(255)
+  instagramLink String?   @db.VarChar(255)
+  createdAt     DateTime  @default(now()) @db.Timestamptz
+  updatedAt     DateTime  @default(now()) @db.Timestamptz
+  blogTags      BlogTag[] // เพิ่มการเชื่อมโยงไปยัง BlogTag
+}
+
+model Tag {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique
+  createdAt DateTime  @default(now()) @db.Timestamptz
+  updatedAt DateTime  @default(now()) @db.Timestamptz
+  blogTags  BlogTag[] // เพิ่มการเชื่อมโยงไปยัง BlogTag
+}
+
+model BlogTag {
+  blogId    String   @db.Uuid
+  tagId     String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @default(now()) @db.Timestamptz
+  blog      Blog     @relation(fields: [blogId], references: [id])
+  tag       Tag      @relation(fields: [tagId], references: [id])
+
+  @@id([blogId, tagId]) // ใช้ composite key (blogId, tagId)
+}
