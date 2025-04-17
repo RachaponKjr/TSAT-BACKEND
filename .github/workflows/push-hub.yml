@@ -23,7 +23,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t rachapondev/tutor-backend:${{ env.COMMIT_SHA }} .
-          docker build -t rachapondev/tutor-backend:latest .
-          docker push rachapondev/tutor-backend:${{ env.COMMIT_SHA }}
-          docker push rachapondev/tutor-backend:latest
+          docker build -t rachapondev/tsat-backend:${{ env.COMMIT_SHA }} .
+          docker build -t rachapondev/tsat-backend:latest .
+          docker push rachapondev/tsat-backend:${{ env.COMMIT_SHA }}
+          docker push rachapondev/tsat-backend:latest
