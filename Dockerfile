@@ -8,7 +8,7 @@ RUN npm install
 
 # คัดลอก Prisma Client ที่ generate ไว้แล้วจากเครื่อง
 COPY prisma ./prisma
-COPY node_modules/.prisma node_modules/.prisma
+COPY node_modules/@prisma node_modules/@prisma
 
 # คัดลอก source code (หลังจาก prisma)
 COPY . .
