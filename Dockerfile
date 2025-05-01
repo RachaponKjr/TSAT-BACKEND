@@ -4,18 +4,23 @@ FROM node:18
 # ตั้ง working directory
 WORKDIR /app
 
-# คัดลอก package.json และติดตั้ง dependencies
+# คัดลอกไฟล์ package ก่อน เพื่อใช้ cache ในการ build
 COPY package*.json ./
+
+# ติดตั้ง dependencies
 RUN npm install
 
-# คัดลอก source code ทั้งหมด
+# คัดลอกทุกไฟล์ source code รวมถึง prisma/schema.prisma
 COPY . .
 
-# build TypeScript
+# ✅ Generate Prisma Client (สำคัญมาก)
+RUN npx prisma generate
+
+# ✅ Build TypeScript
 RUN npm run build
 
-# เปิดพอร์ต (ตามที่ใช้)
+# เปิดพอร์ต (ตามที่ใช้ในโปรเจกต์)
 EXPOSE 3130
 
-# รันแอปจาก dist
+# ✅ รันแอปจาก dist
 CMD ["node", "dist/index.js"]
