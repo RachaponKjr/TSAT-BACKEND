@@ -13,6 +13,8 @@ RUN npm install
 # คัดลอกทุกไฟล์ source code รวมถึง prisma/schema.prisma
 COPY . .
 
+RUN apt-get update && apt-get install -y tzdata
+
 # ✅ Generate Prisma Client (สำคัญมาก)
 RUN npx prisma generate
 
