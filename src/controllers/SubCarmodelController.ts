@@ -7,18 +7,23 @@ import {
 } from '../service/SubCarMoelService';
 
 const createSubCarModelController = async (
-  req: Request<{ name: string; carModelId: string }>,
+  req: Request,
   res: Response
 ): Promise<void> => {
   try {
     const { name, carModelId } = req.body;
+    const imageFile = req.file;
     if (!name || !carModelId) {
       res
         .status(400)
         .json({ message: 'กรุณากรอกข้อมูลให้ครบ name , carModelId' });
       return;
     }
-    const subCarModel = await createSubCarModel({ name, carModelId });
+    const subCarModel = await createSubCarModel({
+      name,
+      carModelId,
+      image: imageFile?.filename || ''
+    });
     res.status(200).json({ status: 200, data: subCarModel });
     return;
   } catch (error) {

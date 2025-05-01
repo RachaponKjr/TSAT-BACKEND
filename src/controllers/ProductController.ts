@@ -17,7 +17,7 @@ const createProductController = async (
       res.status(400).json({ message: 'No image uploaded' });
       return;
     }
-    const image_product = `/product/img/${req.file.filename}`;
+    const image_product = `/public/products/${req.file.filename}`;
 
     if (!name || !detail || !categoryId) {
       res.status(400).json({ message: 'Missing required fields' });

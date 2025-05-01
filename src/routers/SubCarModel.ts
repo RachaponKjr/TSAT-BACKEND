@@ -5,9 +5,22 @@ import {
   getSubCarModelByIdController,
   getSubCarModelController
 } from '../controllers/SubCarmodelController';
+import multer from 'multer';
+import path from 'path';
 const router = express.Router();
 
-router.post('/create', createSubCarModelController);
+const storage = multer.diskStorage({
+  destination: 'uploads/',
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname); // .jpg, .png
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({ storage });
+
+router.post('/create', upload.single('image'), createSubCarModelController);
 router.get('/get', getSubCarModelController);
 router.get('/get/:id', getSubCarModelByIdController);
 router.delete('/delete/:id', deleteSubCarModelController);

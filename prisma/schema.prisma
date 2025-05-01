@@ -26,43 +26,131 @@ model CMSHOME {
 // CMS 
 
 model CarModel {
-  id           String        @id @default(uuid()) @db.Uuid
-  name         String        @unique
-  showActive   Boolean       @default(false)
-  createdAt    DateTime      @default(now()) @db.Timestamptz
-  updatedAt    DateTime      @default(now()) @db.Timestamptz
-  carSubModels CarSubModel[] // เพิ่มการเชื่อมโยงไปยัง CarSubModel
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String   @unique
+  image      String
+  image_name String   @default("")
+  showActive Boolean  @default(false)
+  createdAt  DateTime @default(now()) @db.Timestamptz
+  updatedAt  DateTime @default(now()) @db.Timestamptz
+
+  carSubModels    CarSubModel[]
+  CustomerWork    CustomerWork[]
+  CustomerReview  CustomerReview[]
+  WorkService     WorkService[]
+  carServiceLinks CarServiceLink[] // ✅ พหูพจน์ และตรงความหมาย
 }
 
 model CarSubModel {
-  id          String       @id @default(uuid()) @db.Uuid
-  name        String
-  carModelId  String       @db.Uuid // แก้ไขให้เป็น @db.Uuid
-  createdAt   DateTime     @default(now()) @db.Timestamptz
-  updatedAt   DateTime     @default(now()) @db.Timestamptz
-  carModel    CarModel     @relation(fields: [carModelId], references: [id])
-  carServices CarService[]
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  image      String
+  carModelId String   @db.Uuid
+  createdAt  DateTime @default(now()) @db.Timestamptz
+  updatedAt  DateTime @default(now()) @db.Timestamptz
+
+  carModel       CarModel         @relation(fields: [carModelId], references: [id])
+  carServices    CarService[]
+  CustomerReview CustomerReview[]
+  WorkService    WorkService[]
+}
+
+model CategoryServiceCarModel {
+  id        String   @id @default(uuid()) @db.Uuid
+  category  String
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+
+  carServiceLinks CarServiceLink[] // ✅ Relation ย้อนกลับไปยัง link หลายอัน
+}
+
+model CarServiceLink {
+  id                        String  @id @default(uuid()) @db.Uuid
+  carModelId                String  @db.Uuid
+  carServiceId              String  @db.Uuid
+  categoryServiceCarModelId String? @db.Uuid
+
+  carModel   CarModel                @relation(fields: [carModelId], references: [id])
+  carService CategoryServiceCarModel @relation(fields: [carServiceId], references: [id])
+
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @default(now()) @db.Timestamptz
+
+  @@unique([carModelId, carServiceId]) // ป้องกันไม่ให้ carModel+carService ซ้ำ
+}
+
+model CustomerReview {
+  id            String       @id @default(uuid()) @db.Uuid
+  customerName  String
+  review        String
+  image         String
+  carModelId    String       @db.Uuid
+  carModel      CarModel     @relation(fields: [carModelId], references: [id]) // ✅ เพิ่ม relation
+  carSubModelId String?      @db.Uuid // 👈 optional
+  carSubModel   CarSubModel? @relation(fields: [carSubModelId], references: [id])
+  createdAt     DateTime     @default(now()) @db.Timestamptz
+  updatedAt     DateTime     @updatedAt @db.Timestamptz
+}
+
+model CustomerWork {
+  id         String            @id @default(uuid()) @db.Uuid
+  title      String
+  content    Json // รองรับ Rich Text (Quill, Tiptap)
+  images     String // รูปงาน (array of URLs)
+  carModelId String?           @db.Uuid
+  carModel   CarModel?         @relation(fields: [carModelId], references: [id])
+  tags       CustomerWorkTag[] // Many-to-many กับ Tag
+  createdAt  DateTime          @default(now()) @db.Timestamptz
+  updatedAt  DateTime          @updatedAt @db.Timestamptz
+}
+
+model WorkService {
+  id            String   @id @default(uuid()) @db.Uuid
+  image         String
+  carModelId    String   @db.Uuid
+  carSubModelId String   @db.Uuid
+  createdAt     DateTime @default(now()) @db.Timestamptz
+  updatedAt     DateTime @updatedAt @db.Timestamptz
+
+  carModel    CarModel    @relation(fields: [carModelId], references: [id])
+  carSubModel CarSubModel @relation(fields: [carSubModelId], references: [id])
+}
+
+model CustomerWorkTag {
+  customerWorkId String   @db.Uuid
+  tagId          String   @db.Uuid
+  createdAt      DateTime @default(now()) @db.Timestamptz
+  updatedAt      DateTime @default(now()) @db.Timestamptz
+
+  customerWork CustomerWork @relation(fields: [customerWorkId], references: [id])
+  tag          Tag          @relation(fields: [tagId], references: [id])
+
+  @@id([customerWorkId, tagId]) // composite key
 }
 
 model CategoryService {
-  id        String    @id @default(uuid()) @db.Uuid
-  name      String    @unique
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
   subtitle  String?
   detail    String?
-  createdAt DateTime  @default(now()) @db.Timestamptz
-  updatedAt DateTime  @default(now()) @db.Timestamptz
-  services  Service[] // เพิ่มการเชื่อมโยงไปยัง Service
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @default(now()) @db.Timestamptz
+  // services  Service[] // เพิ่มการเชื่อมโยงไปยัง Service
 }
 
 model Service {
-  id            String          @id @default(uuid()) @db.Uuid
-  serviceName   String          @unique
+  id            String   @id @default(uuid()) @db.Uuid
+  title         String?
+  explain       String?
+  icon          String? //Base64
+  serviceName   String?
   serviceDetail String?
-  createdAt     DateTime        @default(now()) @db.Timestamptz
-  updatedAt     DateTime        @default(now()) @db.Timestamptz
-  carServices   CarService[] // เพิ่มการเชื่อมโยงไปยัง CarService
-  categoryId    String          @db.Uuid
-  category      CategoryService @relation(fields: [categoryId], references: [id])
+  images        String[]
+  createdAt     DateTime @default(now()) @db.Timestamptz
+  updatedAt     DateTime @default(now()) @db.Timestamptz
+  // carServices   CarService[] // เพิ่มการเชื่อมโยงไปยัง CarService
+  // categoryId    String          @db.Uuid
+  // category      CategoryService @relation(fields: [categoryId], references: [id])
 }
 
 model CarService {
@@ -72,13 +160,13 @@ model CarService {
   createdAt     DateTime    @default(now()) @db.Timestamptz
   updatedAt     DateTime    @default(now()) @db.Timestamptz
   carSubModel   CarSubModel @relation(fields: [carSubModelId], references: [id])
-  service       Service     @relation(fields: [serviceId], references: [id])
+  // service       Service     @relation(fields: [serviceId], references: [id])
 }
 
 model Blog {
   id            String    @id @default(uuid()) @db.Uuid
-  header        String
-  detail        String
+  title         String
+  content       Json
   facebookLink  String?   @db.VarChar(255)
   lineLink      String?   @db.VarChar(255)
   instagramLink String?   @db.VarChar(255)
@@ -88,11 +176,12 @@ model Blog {
 }
 
 model Tag {
-  id        String    @id @default(uuid()) @db.Uuid
-  name      String    @unique
-  createdAt DateTime  @default(now()) @db.Timestamptz
-  updatedAt DateTime  @default(now()) @db.Timestamptz
-  blogTags  BlogTag[] // เพิ่มการเชื่อมโยงไปยัง BlogTag
+  id              String            @id @default(uuid()) @db.Uuid
+  name            String            @unique
+  createdAt       DateTime          @default(now()) @db.Timestamptz
+  updatedAt       DateTime          @default(now()) @db.Timestamptz
+  blogTags        BlogTag[] // เพิ่มการเชื่อมโยงไปยัง BlogTag
+  CustomerWorkTag CustomerWorkTag[]
 }
 
 model BlogTag {
@@ -109,6 +198,7 @@ model BlogTag {
 model Category {
   id        String    @id @default(uuid()) @db.Uuid
   name      String    @unique
+  image     String
   products  Product[]
   createdAt DateTime  @default(now()) @db.Timestamptz
   updatedAt DateTime  @updatedAt @db.Timestamptz

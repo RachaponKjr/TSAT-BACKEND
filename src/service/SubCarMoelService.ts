@@ -5,11 +5,13 @@ const db = new PrismaClient();
 const createSubCarModel = async (data: {
   name: string;
   carModelId: string;
+  image: string;
 }) => {
   const subCarModel = await db.carSubModel.create({
     data: {
       name: data.name,
-      carModelId: data.carModelId
+      carModelId: data.carModelId,
+      image: `uploads/${data.image}`
     }
   });
   return subCarModel;

@@ -16,7 +16,11 @@ import {
 import { upload } from '../middlewares/upload';
 const router = express.Router();
 
-router.post('/create-category', createCategoryController);
+router.post(
+  '/create-category',
+  upload.single('image'),
+  createCategoryController
+);
 router.get('/get-category', getCategoryController);
 router.get('/get-category/:id', getCategoryByIdController);
 router.delete('/delete-category/:id', deleteCategoryController);

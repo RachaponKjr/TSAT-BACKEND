@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Service" ADD COLUMN     "explain" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "icon" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "title" TEXT NOT NULL DEFAULT '';

@@ -12,11 +12,12 @@ const createCategoryController = async (
 ): Promise<void> => {
   try {
     const { name } = req.body;
-    if (!name) {
-      res.status(400).json({ message: 'กรุณากรอก name ' });
+    const imageFile = req.file;
+    if (!name || !imageFile) {
+      res.status(400).json({ message: 'กรุณากรอก name หรือ image ' });
       return;
     }
-    const category = await createCategory(req.body);
+    const category = await createCategory({ image: imageFile?.filename, name });
     res.status(200).json({ status: 200, data: category });
     return;
   } catch (error) {

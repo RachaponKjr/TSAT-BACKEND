@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Request, Response } from 'express';
 import {
   checkCarModel,
@@ -9,21 +10,34 @@ import {
 } from '../service/CarModel';
 
 const createCarModelController = async (
-  req: Request<{ name: string }>,
+  req: Request,
   res: Response
 ): Promise<void> => {
   try {
     const { name }: { name: string } = req.body;
-    if (!name) {
-      res.status(400).json({ message: 'กรุณากรอกข้อมูล ' });
+
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    const imageModel = files['image_model']?.[0];
+    const imageName = files['image_name']?.[0];
+
+    if (!name || !imageModel || !imageName) {
+      res.status(400).json({ message: 'กรุณากรอกข้อมูลให้ครบ' });
       return;
     }
+
     const exist = await checkCarModel(name);
     if (exist) {
       res.status(400).json({ message: 'มีรายการนี้อยู่แล้ว' });
       return;
     }
-    const carModel = await createCarModel(req.body);
+
+    const carModel = await createCarModel({
+      name,
+      image: imageModel.filename,
+      imageName: imageName.filename
+    });
+
     res.status(200).json({ status: 200, data: carModel });
     return;
   } catch (error) {
@@ -55,12 +69,12 @@ const getCarModelByIdController = async (
       res.status(400).json({ message: 'ไม่พบ params ' });
       return;
     }
-    const carModel = await getCarModelById(req.params.id);
-    if (carModel === null) {
+    const data = await getCarModelById(req.params.id);
+    if (data === null) {
       res.status(400).json({ message: 'ไม่พบรายการนี้' });
       return;
     }
-    res.status(200).json({ status: 200, data: carModel });
+    res.status(200).json(data);
     return;
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error });

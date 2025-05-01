@@ -2,10 +2,16 @@ import { PrismaClient } from '@prisma/client';
 
 const db = new PrismaClient();
 
-const createCarModel = async (data: { name: string }) => {
+const createCarModel = async (data: {
+  name: string;
+  image: string;
+  imageName: string;
+}) => {
   const carModel = await db.carModel.create({
     data: {
-      name: data.name
+      name: data.name,
+      image: `uploads/carmodel/${data.image}`, // รูปหลัก
+      image_name: `uploads/carmodel/${data.imageName}` // รูปชื่อ (โลโก้ หรือชื่อรถ)
     }
   });
   return carModel;
@@ -17,16 +23,81 @@ const checkCarModel = async (name: string) => {
 };
 
 const getCarModel = async () => {
-  const carModel = await db.carModel.findMany();
-  return carModel;
+  const carModels = await db.carModel.findMany({
+    select: {
+      id: true,
+      name: true,
+      image: true,
+      showActive: true,
+      image_name: true,
+      carSubModels: {
+        select: {
+          id: true,
+          name: true,
+          image: true
+        }
+      },
+      carServiceLinks: {
+        select: {
+          carService: {
+            select: {
+              category: true
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // map แปลง format
+  return carModels.map((model) => ({
+    id: model.id,
+    name: model.name,
+    image: model.image,
+    imageName: model.image_name,
+    showActive: model.showActive,
+    carSubModels: model.carSubModels,
+    categories: model.carServiceLinks.map((link) => link.carService.category)
+  }));
 };
 
 const getCarModelById = async (id: string) => {
   const carModel = await db.carModel.findUnique({
-    where: { id: id },
-    include: { carSubModels: true }
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      image: true,
+      showActive: true,
+      carSubModels: {
+        select: {
+          id: true,
+          name: true,
+          image: true
+        }
+      },
+      carServiceLinks: {
+        select: {
+          carService: {
+            select: {
+              category: true
+            }
+          }
+        }
+      }
+    }
   });
-  return carModel;
+
+  if (!carModel) return null;
+
+  return {
+    id: carModel.id,
+    name: carModel.name,
+    image: carModel.image,
+    showActive: carModel.showActive,
+    carSubModels: carModel.carSubModels,
+    categories: carModel.carServiceLinks.map((link) => link.carService.category)
+  };
 };
 
 const updateCarModel = async (
