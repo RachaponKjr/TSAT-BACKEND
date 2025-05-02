@@ -2,18 +2,20 @@ FROM node:18
 
 WORKDIR /app
 
-# คัดลอกไฟล์ที่จำเป็น และติดตั้ง dependencies
+# คัดลอกไฟล์ package และติดตั้ง dependencies
 COPY package*.json ./
 RUN npm install
 
-# คัดลอก Prisma Client ที่ generate ไว้แล้วจากเครื่อง
+# คัดลอก Prisma schema เข้ามา
 COPY prisma ./prisma
-COPY node_modules/@prisma node_modules/@prisma
 
-# คัดลอก source code (หลังจาก prisma)
+# ✅ สร้าง Prisma Client ภายใน container
+RUN npx prisma generate
+
+# คัดลอก source code ที่เหลือ
 COPY . .
 
-# Build TypeScript
+# สร้าง TypeScript เป็น JavaScript
 RUN npm run build
 
 EXPOSE 3130
