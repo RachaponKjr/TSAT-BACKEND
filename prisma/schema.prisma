@@ -8,20 +8,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// CMS 
-model CMSHOME {
-  id                       Int      @id @default(autoincrement())
-  headerTitle              String   @default("Top Service Auto Technic (TSAT)")
-  headerSubTitle           String   @default("ศูนย์บริการ ซ่อมบำรุงรักษา รถปอร์เช่ (Porsche) ที่ใหญ่เเละทันสมัยที่สุด การันตีงานซ่อม มากกว่า 1,500 คัน ดูแลรถลูกค้า เหมือนรถเราเอง")
-  headerSlide              String   @default("รีวิวงาน Service ของ TSAT")
-  headerChooseService      String   @default("เลือกดูบริการจาก Model Porsche ของท่าน")
-  SubChooseService         String   @default("TSAT คือที่สุดของการดูแล Porsche ที่ตอบโจทย์ทุกความต้องการของคนรักรถหรู เราคือทีมมืออาชีพที่เชี่ยวชาญด้าน Porsche โดยเฉพาะ ด้วยประสบการณ์ยาวนานและความใส่ใจในทุกรายละเอียด")
-  headerServiceInteresting String   @default("เลือกจากบริการที่ท่านสนใจ")
-  SubServiceinIeresting    String   @default("ปรึกษา")
-  reasonHeader             String   @default("เหตุผลที่เราเป็นที่1")
-  reasonSub1               String   @default("TSAT เราเริ่มจากการเป็นผู้ใช้รถ Porsche และรถสมรรถนะสูงที่นำเข้าทั่วไปในสมัยก่อนมานานกว่า 10 ปีและจากผู้ใช้รถ มาสู่ผู้เชี่ยวชาญในการซ่อมบำรุงรักษา ตั้งแต่ปี 2017 จนถึงวันนี้ เราผ่านงานซ่อมรถ Porsche ทุกรุ่นมามากกว่า 1000 คัน เรากล้าการันตีว่าอู่ของเราเป็นอู่ที่มีความมุ่งมั่นจริงใจ ทั้งในด้านคุณภาพงานซ่อม และ ในด้านการให้บริการสำหรับท่านเจ้าของรถ Porsche ทุกท่าน ที่ดีที่สุดในประเทศไทย")
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @updatedAt
+// CMS HomePage
+model CMSHomePage {
+  id           String  @id @default(uuid()) @db.Uuid
+  text_line_1  String?
+  text_line_2  String?
+  text_line_3  String?
+  text_line_4  String?
+  text_line_5  String?
+  text_line_6  String?
+  text_line_7  String?
+  text_line_8  String?
+  text_line_9  String?
+  text_line_10 String?
+  text_line_11 String?
+  text_line_12 String?
+  text_line_13 String?
+}
+
+model CMSServicePage {
+  id          String  @id @default(uuid()) @db.Uuid
+  text_line_1 String?
+  text_line_2 String?
+  text_line_3 String?
+  text_line_4 String?
+  text_line_5 String?
+  text_line_6 String?
+  text_line_7 String?
+}
+
+model CMSProductPage {
+  id          String  @id @default(uuid()) @db.Uuid
+  text_line_1 String?
+  text_line_2 String?
+  text_line_3 String?
+}
+
+model CMSCustomerPage {
+  id          String  @id @default(uuid()) @db.Uuid
+  text_line_1 String?
+  text_line_2 String?
+  text_line_3 String?
+}
+
+model CMSAboutPage {
+  id          String  @id @default(uuid()) @db.Uuid
+  text_line_1 String?
+  text_line_2 String?
+  text_line_3 String?
+}
+
+model CMSContactPage {
+  id          String  @id @default(uuid()) @db.Uuid
+  text_line_1 String?
+  text_line_2 String?
+  text_line_3 String?
+}
+
+model ContactInformation {
+  id             String  @id
+  facebook       String?
+  instagram      String?
+  line           String?
+  phone          String?
+  phone2         String?
+  mail           String?
+  link_facebook  String?
+  link_line      String?
+  link_instagram String?
+  link_email     String?
 }
 
 // CMS 
@@ -54,6 +109,7 @@ model CarSubModel {
   carServices    CarService[]
   CustomerReview CustomerReview[]
   WorkService    WorkService[]
+  CustomerWork   CustomerWork[]
 }
 
 model CategoryServiceCarModel {
@@ -94,15 +150,17 @@ model CustomerReview {
 }
 
 model CustomerWork {
-  id         String            @id @default(uuid()) @db.Uuid
-  title      String
-  content    Json // รองรับ Rich Text (Quill, Tiptap)
-  images     String // รูปงาน (array of URLs)
-  carModelId String?           @db.Uuid
-  carModel   CarModel?         @relation(fields: [carModelId], references: [id])
-  tags       CustomerWorkTag[] // Many-to-many กับ Tag
-  createdAt  DateTime          @default(now()) @db.Timestamptz
-  updatedAt  DateTime          @updatedAt @db.Timestamptz
+  id            String            @id @default(uuid()) @db.Uuid
+  title         String
+  content       Json // รองรับ Rich Text (Quill, Tiptap)
+  images        String // รูปงาน (array of URLs)
+  carModelId    String?           @db.Uuid
+  tags          CustomerWorkTag[] // Many-to-many กับ Tag
+  createdAt     DateTime          @default(now()) @db.Timestamptz
+  updatedAt     DateTime          @updatedAt @db.Timestamptz
+  carSubModelId String?           @db.Uuid
+  carSubModel   CarSubModel?      @relation(fields: [carSubModelId], references: [id])
+  carModel      CarModel?         @relation(fields: [carModelId], references: [id])
 }
 
 model WorkService {
@@ -123,20 +181,18 @@ model CustomerWorkTag {
   createdAt      DateTime @default(now()) @db.Timestamptz
   updatedAt      DateTime @default(now()) @db.Timestamptz
 
-  customerWork CustomerWork @relation(fields: [customerWorkId], references: [id])
+  customerWork CustomerWork @relation(fields: [customerWorkId], references: [id], onDelete: Cascade)
   tag          Tag          @relation(fields: [tagId], references: [id])
 
   @@id([customerWorkId, tagId]) // composite key
 }
 
 model CategoryService {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String   @unique
-  subtitle  String?
-  detail    String?
-  createdAt DateTime @default(now()) @db.Timestamptz
-  updatedAt DateTime @default(now()) @db.Timestamptz
-  // services  Service[] // เพิ่มการเชื่อมโยงไปยัง Service
+  id        String     @id @default(uuid()) @db.Uuid
+  title     String     @unique
+  createdAt DateTime   @default(now()) @db.Timestamptz
+  updatedAt DateTime   @default(now()) @db.Timestamptz
+  Category  Category[]
 }
 
 model Service {
@@ -197,12 +253,14 @@ model BlogTag {
 }
 
 model Category {
-  id        String    @id @default(uuid()) @db.Uuid
-  name      String    @unique
-  image     String
-  products  Product[]
-  createdAt DateTime  @default(now()) @db.Timestamptz
-  updatedAt DateTime  @updatedAt @db.Timestamptz
+  id                String           @id @default(uuid()) @db.Uuid
+  name              String           @unique
+  image             String
+  products          Product[]
+  categoryServiceId String?          @db.Uuid
+  categoryService   CategoryService? @relation(fields: [categoryServiceId], references: [id])
+  createdAt         DateTime         @default(now()) @db.Timestamptz
+  updatedAt         DateTime         @updatedAt @db.Timestamptz
 }
 
 model Product {
@@ -213,6 +271,21 @@ model Product {
   categoryId   String?   @db.Uuid
   category     Category? @relation(fields: [categoryId], references: [id])
 
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+}
+
+enum Role {
+  USER
+  ADMIN
+  OWNER
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  username  String   @unique
+  password  String
+  role      Role     @default(USER)
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
 }

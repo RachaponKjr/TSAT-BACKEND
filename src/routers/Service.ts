@@ -13,20 +13,53 @@ import {
   getProductController
   //   updateProductController
 } from '../controllers/ProductController';
-import { createService, getService } from '../controllers/ServiceControlle';
+import {
+  createService,
+  deleteServiceController,
+  getService,
+  updateServiceController
+} from '../controllers/ServiceControlle';
 import upload from '../libs/upload';
+import { authenticateToken, isOwner } from '../middlewares/auth-admin';
 const router = express.Router();
 
-router.post('/create-service', upload.array('images', 4), createService);
+router.post(
+  '/create-service',
+  authenticateToken,
+  isOwner,
+  upload.array('images', 4),
+  createService
+);
 router.get('/get-service', getService);
 router.get('/get-service/:id', getCategoryByIdController);
-router.delete('/delete-service/:id', deleteCategoryController);
-router.put('/update-service/:id', updateCategoryController);
+router.delete(
+  '/delete-service/:id',
+  authenticateToken,
+  isOwner,
+  deleteServiceController
+);
+router.put(
+  '/update-service/:id',
+  authenticateToken,
+  isOwner,
+  updateServiceController
+);
 
-router.post('/create-product', upload.single('imge'), createProductController);
+router.post(
+  '/create-product',
+  authenticateToken,
+  isOwner,
+  upload.single('imge'),
+  createProductController
+);
 router.get('/get-product', getProductController);
 router.get('/get-product/:id', getProductByIdController);
-router.delete('/delete-product/:id', deleteProductController);
+router.delete(
+  '/delete-product/:id',
+  authenticateToken,
+  isOwner,
+  deleteProductController
+);
 // router.put('/update-product/:id', updateProductController);
 
 export default router;

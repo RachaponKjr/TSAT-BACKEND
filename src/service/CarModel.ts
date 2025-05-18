@@ -36,16 +36,13 @@ const getCarModel = async () => {
           name: true,
           image: true
         }
-      },
-      carServiceLinks: {
-        select: {
-          carService: {
-            select: {
-              category: true
-            }
-          }
-        }
       }
+    }
+  });
+
+  const categoryService = await db.categoryService.findMany({
+    select: {
+      title: true
     }
   });
 
@@ -57,7 +54,7 @@ const getCarModel = async () => {
     imageName: model.image_name,
     showActive: model.showActive,
     carSubModels: model.carSubModels,
-    categories: model.carServiceLinks.map((link) => link.carService.category)
+    categoryService: categoryService.map((service) => service.title)
   }));
 };
 
@@ -68,6 +65,7 @@ const getCarModelById = async (id: string) => {
       id: true,
       name: true,
       image: true,
+      image_name: true,
       showActive: true,
       carSubModels: {
         select: {
@@ -94,6 +92,7 @@ const getCarModelById = async (id: string) => {
     id: carModel.id,
     name: carModel.name,
     image: carModel.image,
+    imageName: carModel.image_name,
     showActive: carModel.showActive,
     carSubModels: carModel.carSubModels,
     categories: carModel.carServiceLinks.map((link) => link.carService.category)

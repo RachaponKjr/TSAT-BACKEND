@@ -34,4 +34,17 @@ const get_Service = async () => {
   return service;
 };
 
-export { createServiceService, get_Service };
+const updateService = async (id: string, data: any) => {
+  const service = await db.service.update({
+    where: { id },
+    data
+  });
+  return service;
+};
+
+const deleteService = async (id: string) => {
+  const service = await db.service.delete({ where: { id: id } });
+  return service;
+};
+
+export { createServiceService, get_Service, updateService, deleteService };

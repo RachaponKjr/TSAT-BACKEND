@@ -6,6 +6,7 @@ interface CreateCustomerWorkInput {
   title: string;
   content: any; // JSON จาก Rich Text Editor (Quill, Tiptap)
   carModelId?: string;
+  carSubModelId?: string;
   tags: string[]; // ตัวอย่าง: ["Macan", "ช่วงล่าง", "ซ่อมถุงลม"]
 }
 
@@ -16,13 +17,16 @@ export async function createCustomerWork({
   images: string;
   input: CreateCustomerWorkInput;
 }) {
-  const { title, content, carModelId, tags } = input;
+  const { title, content, carModelId, tags, carSubModelId } = input;
 
   const newWork = await db.customerWork.create({
     data: {
       title,
       content,
       images: images,
+      carSubModel: carSubModelId
+        ? { connect: { id: carSubModelId } }
+        : undefined,
       carModel: carModelId ? { connect: { id: carModelId } } : undefined,
       tags: {
         create: tags.map((tagName) => ({
@@ -36,6 +40,7 @@ export async function createCustomerWork({
       }
     },
     include: {
+      carSubModel: true,
       carModel: true,
       tags: {
         include: { tag: true }
@@ -48,6 +53,7 @@ export async function createCustomerWork({
     title: newWork.title,
     content: newWork.content,
     images: newWork.images,
+    carSubModel: newWork.carSubModel?.name || null,
     carModel: newWork.carModel
       ? {
           id: newWork.carModel.id,
@@ -59,10 +65,58 @@ export async function createCustomerWork({
   };
 }
 
+const getWithCarModel = async ({ carModeId }: { carModeId: string }) => {
+  const works = await db.customerWork.findMany({
+    where: {
+      carModel: {
+        id: carModeId
+      }
+    }
+  });
+  return works;
+};
+
+const getBySubCarModel = async ({
+  carSubModelId
+}: {
+  carSubModelId: string;
+}) => {
+  const works = await db.customerWork.findMany({
+    where: {
+      carSubModel: {
+        id: carSubModelId
+      }
+    },
+    include: {
+      tags: {
+        include: { tag: true }
+      },
+      carModel: true,
+      carSubModel: true
+    }
+  });
+  return {
+    works: works.map((work) => ({
+      id: work.id,
+      title: work.title,
+      images: work.images,
+      carModel: {
+        name: work.carModel?.name || null
+      },
+      carSubModel: work.carSubModel?.name || null,
+      tags: work.tags.map((t) => t.tag.name)
+    }))
+  };
+};
+
 const getCustomerWorks = async () => {
   const works = await db.customerWork.findMany({
     include: {
-      carModel: true,
+      carModel: {
+        select: {
+          name: true
+        }
+      },
       tags: {
         include: { tag: true }
       }
@@ -72,16 +126,12 @@ const getCustomerWorks = async () => {
     works: works.map((work) => ({
       id: work.id,
       title: work.title,
-      content: work.content,
       images: work.images,
       carModel: work.carModel
         ? {
-            id: work.carModel.id,
-            name: work.carModel.name,
-            image: work.carModel.image
+            name: work.carModel.name
           }
-        : null,
-      tags: work.tags.map((t) => t.tag.name)
+        : null
     }))
   };
 };
@@ -92,6 +142,7 @@ const getCustomerWork = async ({ id }: { id: string }) => {
       id: id
     },
     include: {
+      carSubModel: true,
       carModel: true,
       tags: {
         include: { tag: true }
@@ -106,13 +157,8 @@ const getCustomerWork = async ({ id }: { id: string }) => {
     title: work.title,
     content: work.content,
     images: work.images,
-    carModel: work.carModel
-      ? {
-          id: work.carModel.id,
-          name: work.carModel.name,
-          image: work.carModel.image
-        }
-      : null,
+    subCarModel: work.carSubModel?.name || null,
+    carModel: work.carModel?.name ?? null,
     tags: work.tags.map((t) => t.tag.name)
   };
 };
@@ -126,4 +172,10 @@ const deleteCustomerWork = async ({ id }: { id: string }) => {
   return work;
 };
 
-export { getCustomerWork, getCustomerWorks, deleteCustomerWork };
+export {
+  getCustomerWork,
+  getCustomerWorks,
+  deleteCustomerWork,
+  getWithCarModel,
+  getBySubCarModel
+};

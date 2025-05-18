@@ -11,7 +11,7 @@ const createSubCarModel = async (data: {
     data: {
       name: data.name,
       carModelId: data.carModelId,
-      image: `uploads/${data.image}`
+      image: `uploads/subcarmodel/${data.image}`
     }
   });
   return subCarModel;

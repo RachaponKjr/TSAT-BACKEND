@@ -8,6 +8,8 @@ import {
   getCarModelById,
   updateCarModel
 } from '../service/CarModel';
+import path from 'path';
+import { unlink } from 'fs/promises';
 
 const createCarModelController = async (
   req: Request,
@@ -82,10 +84,7 @@ const getCarModelByIdController = async (
   }
 };
 
-const updateCarModelController = async (
-  req: Request<{ name: string; showActive: boolean; id: string }>,
-  res: Response
-) => {
+const updateCarModelController = async (req: Request, res: Response) => {
   try {
     const { name }: { name: string } = req.body;
     if (!req.params.id) {
@@ -116,20 +115,40 @@ const updateCarModelController = async (
 
 const deleteCarModelController = async (req: Request, res: Response) => {
   try {
-    if (!req.params.id) {
-      res.status(400).json({ message: 'ไม่พบ params ' });
+    const id = req.params.id as string;
+
+    if (!id) {
+      res.status(400).json({ message: 'ไม่พบรหัสโมเดลรถ' });
       return;
     }
-    await deleteCarModel(req.params.id)
-      .then(() => {
-        res.status(200).json({ status: 200, message: 'ลบข้อมูลเรียบร้อย' });
-        return;
-      })
-      .catch((error) =>
-        res.status(500).json({ message: 'Server Error', error })
-      );
+
+    const carModel = await getCarModelById(id);
+
+    if (!carModel) {
+      res.status(404).json({ message: 'ไม่พบข้อมูลโมเดลรถ' });
+      return;
+    }
+
+    // ถ้ามีรูปภาพแนบมา ลบไฟล์ก่อน (ถ้ามี field เช่น imagePath)
+    if (carModel.image && carModel.imageName) {
+      const filePath = path.join(__dirname, '../../', carModel.image);
+      const filePath2 = path.join(__dirname, '../../', carModel.imageName);
+      try {
+        await unlink(filePath);
+        await unlink(filePath2);
+      } catch (err) {
+        console.warn(`⚠️ ไม่สามารถลบภาพได้: ${filePath}`, err);
+      }
+    }
+
+    // ลบข้อมูลจากฐานข้อมูล
+    await deleteCarModel(id);
+
+    res.status(200).json({ status: 200, message: 'ลบข้อมูลเรียบร้อย' });
+    return;
   } catch (error) {
-    res.status(500).json({ message: 'Server Error', error });
+    console.error('❌ ลบโมเดลรถผิดพลาด:', error);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์', error });
     return;
   }
 };

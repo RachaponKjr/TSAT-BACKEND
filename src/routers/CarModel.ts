@@ -8,6 +8,7 @@ import {
 } from '../controllers/CarModelController';
 import multer from 'multer';
 import path from 'path';
+import { authenticateToken, isOwner } from '../middlewares/auth-admin';
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -23,6 +24,8 @@ const upload = multer({ storage });
 
 router.post(
   '/create',
+  authenticateToken,
+  isOwner,
   upload.fields([
     { name: 'image_model', maxCount: 1 },
     { name: 'image_name', maxCount: 1 }
@@ -31,7 +34,7 @@ router.post(
 );
 router.get('/', getCarModelController);
 router.get('/:id', getCarModelByIdController);
-router.put('/:id', updateCarModelController);
-router.delete('/:id', deleteCarModelController);
+router.put('/:id', authenticateToken, isOwner, updateCarModelController);
+router.delete('/:id', authenticateToken, isOwner, deleteCarModelController);
 
 export default router;

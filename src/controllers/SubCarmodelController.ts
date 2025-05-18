@@ -5,6 +5,8 @@ import {
   getSubCarModel,
   getSubCarModelById
 } from '../service/SubCarMoelService';
+import path from 'path';
+import { unlink } from 'fs/promises';
 
 const createSubCarModelController = async (
   req: Request,
@@ -64,6 +66,22 @@ const deleteSubCarModelController = async (req: Request, res: Response) => {
       res.status(400).json({ message: 'ไม่พบ params ' });
       return;
     }
+
+    const subCarModel = await getSubCarModelById(req.params.id as string);
+    if (!subCarModel) {
+      res.status(400).json({ message: 'ไม่พบรายการนี้' });
+      return;
+    }
+
+    if (subCarModel.image) {
+      const filePath = path.join(__dirname, '../../', subCarModel.image);
+      try {
+        await unlink(filePath);
+      } catch (err) {
+        console.warn(`⚠️ ไม่สามารถลบภาพได้: ${filePath}`, err);
+      }
+    } // ระบุ path ของไฟล์ที่ต้องการลบ
+
     await deleteSubCarModel(req.params.id)
       .then(() => {
         return res

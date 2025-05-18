@@ -5,6 +5,8 @@ import {
   GetReviewByIdService,
   GetReviewService
 } from '../service/customer-review';
+import fs from 'fs';
+import path from 'path';
 
 const CustomerReviewController = async (
   req: Request,
@@ -63,8 +65,18 @@ const getReviewByIdController = async (req: Request, res: Response) => {
 const deleteReviewController = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    const review = await DeleteReviewService(id);
-    res.status(200).json({ status: 200, data: review });
+
+    // สมมุติว่า DeleteReviewService return path รูปด้วย เช่น { success: true, imagePath: "/uploads/image1.jpg" }
+    const result = await DeleteReviewService(id);
+
+    if (result?.image) {
+      const imagePath = path.join(__dirname, '../..', result.image); // ปรับ path ให้ตรงกับโฟลเดอร์จริง
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath); // หรือใช้ await fs.promises.unlink(imagePath)
+      }
+    }
+
+    res.status(200).json({ status: 200, data: result });
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error });
   }

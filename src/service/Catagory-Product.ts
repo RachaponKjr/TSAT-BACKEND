@@ -2,11 +2,16 @@ import { PrismaClient } from '@prisma/client';
 
 const db = new PrismaClient();
 
-const createCategory = async (data: { name: string; image: string }) => {
+const createCategory = async (data: {
+  name: string;
+  image: string;
+  categoryServiceId: string;
+}) => {
   const category = await db.category.create({
     data: {
       name: data.name,
-      image: `public/products/${data.image}`
+      image: `public/products/${data.image}`,
+      categoryServiceId: data.categoryServiceId
     }
   });
   return category;

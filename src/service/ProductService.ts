@@ -14,7 +14,15 @@ const createProduct = async (data: Product) => {
 };
 
 const getProduct = async () => {
-  const product = await db.product.findMany();
+  const product = await db.product.findMany({
+    include: {
+      category: {
+        select: {
+          name: true
+        }
+      }
+    }
+  });
   return product;
 };
 
