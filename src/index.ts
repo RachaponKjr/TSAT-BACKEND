@@ -18,6 +18,7 @@ import contactRouter from './routers/contact-router';
 import cmsHomeRouter from './routers/cms-router';
 import catagoryService from './routers/catagory-servie';
 import userRouter from './routers/user-route';
+import authRouter from './routers/auth-router';
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use(`${versionApi}/work-service`, express.json(), WorkServiceRouter);
 app.use(`${versionApi}/contact`, express.json(), contactRouter);
 app.use(`${versionApi}/catagory-service`, express.json(), catagoryService);
 app.use(`${versionApi}/user`, express.json(), userRouter);
+app.use(`${versionApi}/token`, express.json(), authRouter);
 
 app.use(
   `${versionApi}/category-service`,

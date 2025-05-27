@@ -140,6 +140,7 @@ const getBySubCarModel = async ({
 const getCustomerWorks = async () => {
   const works = await db.customerWork.findMany({
     include: {
+      carSubModel: true,
       carModel: {
         select: {
           name: true
@@ -157,6 +158,7 @@ const getCustomerWorks = async () => {
       isShow: work.isShow,
       type: work.type,
       images: work.images,
+      carSubModel: work.carSubModel,
       carModel: work.carModel
         ? {
             name: work.carModel.name
