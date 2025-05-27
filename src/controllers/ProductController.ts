@@ -10,6 +10,7 @@ import { unlink } from 'fs/promises';
 import path from 'path';
 
 import { PrismaClient } from '@prisma/client';
+import fs from 'fs';
 
 const db = new PrismaClient();
 
@@ -69,10 +70,67 @@ const getProductByIdController = async (req: Request, res: Response) => {
 
 const updateProductController = async (req: Request, res: Response) => {
   try {
-    const product = await updateProduct(req.params.id as string, req.body);
+    if (!req.params.id) {
+      res.status(400).json({ message: 'ไม่พบ product ID' });
+      return;
+    }
+
+    // ดึงข้อมูล product เก่าก่อน
+    const existingProduct = await getProductById(req.params.id);
+
+    if (!existingProduct) {
+      res.status(404).json({ message: 'ไม่พบสินค้าที่ต้องการอัปเดท' });
+      return;
+    }
+
+    // เตรียมข้อมูลสำหรับอัปเดท
+    const updateData = { ...req.body };
+
+    // จัดการรูปภาพใหม่
+    if (req.file) {
+      // สร้าง path สำหรับรูปใหม่
+      const newImagePath = `/public/products/${req.file.filename}`;
+      updateData.imageProduct = newImagePath;
+      // ลบรูปเก่าถ้ามี
+      if (existingProduct.imageProduct) {
+        const oldImagePath = path.join(
+          process.cwd(),
+          existingProduct.imageProduct
+        );
+
+        if (fs.existsSync(oldImagePath)) {
+          try {
+            fs.unlinkSync(oldImagePath);
+          } catch (deleteError) {
+            console.error('เกิดข้อผิดพลาดในการลบรูปเก่า:', deleteError);
+          }
+        }
+      }
+    }
+
+    // อัปเดทข้อมูล
+    const product = await updateProduct(req.params.id, updateData);
+
     res.status(200).json({ status: 200, data: product });
     return;
   } catch (error) {
+    // ถ้าเกิด error และมีไฟล์ใหม่ที่อัปโหลด ให้ลบทิ้ง
+    if (req.file) {
+      const newFilePath = path.join(
+        process.cwd(),
+        'public/uploads',
+        req.file.filename
+      );
+      if (fs.existsSync(newFilePath)) {
+        try {
+          fs.unlinkSync(newFilePath);
+          console.log('ลบไฟล์ที่อัปโหลดใหม่เนื่องจากเกิด error');
+        } catch (cleanupError) {
+          console.error('เกิดข้อผิดพลาดในการลบไฟล์:', cleanupError);
+        }
+      }
+    }
+
     res.status(500).json({ message: 'Server Error', error });
     return;
   }

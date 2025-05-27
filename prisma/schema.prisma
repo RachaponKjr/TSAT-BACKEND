@@ -100,7 +100,7 @@ model CarModel {
 model CarSubModel {
   id         String   @id @default(uuid()) @db.Uuid
   name       String
-  image      String
+  image      String?
   carModelId String   @db.Uuid
   createdAt  DateTime @default(now()) @db.Timestamptz
   updatedAt  DateTime @default(now()) @db.Timestamptz
@@ -152,15 +152,23 @@ model CustomerReview {
 model CustomerWork {
   id            String            @id @default(uuid()) @db.Uuid
   title         String
-  content       Json // รองรับ Rich Text (Quill, Tiptap)
-  images        String // รูปงาน (array of URLs)
+  content       Json // รองรับ Rich Text
+  images        String // URL รูปภาพ
   carModelId    String?           @db.Uuid
+  carSubModelId String?           @db.Uuid
+  isShow        Boolean           @default(false)
+  type          BlogType          @default(WorkBlog)
   tags          CustomerWorkTag[] // Many-to-many กับ Tag
   createdAt     DateTime          @default(now()) @db.Timestamptz
   updatedAt     DateTime          @updatedAt @db.Timestamptz
-  carSubModelId String?           @db.Uuid
-  carSubModel   CarSubModel?      @relation(fields: [carSubModelId], references: [id])
-  carModel      CarModel?         @relation(fields: [carModelId], references: [id])
+
+  // Relations
+  carSubModel CarSubModel? @relation(fields: [carSubModelId], references: [id], onDelete: SetNull)
+  carModel    CarModel?    @relation(fields: [carModelId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([isShow])
+  @@index([createdAt])
 }
 
 model WorkService {
@@ -279,6 +287,11 @@ enum Role {
   USER
   ADMIN
   OWNER
+}
+
+enum BlogType {
+  WorkBlog
+  ReviewBlog
 }
 
 model User {

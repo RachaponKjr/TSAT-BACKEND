@@ -23,7 +23,15 @@ const createWorkController = async (
 ): Promise<void> => {
   try {
     const imageFile = req.file;
-    const { title, content, tags, carModelId } = req.body;
+    const {
+      title,
+      content,
+      tags,
+      carModelId,
+      carSubModelId,
+      type = 'WorkBlog',
+      isShow
+    } = req.body;
 
     if (!imageFile || !title || !tags || !carModelId) {
       res.status(400).json({ message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
@@ -39,7 +47,10 @@ const createWorkController = async (
         title,
         content: parsedContent,
         carModelId,
-        tags: parsedTags
+        carSubModelId,
+        tags: parsedTags,
+        isShow: isShow,
+        type: type
       },
       images: imageUrl
     });

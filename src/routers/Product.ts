@@ -10,7 +10,8 @@ import {
   createProductController,
   deleteProductController,
   getProductByIdController,
-  getProductController
+  getProductController,
+  updateProductController
   //   updateProductController
 } from '../controllers/ProductController';
 import { upload } from '../middlewares/upload';
@@ -54,6 +55,12 @@ router.delete(
   isOwner,
   deleteProductController
 );
-// router.put('/update-product/:id', updateProductController);
+router.put(
+  '/update-product/:id',
+  authenticateToken,
+  isOwner,
+  upload.single('image'),
+  updateProductController
+);
 
 export default router;

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, BlogType } from '@prisma/client';
 
 const db = new PrismaClient();
 
@@ -8,6 +8,8 @@ interface CreateCustomerWorkInput {
   carModelId?: string;
   carSubModelId?: string;
   tags: string[]; // ตัวอย่าง: ["Macan", "ช่วงล่าง", "ซ่อมถุงลม"]
+  isShow: string;
+  type: BlogType;
 }
 
 export async function createCustomerWork({
@@ -17,54 +19,80 @@ export async function createCustomerWork({
   images: string;
   input: CreateCustomerWorkInput;
 }) {
-  const { title, content, carModelId, tags, carSubModelId } = input;
+  const { title, content, carModelId, tags, carSubModelId, isShow, type } =
+    input;
 
-  const newWork = await db.customerWork.create({
-    data: {
+  // แก้ไข: เช็ค type ของ isShow ก่อน
+  const isShowFormat =
+    typeof isShow === 'string' ? isShow === 'true' : Boolean(isShow);
+
+  try {
+    // สร้าง data object โดยแยกเป็นส่วน ๆ
+    const createData: any = {
       title,
       content,
+      isShow: isShowFormat,
+      type,
       images: images,
-      carSubModel: carSubModelId
-        ? { connect: { id: carSubModelId } }
-        : undefined,
-      carModel: carModelId ? { connect: { id: carModelId } } : undefined,
-      tags: {
-        create: tags.map((tagName) => ({
-          tag: {
-            connectOrCreate: {
-              where: { name: tagName },
-              create: { name: tagName }
-            }
-          }
-        }))
-      }
-    },
-    include: {
-      carSubModel: true,
-      carModel: true,
-      tags: {
-        include: { tag: true }
-      }
+      carSubModelId: carSubModelId || null
+    };
+
+    // เพิ่ม carModelId เฉพาะเมื่อมีค่า (ใช้ carModelId แทน carModel relation)
+    if (carModelId) {
+      createData.carModelId = carModelId;
     }
-  });
 
-  return {
-    id: newWork.id,
-    title: newWork.title,
-    content: newWork.content,
-    images: newWork.images,
-    carSubModel: newWork.carSubModel?.name || null,
-    carModel: newWork.carModel
-      ? {
-          id: newWork.carModel.id,
-          name: newWork.carModel.name,
-          image: newWork.carModel.image
+    // เพิ่ม tags เฉพาะเมื่อมีข้อมูล
+    if (tags && tags.length > 0) {
+      createData.tags = {
+        create: tags
+          .filter((tagName) => tagName && tagName.trim()) // กรองค่าว่าง
+          .map((tagName) => ({
+            tag: {
+              connectOrCreate: {
+                where: { name: tagName.trim() },
+                create: { name: tagName.trim() }
+              }
+            }
+          }))
+      };
+    }
+
+    const newWork = await db.customerWork.create({
+      data: createData,
+      include: {
+        carSubModel: true,
+        carModel: true,
+        tags: {
+          include: { tag: true }
         }
-      : null,
-    tags: newWork.tags.map((t) => t.tag.name)
-  };
-}
+      }
+    });
 
+    return {
+      id: newWork.id,
+      title: newWork.title,
+      content: newWork.content,
+      images: newWork.images,
+      type: newWork.type,
+      isShow: newWork.isShow,
+      carSubModel: newWork.carSubModel?.name || null,
+      carModel: newWork.carModel
+        ? {
+            id: newWork.carModel.id,
+            name: newWork.carModel.name,
+            image: newWork.carModel.image
+          }
+        : null,
+      tags: newWork.tags?.map((t) => t.tag.name) || [],
+      createdAt: newWork.createdAt,
+      updatedAt: newWork.updatedAt
+    };
+  } catch (error) {
+    console.error('Error creating customer work:', error);
+    throw new Error('Failed to create customer work');
+  }
+}
 const getWithCarModel = async ({ carModeId }: { carModeId: string }) => {
   const works = await db.customerWork.findMany({
     where: {
@@ -126,6 +154,8 @@ const getCustomerWorks = async () => {
     works: works.map((work) => ({
       id: work.id,
       title: work.title,
+      isShow: work.isShow,
+      type: work.type,
       images: work.images,
       carModel: work.carModel
         ? {

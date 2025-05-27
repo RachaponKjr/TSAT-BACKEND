@@ -25,10 +25,12 @@ const PORT = 3131;
 const versionApi = '/api/v1';
 app.use(
   cors({
-    origin: 'http://150.95.25.111:3030', // ✅ เปลี่ยนตรงนี้ให้ตรงกับ URL ที่ frontend ใช้จริง
-    credentials: true // ✅ สำคัญมาก เพื่อให้ browser ส่ง cookie ไปด้วย
+    origin: '*', // ✅ เปิดให้ทุก origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
+app.options('*', cors());
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use('/uploads', express.static('uploads'));
