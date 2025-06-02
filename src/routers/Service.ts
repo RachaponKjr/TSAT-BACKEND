@@ -15,8 +15,11 @@ import {
 } from '../controllers/ProductController';
 import {
   createService,
+  createSubServiceControlle,
   deleteServiceController,
+  delSubServiceController,
   getService,
+  getSubServiceById,
   updateServiceController
 } from '../controllers/ServiceControlle';
 import upload from '../libs/upload';
@@ -43,6 +46,25 @@ router.put(
   authenticateToken,
   isOwner,
   updateServiceController
+);
+
+router.post(
+  '/create-sub-service',
+  authenticateToken,
+  isOwner,
+  createSubServiceControlle
+);
+router.get(
+  '/get-subservice/:id',
+  authenticateToken,
+  isOwner,
+  getSubServiceById
+);
+router.delete(
+  '/del-sub-service/:id',
+  authenticateToken,
+  isOwner,
+  delSubServiceController
 );
 
 router.post(

@@ -154,6 +154,8 @@ model CustomerWork {
   title         String
   content       Json // รองรับ Rich Text
   images        String // URL รูปภาพ
+  serviceId     String?           @db.Uuid
+  subServiceId  String?           @db.Uuid
   carModelId    String?           @db.Uuid
   carSubModelId String?           @db.Uuid
   isShow        Boolean           @default(false)
@@ -165,6 +167,8 @@ model CustomerWork {
   // Relations
   carSubModel CarSubModel? @relation(fields: [carSubModelId], references: [id], onDelete: SetNull)
   carModel    CarModel?    @relation(fields: [carModelId], references: [id], onDelete: SetNull)
+  service     Service?     @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  subService  SubService?  @relation(fields: [subServiceId], references: [id], onDelete: SetNull)
 
   @@index([type])
   @@index([isShow])
@@ -204,18 +208,29 @@ model CategoryService {
 }
 
 model Service {
-  id            String   @id @default(uuid()) @db.Uuid
+  id            String         @id @default(uuid()) @db.Uuid
   title         String?
   explain       String?
   icon          String? //Base64
   serviceName   String?
   serviceDetail String?
   images        String[]
-  createdAt     DateTime @default(now()) @db.Timestamptz
-  updatedAt     DateTime @default(now()) @db.Timestamptz
+  createdAt     DateTime       @default(now()) @db.Timestamptz
+  updatedAt     DateTime       @default(now()) @db.Timestamptz
+  subService    SubService[]
   // carServices   CarService[] // เพิ่มการเชื่อมโยงไปยัง CarService
   // categoryId    String          @db.Uuid
   // category      CategoryService @relation(fields: [categoryId], references: [id])
+  CustomerWork  CustomerWork[]
+}
+
+model SubService {
+  id               String         @id @default(uuid()) @db.Uuid
+  serviceId        String         @db.Uuid
+  subServiceName   String?
+  subServiceDetail String?
+  Service          Service        @relation(fields: [serviceId], references: [id])
+  CustomerWork     CustomerWork[]
 }
 
 model CarService {

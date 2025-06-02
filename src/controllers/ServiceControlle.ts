@@ -1,8 +1,12 @@
 import { Request, Response } from 'express';
 import {
   createServiceService,
+  createSubService,
   deleteService,
+  delSucService,
+  get_serive_id,
   get_Service,
+  getSubservice,
   updateService
 } from '../service/Service';
 import path from 'path';
@@ -128,9 +132,81 @@ const deleteServiceController = async (
   }
 };
 
+const createSubServiceControlle = async (req: Request, res: Response) => {
+  try {
+    const { serviceId, subServiceName, subServiceDetail } = req.body;
+    const dataReq = {
+      serviceId,
+      subServiceDetail,
+      subServiceName
+    };
+
+    if (!serviceId || !subServiceName) {
+      res.status(400).json({ message: 'กรุณากรอบ serviceId หรือ serviceName' });
+      return;
+    }
+
+    const checkSerivce = await get_serive_id(serviceId);
+
+    if (!checkSerivce) {
+      res.status(400).json({ message: 'ไม่พบ service' });
+      return;
+    }
+
+    const createDb = await createSubService(dataReq);
+    if (createDb) {
+      res.status(201).json({ data: createDb, message: 'สร้างสำเร็จ' });
+      return;
+    }
+  } catch {
+    console.log('Err Server');
+    return;
+  }
+};
+
+const getSubServiceById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ message: 'ไม่พบ ID นี้' });
+      return;
+    }
+    const subService = await getSubservice(id);
+    res.status(200).json({ message: 'ok', subService });
+    return;
+  } catch {
+    console.log('server error');
+  }
+};
+
+const delSubServiceController = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ message: 'กรุณา ส่ง id' });
+      return;
+    }
+    await delSucService(id)
+      .then(() => {
+        res.status(200).json({ message: 'del Ok!' });
+        return;
+      })
+      .catch(() => {
+        res.status(404).json({ message: 'Not Fount Id Subservice' });
+        return;
+      });
+  } catch (e) {
+    console.log(e, 'Server Error');
+    return;
+  }
+};
+
 export {
   createService,
   getService,
   updateServiceController,
-  deleteServiceController
+  deleteServiceController,
+  createSubServiceControlle,
+  delSubServiceController,
+  getSubServiceById
 };

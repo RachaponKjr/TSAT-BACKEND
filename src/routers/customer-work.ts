@@ -7,7 +7,8 @@ import {
   getBySubCarModelController,
   getWithCarModelController,
   getWorkController,
-  getWorksController
+  getWorksController,
+  updateWorkController
 } from '../controllers/customer-work';
 import { authenticateToken, isOwner } from '../middlewares/auth-admin';
 const router = express.Router();
@@ -29,6 +30,12 @@ router.post(
   isOwner,
   upload.single('image'),
   createWorkController
+);
+router.put(
+  '/update-work/:id',
+  authenticateToken,
+  isOwner,
+  updateWorkController
 );
 router.get('/get-works', getWorksController);
 router.get('/get-with-carModel/:id', getWithCarModelController);

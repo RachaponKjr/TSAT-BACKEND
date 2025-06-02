@@ -29,6 +29,8 @@ const createWorkController = async (
       tags,
       carModelId,
       carSubModelId,
+      serviceId,
+      subServiceId,
       type = 'WorkBlog',
       isShow
     } = req.body;
@@ -48,6 +50,8 @@ const createWorkController = async (
         content: parsedContent,
         carModelId,
         carSubModelId,
+        serviceId,
+        subServiceId,
         tags: parsedTags,
         isShow: isShow,
         type: type
@@ -56,6 +60,32 @@ const createWorkController = async (
     });
 
     res.status(200).json({ status: 200, data: work });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error });
+  }
+};
+
+const updateWorkController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const imageFile = req.file;
+    const { id } = req.params;
+    const {
+      title,
+      workId,
+      content,
+      tags,
+      carSubModelId,
+      serviceId,
+      subServiceId,
+      type = 'WorkBlog',
+      isShow
+    } = req.body;
+
+    const chackWork = await getCustomerWork({ id: id });
+    console.log(chackWork);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error });
   }
@@ -139,5 +169,6 @@ export {
   getWorksController,
   deleteWorkController,
   getWithCarModelController,
-  getBySubCarModelController
+  getBySubCarModelController,
+  updateWorkController
 };

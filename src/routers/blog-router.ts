@@ -46,6 +46,16 @@ router.post(
   uploadBlogImage
 );
 
+router.put(
+  '/edit-blog',
+  authenticateToken,
+  isOwner,
+  upload.single('image'),
+  () => {
+    console.log('ok');
+  }
+);
+
 // DELETE /delete-blog-image/:filename
 router.delete('/delete-blog-image/:filename', deleteBlogImage);
 
