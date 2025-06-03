@@ -26,7 +26,7 @@ const PORT = 3131;
 const versionApi = '/api/v1';
 app.use(
   cors({
-    origin: '*', // ✅ เปิดให้ทุก origin
+    origin: ['http://localhost:3000', 'http://150.95.26.51:3030'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
   })
