@@ -191,12 +191,12 @@ const getCustomerWork = async ({ id }: { id: string }) => {
       carModel: true,
       service: {
         select: {
-          serviceName: true
+          id: true
         }
       },
       subService: {
         select: {
-          subServiceName: true
+          id: true
         }
       },
       tags: {
@@ -212,10 +212,12 @@ const getCustomerWork = async ({ id }: { id: string }) => {
     title: work.title,
     content: work.content,
     images: work.images,
-    service: work.service?.serviceName,
-    subService: work.subService?.subServiceName,
-    subCarModel: work.carSubModel?.name || null,
-    carModel: work.carModel?.name ?? null,
+    isShow: work.isShow,
+    type: work.type,
+    serviceId: work.service?.id,
+    subServiceId: work.subService?.id,
+    carSubModelId: work.carSubModel?.id || null,
+    carModelId: work.carModel?.id ?? null,
     tags: work.tags.map((t) => t.tag.name)
   };
 };
@@ -245,28 +247,31 @@ const updateCustomerWork = async ({
     typeof isShow === 'string' ? isShow === 'true' : Boolean(isShow);
 
   try {
-    // สร้าง data object โดยแยกเป็นส่วน ๆ
-    const createData: any = {
+    // ลบ tags เดิมออกก่อน เพื่อหลีกเลี่ยง duplicated relation
+    await db.customerWorkTag.deleteMany({
+      where: {
+        customerWorkId: id
+      }
+    });
+
+    // เตรียมข้อมูลใหม่
+    const updateData: any = {
       title,
       content,
       isShow: isShowFormat,
       type,
       serviceId,
       subServiceId,
-      images: images,
-      carSubModelId: carSubModelId || null
+      images,
+      carSubModelId: carSubModelId || null,
+      carModelId: carModelId || null
     };
 
-    // เพิ่ม carModelId เฉพาะเมื่อมีค่า (ใช้ carModelId แทน carModel relation)
-    if (carModelId) {
-      createData.carModelId = carModelId;
-    }
-
-    // เพิ่ม tags เฉพาะเมื่อมีข้อมูล
+    // ถ้ามี tags ใหม่
     if (tags && tags.length > 0) {
-      createData.tags = {
+      updateData.tags = {
         create: tags
-          .filter((tagName) => tagName && tagName.trim()) // กรองค่าว่าง
+          .filter((tagName) => tagName && tagName.trim())
           .map((tagName) => ({
             tag: {
               connectOrCreate: {
@@ -277,8 +282,40 @@ const updateCustomerWork = async ({
           }))
       };
     }
+
+    const updatedWork = await db.customerWork.update({
+      where: { id },
+      data: updateData,
+      include: {
+        carSubModel: true,
+        carModel: true,
+        tags: {
+          include: { tag: true }
+        }
+      }
+    });
+
+    return {
+      id: updatedWork.id,
+      title: updatedWork.title,
+      content: updatedWork.content,
+      images: updatedWork.images,
+      type: updatedWork.type,
+      isShow: updatedWork.isShow,
+      carSubModel: updatedWork.carSubModel?.name || null,
+      carModel: updatedWork.carModel
+        ? {
+            id: updatedWork.carModel.id,
+            name: updatedWork.carModel.name,
+            image: updatedWork.carModel.image
+          }
+        : null,
+      tags: updatedWork.tags.map((t) => t.tag.name),
+      updatedAt: updatedWork.updatedAt
+    };
   } catch (error) {
-    console.log(error);
+    console.error('Error updating customer work:', error);
+    throw new Error('Failed to update customer work');
   }
 };
 
@@ -296,5 +333,6 @@ export {
   getCustomerWorks,
   deleteCustomerWork,
   getWithCarModel,
-  getBySubCarModel
+  getBySubCarModel,
+  updateCustomerWork
 };

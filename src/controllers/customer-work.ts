@@ -5,10 +5,12 @@ import {
   getBySubCarModel,
   getCustomerWork,
   getCustomerWorks,
-  getWithCarModel
+  getWithCarModel,
+  updateCustomerWork
 } from '../service/customer-work';
 import path from 'path';
 import { unlink } from 'fs/promises';
+import fs from 'fs';
 
 type Work = {
   id: string;
@@ -74,9 +76,9 @@ const updateWorkController = async (
     const { id } = req.params;
     const {
       title,
-      workId,
       content,
       tags,
+      carModelId,
       carSubModelId,
       serviceId,
       subServiceId,
@@ -84,10 +86,68 @@ const updateWorkController = async (
       isShow
     } = req.body;
 
-    const chackWork = await getCustomerWork({ id: id });
-    console.log(chackWork);
+    const existingWork = await getCustomerWork({ id });
+
+    if (!existingWork) {
+      res.status(404).json({ message: 'ไม่พบงานที่ต้องการแก้ไข' });
+      return;
+    }
+
+    // แปลง tags เป็น array ถ้ามาจาก JSON string
+    const parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+
+    // แปลง content เป็น JSON object ถ้ามาจาก string
+    const parsedContent =
+      typeof content === 'string' ? JSON.parse(content) : content;
+
+    // เริ่มจัดการรูปภาพ
+    let finalImageName = existingWork.images;
+
+    if (imageFile) {
+      const uploadDir = path.join(__dirname, '../../public/uploads/works');
+      const oldImagePath = path.join(
+        uploadDir,
+        path.basename(existingWork.images || '')
+      );
+
+      // ลบไฟล์เดิมถ้ามีอยู่
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+
+      finalImageName = imageFile.filename;
+    }
+
+    // ตรวจสอบไม่ให้ path ซ้ำ
+    const imageUrl = finalImageName.startsWith('/uploads/works/')
+      ? finalImageName
+      : `/uploads/works/${finalImageName}`;
+
+    const updateData = {
+      title,
+      content: parsedContent,
+      carModelId,
+      carSubModelId,
+      serviceId,
+      subServiceId,
+      isShow: isShow === 'true' || isShow === true ? 'true' : 'false',
+      type,
+      tags: parsedTags
+    };
+
+    const updated = await updateCustomerWork({
+      id,
+      images: imageUrl,
+      workData: updateData
+    });
+
+    res.status(200).json({
+      message: 'อัปเดตงานสำเร็จ',
+      data: updated
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Server Error', error });
+    console.error('Update error:', error);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดจากเซิร์ฟเวอร์', error });
   }
 };
 

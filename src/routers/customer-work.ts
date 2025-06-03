@@ -35,6 +35,7 @@ router.put(
   '/update-work/:id',
   authenticateToken,
   isOwner,
+  upload.single('image'),
   updateWorkController
 );
 router.get('/get-works', getWorksController);
