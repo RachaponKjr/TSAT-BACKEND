@@ -9,14 +9,17 @@ interface AuthRequest extends Request {
 const getTokenFromRequest = (req: Request): string | undefined => {
   const authHeader = req.headers['authorization'];
   if (authHeader?.startsWith('Bearer ')) {
-    return authHeader.split(' ')[1];
+    authHeader.split(' ')[1];
+    return;
   }
 
   if (req.cookies?.access_token) {
-    return req.cookies.access_token;
+    req.cookies.access_token;
+    return;
   }
 
-  return undefined;
+  undefined;
+  return;
 };
 
 export const authenticateToken = (
@@ -27,9 +30,8 @@ export const authenticateToken = (
   const token = getTokenFromRequest(req);
 
   if (!token) {
-    return res
-      .status(401)
-      .json({ message: 'Access Denied. No Token Provided.' });
+    res.status(401).json({ message: 'Access Denied. No Token Provided.' });
+    return;
   }
 
   try {
@@ -38,7 +40,8 @@ export const authenticateToken = (
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(403).json({ message: 'Invalid or Expired Token' });
+    res.status(403).json({ message: 'Invalid or Expired Token' });
+    return;
   }
 };
 
@@ -49,7 +52,8 @@ export const isOwner = (
   next: NextFunction
 ) => {
   if (req.user?.role !== 'OWNER') {
-    return res.status(403).json({ message: 'Access Denied. Not Owner.' });
+    res.status(403).json({ message: 'Access Denied. Not Owner.' });
+    return;
   }
   next();
 };
@@ -62,9 +66,8 @@ export const isAdmin = (
 ) => {
   const role = req.user?.role;
   if (role !== 'ADMIN' && role !== 'OWNER') {
-    return res
-      .status(403)
-      .json({ message: 'Access Denied. Not Admin or Owner.' });
+    res.status(403).json({ message: 'Access Denied. Not Admin or Owner.' });
+    return;
   }
   next();
 };
@@ -72,7 +75,8 @@ export const isAdmin = (
 // ✅ ตรวจสอบว่า user เป็น USER เท่านั้น
 export const isUser = (req: AuthRequest, res: Response, next: NextFunction) => {
   if (req.user?.role !== 'USER') {
-    return res.status(403).json({ message: 'Access Denied. Not User.' });
+    res.status(403).json({ message: 'Access Denied. Not User.' });
+    return;
   }
   next();
 };
