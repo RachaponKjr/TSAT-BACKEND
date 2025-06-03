@@ -25,9 +25,23 @@ const PORT = 3131;
 const versionApi = '/api/v1';
 
 // ✅ CORS: ให้รองรับ cookie-based auth
+
+const allowedOrigins = [
+  'http://tsat-front:3030',
+  'http://150.95.26.51:3030',
+  'http://localhost:3000'
+];
+
 app.use(
   cors({
-    origin: 'http://tsat-front:3030', // หรือเปลี่ยนตาม origin จริง
+    origin: (origin, callback) => {
+      // ถ้าไม่มี origin (เช่น curl หรือ mobile app) ให้ผ่านเลย
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Not allowed by CORS: ${origin}`));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']

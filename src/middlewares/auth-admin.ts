@@ -34,6 +34,7 @@ export const authenticateToken = (
   try {
     const secret = process.env.JWT_SECRET!;
     const decoded = jwt.verify(token, secret);
+    console.log('Decoded token:', decoded);
     req.user = decoded;
     next();
   } catch (err) {
