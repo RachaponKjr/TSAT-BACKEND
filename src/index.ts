@@ -1,9 +1,9 @@
 /* eslint-disable no-duplicate-imports */
 /* eslint-disable no-console */
 import http from 'http';
-import express from 'express';
-import { Request } from 'express';
+import express, { Request } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import carModelRouter from './routers/CarModel';
 import subCarModelRouter from './routers/SubCarModel';
@@ -21,13 +21,28 @@ import userRouter from './routers/user-route';
 import authRouter from './routers/auth-router';
 
 const app = express();
-
 const PORT = 3131;
 const versionApi = '/api/v1';
-app.use(cors());
-app.options('*', cors());
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// ✅ CORS: ให้รองรับ cookie-based auth
+app.use(
+  cors({
+    origin: 'http://tsat-front:3030', // หรือเปลี่ยนตาม origin จริง
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  })
+);
+
+// ✅ สำหรับ preflight requests
+app.options('*', cors());
+
+// ✅ Middleware ที่ควรอยู่ก่อน route ทุกตัว
+app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
+
+// ✅ Static file serving
 app.use('/uploads', express.static('uploads'));
 app.use('/public/products', express.static('public/products'));
 app.use('/uploads/works', express.static('uploads/works'));
@@ -35,34 +50,28 @@ app.use('/uploads/reviews', express.static('uploads/reviews'));
 app.use('/uploads/edit-blogs', express.static('uploads/edit-blogs'));
 app.use('/uploads/subcarmodel', express.static('uploads/subcarmodel'));
 
-// CMS API
-app.use(`${versionApi}/cms`, express.json(), cmsHomeRouter);
-
-app.use(`${versionApi}/car-model`, express.json(), carModelRouter);
-app.use(`${versionApi}/sub-car-model`, express.json(), subCarModelRouter);
-app.use(`${versionApi}/product`, express.json(), catagoryProductRouter);
-app.use(`${versionApi}/service`, express.json(), ServicetRouter);
-app.use(`${versionApi}/customer-work`, express.json(), CustormWorkRouter);
-app.use(`${versionApi}/customer-review`, express.json(), CustormReviewRouter);
-app.use(`${versionApi}/work-service`, express.json(), WorkServiceRouter);
-app.use(`${versionApi}/contact`, express.json(), contactRouter);
-app.use(`${versionApi}/catagory-service`, express.json(), catagoryService);
-app.use(`${versionApi}/user`, express.json(), userRouter);
-app.use(`${versionApi}/token`, express.json(), authRouter);
-
-app.use(
-  `${versionApi}/category-service`,
-  express.json(),
-  CategoryServiceRouter
-);
+// ✅ Routes
+app.use(`${versionApi}/cms`, cmsHomeRouter);
+app.use(`${versionApi}/car-model`, carModelRouter);
+app.use(`${versionApi}/sub-car-model`, subCarModelRouter);
+app.use(`${versionApi}/product`, catagoryProductRouter);
+app.use(`${versionApi}/service`, ServicetRouter);
+app.use(`${versionApi}/customer-work`, CustormWorkRouter);
+app.use(`${versionApi}/customer-review`, CustormReviewRouter);
+app.use(`${versionApi}/work-service`, WorkServiceRouter);
+app.use(`${versionApi}/contact`, contactRouter);
+app.use(`${versionApi}/catagory-service`, catagoryService);
+app.use(`${versionApi}/user`, userRouter);
+app.use(`${versionApi}/token`, authRouter);
+app.use(`${versionApi}/category-service`, CategoryServiceRouter);
 app.use(`${versionApi}/edit-blog`, editBlogRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
+// ✅ Start server
 const server = http.createServer(app);
-
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
