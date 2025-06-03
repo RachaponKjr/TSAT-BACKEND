@@ -77,7 +77,7 @@ app.use(`${versionApi}/contact`, contactRouter);
 app.use(`${versionApi}/catagory-service`, catagoryService);
 app.use(`${versionApi}/user`, userRouter);
 app.use(`${versionApi}/token`, authRouter);
-app.use(`${versionApi}/category-service`, CategoryServiceRouter);
+app.use(`${versionApi}/category-service-car`, CategoryServiceRouter);
 app.use(`${versionApi}/edit-blog`, editBlogRouter);
 
 app.get('/', (req, res) => {
