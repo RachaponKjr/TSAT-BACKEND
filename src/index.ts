@@ -26,8 +26,7 @@ const PORT = 3131;
 const versionApi = '/api/v1';
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://tsat-front:3030'],
-    credentials: true,
+    origin: 'http://tsat-front:3030',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
   })
