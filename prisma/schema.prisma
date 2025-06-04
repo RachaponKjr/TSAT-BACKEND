@@ -105,7 +105,7 @@ model CarSubModel {
   createdAt  DateTime @default(now()) @db.Timestamptz
   updatedAt  DateTime @default(now()) @db.Timestamptz
 
-  carModel       CarModel         @relation(fields: [carModelId], references: [id])
+  carModel       CarModel         @relation(fields: [carModelId], references: [id], onDelete: Cascade)
   carServices    CarService[]
   CustomerReview CustomerReview[]
   WorkService    WorkService[]
@@ -159,7 +159,7 @@ model CustomerWork {
   carModelId    String?           @db.Uuid
   carSubModelId String?           @db.Uuid
   isShow        Boolean           @default(false)
-  type          BlogType          @default(WorkBlog)
+  // type          BlogType          @default(WorkBlog)
   tags          CustomerWorkTag[] // Many-to-many กับ Tag
   createdAt     DateTime          @default(now()) @db.Timestamptz
   updatedAt     DateTime          @updatedAt @db.Timestamptz
@@ -170,7 +170,7 @@ model CustomerWork {
   service     Service?     @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   subService  SubService?  @relation(fields: [subServiceId], references: [id], onDelete: SetNull)
 
-  @@index([type])
+  // @@index([type])
   @@index([isShow])
   @@index([createdAt])
 }
@@ -304,10 +304,10 @@ enum Role {
   OWNER
 }
 
-enum BlogType {
-  WorkBlog
-  ReviewBlog
-}
+// enum BlogType {
+//   WorkBlog
+//   ReviewBlog
+// }
 
 model User {
   id        String   @id @default(uuid()) @db.Uuid

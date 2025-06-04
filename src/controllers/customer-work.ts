@@ -33,7 +33,6 @@ const createWorkController = async (
       carSubModelId,
       serviceId,
       subServiceId,
-      type = 'WorkBlog',
       isShow
     } = req.body;
 
@@ -55,8 +54,7 @@ const createWorkController = async (
         serviceId,
         subServiceId,
         tags: parsedTags,
-        isShow: isShow,
-        type: type
+        isShow: isShow
       },
       images: imageUrl
     });
@@ -82,7 +80,6 @@ const updateWorkController = async (
       carSubModelId,
       serviceId,
       subServiceId,
-      type = 'WorkBlog',
       isShow
     } = req.body;
 
@@ -131,7 +128,6 @@ const updateWorkController = async (
       serviceId,
       subServiceId,
       isShow: isShow === 'true' || isShow === true ? 'true' : 'false',
-      type,
       tags: parsedTags
     };
 

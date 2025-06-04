@@ -1,4 +1,4 @@
-import { PrismaClient, BlogType } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const db = new PrismaClient();
 
@@ -11,7 +11,6 @@ interface CreateCustomerWorkInput {
   subServiceId: string;
   tags: string[]; // ตัวอย่าง: ["Macan", "ช่วงล่าง", "ซ่อมถุงลม"]
   isShow: string;
-  type: BlogType;
 }
 
 export async function createCustomerWork({
@@ -28,7 +27,6 @@ export async function createCustomerWork({
     tags,
     carSubModelId,
     isShow,
-    type,
     serviceId,
     subServiceId
   } = input;
@@ -43,7 +41,6 @@ export async function createCustomerWork({
       title,
       content,
       isShow: isShowFormat,
-      type,
       serviceId,
       subServiceId,
       images: images,
@@ -87,7 +84,6 @@ export async function createCustomerWork({
       title: newWork.title,
       content: newWork.content,
       images: newWork.images,
-      type: newWork.type,
       isShow: newWork.isShow,
       carSubModel: newWork.carSubModel?.name || null,
       carModel: newWork.carModel
@@ -132,6 +128,8 @@ const getBySubCarModel = async ({
       tags: {
         include: { tag: true }
       },
+      service: true,
+      subService: true,
       carModel: true,
       carSubModel: true
     }
@@ -141,10 +139,10 @@ const getBySubCarModel = async ({
       id: work.id,
       title: work.title,
       images: work.images,
-      carModel: {
-        name: work.carModel?.name || null
-      },
-      carSubModel: work.carSubModel?.name || null,
+      carModel: work.carModel?.name,
+      carSubModel: work.carSubModel?.name,
+      service: work.service?.serviceName,
+      subService: work.subService?.subServiceName,
       tags: work.tags.map((t) => t.tag.name)
     }))
   };
@@ -154,14 +152,12 @@ const getCustomerWorks = async () => {
   const works = await db.customerWork.findMany({
     include: {
       carSubModel: true,
-      carModel: {
-        select: {
-          name: true
-        }
-      },
+      carModel: true,
       tags: {
         include: { tag: true }
-      }
+      },
+      service: true,
+      subService: true
     }
   });
   return {
@@ -169,14 +165,13 @@ const getCustomerWorks = async () => {
       id: work.id,
       title: work.title,
       isShow: work.isShow,
-      type: work.type,
       images: work.images,
-      carSubModel: work.carSubModel,
-      carModel: work.carModel
-        ? {
-            name: work.carModel.name
-          }
-        : null
+      updata_at: work.updatedAt,
+      tags: work.tags.map((item) => item.tag.name),
+      service: work.service?.serviceName,
+      subService: work.subService?.subServiceName,
+      carSubModel: work.carSubModel?.name,
+      carModel: work.carModel?.name
     }))
   };
 };
@@ -189,16 +184,8 @@ const getCustomerWork = async ({ id }: { id: string }) => {
     include: {
       carSubModel: true,
       carModel: true,
-      service: {
-        select: {
-          id: true
-        }
-      },
-      subService: {
-        select: {
-          id: true
-        }
-      },
+      service: true,
+      subService: true,
       tags: {
         include: { tag: true }
       }
@@ -213,11 +200,17 @@ const getCustomerWork = async ({ id }: { id: string }) => {
     content: work.content,
     images: work.images,
     isShow: work.isShow,
-    type: work.type,
-    serviceId: work.service?.id,
-    subServiceId: work.subService?.id,
-    carSubModelId: work.carSubModel?.id || null,
-    carModelId: work.carModel?.id ?? null,
+    service: { name: work.service?.serviceName, id: work.service?.id },
+    subService: {
+      name: work.subService?.subServiceName,
+      id: work.subService?.id
+    },
+    carModel: { name: work.carModel?.name, id: work.carModel?.id },
+    carSubModel: { name: work.carSubModel?.name, id: work.carSubModel?.id },
+    // service: work.service?.serviceName,
+    // subService: work.subService?.subServiceName,
+    // carSubModel: work.carSubModel?.name || null,
+    // carModel: work.carModel?.name ?? null,
     tags: work.tags.map((t) => t.tag.name)
   };
 };
@@ -238,7 +231,6 @@ const updateCustomerWork = async ({
     tags,
     carSubModelId,
     isShow,
-    type,
     serviceId,
     subServiceId
   } = workData;
@@ -259,7 +251,6 @@ const updateCustomerWork = async ({
       title,
       content,
       isShow: isShowFormat,
-      type,
       serviceId,
       subServiceId,
       images,
@@ -300,7 +291,6 @@ const updateCustomerWork = async ({
       title: updatedWork.title,
       content: updatedWork.content,
       images: updatedWork.images,
-      type: updatedWork.type,
       isShow: updatedWork.isShow,
       carSubModel: updatedWork.carSubModel?.name || null,
       carModel: updatedWork.carModel
