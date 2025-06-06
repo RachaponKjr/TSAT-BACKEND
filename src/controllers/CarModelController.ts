@@ -18,31 +18,24 @@ const createCarModelController = async (
   try {
     const { name }: { name: string } = req.body;
 
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const files = req.file?.filename;
 
-    const imageModel = files['image_model']?.[0];
-    const imageName = files['image_name']?.[0];
+    console.log(files);
 
-    if (!name || !imageModel || !imageName) {
+    if (!name || !files) {
       res.status(400).json({ message: 'กรุณากรอกข้อมูลให้ครบ' });
-      return;
-    }
-
-    const exist = await checkCarModel(name);
-    if (exist) {
-      res.status(400).json({ message: 'มีรายการนี้อยู่แล้ว' });
       return;
     }
 
     const carModel = await createCarModel({
       name,
-      image: imageModel.filename,
-      imageName: imageName.filename
+      image: files
     });
 
     res.status(200).json({ status: 200, data: carModel });
     return;
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Server Error', error });
     return;
   }
@@ -87,27 +80,52 @@ const getCarModelByIdController = async (
 const updateCarModelController = async (req: Request, res: Response) => {
   try {
     const { name }: { name: string } = req.body;
+
     if (!req.params.id) {
-      res.status(400).json({ message: 'ไม่พบ params ' });
+      res.status(400).json({ message: 'ไม่พบ params' });
       return;
     }
-    if (!req.body) {
-      res
-        .status(400)
-        .json({ message: 'กรุณากรอกข้อมูล name หรือ showActive ' });
+
+    if (!name) {
+      res.status(400).json({ message: 'กรุณากรอกข้อมูล name' });
       return;
     }
-    if (name) {
-      const exist = await checkCarModel(name);
-      if (exist) {
-        res.status(400).json({ message: 'มีรายการนี้อยู่แล้ว' });
-        return;
+
+    const exist = await checkCarModel(req.params.id);
+    if (!exist) {
+      res.status(404).json({ message: 'ไม่มีรายการนี้อยู่' });
+      return;
+    }
+
+    const files = req.file?.filename;
+
+    // หากมีรูปใหม่เข้ามา
+    let imagePath = exist.image;
+    if (files) {
+      // ลบรูปเก่า
+      const delImage = path.join(__dirname, '../..', exist.image);
+      try {
+        await unlink(delImage);
+      } catch (err) {
+        console.warn(`⚠️ ไม่สามารถลบภาพเก่าได้`, err);
       }
+
+      // สร้าง path ใหม่
+      imagePath = `${files}`;
     }
-    const carModel = await updateCarModel(req.params.id, req.body);
+
+    const carModel = await updateCarModel({
+      id: req.params.id,
+      data: {
+        name,
+        image: imagePath
+      }
+    });
+
     res.status(200).json({ status: 200, data: carModel });
     return;
   } catch (error) {
+    console.error('Server Error:', error);
     res.status(500).json({ message: 'Server Error', error });
     return;
   }
@@ -130,12 +148,10 @@ const deleteCarModelController = async (req: Request, res: Response) => {
     }
 
     // ถ้ามีรูปภาพแนบมา ลบไฟล์ก่อน (ถ้ามี field เช่น imagePath)
-    if (carModel.image && carModel.imageName) {
-      const filePath = path.join(__dirname, '../../', carModel.image);
-      const filePath2 = path.join(__dirname, '../../', carModel.imageName);
+    if (carModel.image) {
+      const filePath = path.join(__dirname, '../..', carModel.image);
       try {
         await unlink(filePath);
-        await unlink(filePath2);
       } catch (err) {
         console.warn(`⚠️ ไม่สามารถลบภาพได้: ${filePath}`, err);
       }

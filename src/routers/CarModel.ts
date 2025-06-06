@@ -26,15 +26,18 @@ router.post(
   '/create',
   authenticateToken,
   isOwner,
-  upload.fields([
-    { name: 'image_model', maxCount: 1 },
-    { name: 'image_name', maxCount: 1 }
-  ]),
+  upload.single('image_model'),
   createCarModelController
 );
 router.get('/', getCarModelController);
 router.get('/:id', getCarModelByIdController);
-router.put('/:id', authenticateToken, isOwner, updateCarModelController);
+router.put(
+  '/:id',
+  authenticateToken,
+  isOwner,
+  upload.single('image_model'),
+  updateCarModelController
+);
 router.delete('/:id', authenticateToken, isOwner, deleteCarModelController);
 
 export default router;

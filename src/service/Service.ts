@@ -56,9 +56,17 @@ const get_serive_id = async (id: string) => {
 };
 
 const updateService = async (id: string, data: any) => {
+  const subServices = data.subService?.map((s: any) => ({ id: s.id })) || [];
+
   const service = await db.service.update({
     where: { id },
-    data
+    data: {
+      ...data,
+      updatedAt: new Date(),
+      subService: {
+        connect: subServices
+      }
+    }
   });
   return service;
 };

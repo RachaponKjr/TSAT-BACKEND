@@ -2,23 +2,18 @@ import { PrismaClient } from '@prisma/client';
 
 const db = new PrismaClient();
 
-const createCarModel = async (data: {
-  name: string;
-  image: string;
-  imageName: string;
-}) => {
+const createCarModel = async (data: { name: string; image: string }) => {
   const carModel = await db.carModel.create({
     data: {
       name: data.name,
-      image: `uploads/carmodel/${data.image}`, // รูปหลัก
-      image_name: `uploads/carmodel/${data.imageName}` // รูปชื่อ (โลโก้ หรือชื่อรถ)
+      image: `/uploads/carmodel/${data.image}` // รูปหลัก
     }
   });
   return carModel;
 };
 
-const checkCarModel = async (name: string) => {
-  const carModel = await db.carModel.findUnique({ where: { name: name } });
+const checkCarModel = async (id: string) => {
+  const carModel = await db.carModel.findUnique({ where: { id: id } });
   return carModel;
 };
 
@@ -29,7 +24,6 @@ const getCarModel = async () => {
       name: true,
       image: true,
       showActive: true,
-      image_name: true,
       carSubModels: {
         select: {
           id: true,
@@ -51,7 +45,6 @@ const getCarModel = async () => {
     id: model.id,
     name: model.name,
     image: model.image,
-    imageName: model.image_name,
     showActive: model.showActive,
     carSubModels: model.carSubModels,
     categoryService: categoryService.map((service) => service.title)
@@ -65,7 +58,6 @@ const getCarModelById = async (id: string) => {
       id: true,
       name: true,
       image: true,
-      image_name: true,
       showActive: true,
       carSubModels: {
         select: {
@@ -92,22 +84,24 @@ const getCarModelById = async (id: string) => {
     id: carModel.id,
     name: carModel.name,
     image: carModel.image,
-    imageName: carModel.image_name,
     showActive: carModel.showActive,
     carSubModels: carModel.carSubModels,
     categories: carModel.carServiceLinks.map((link) => link.carService.category)
   };
 };
 
-const updateCarModel = async (
-  id: string,
-  data: { name: string; showActive: boolean }
-) => {
+const updateCarModel = async ({
+  id,
+  data
+}: {
+  id: string;
+  data: { name: string; image: string };
+}) => {
   const carModel = await db.carModel.update({
-    where: { id: id },
+    where: { id },
     data: {
       name: data.name,
-      showActive: data.showActive
+      image: `/uploads/carmodel/${data.image}`
     }
   });
   return carModel;

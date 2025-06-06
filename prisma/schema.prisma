@@ -85,7 +85,6 @@ model CarModel {
   id         String   @id @default(uuid()) @db.Uuid
   name       String   @unique
   image      String
-  image_name String   @default("")
   showActive Boolean  @default(false)
   createdAt  DateTime @default(now()) @db.Timestamptz
   updatedAt  DateTime @default(now()) @db.Timestamptz
