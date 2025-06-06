@@ -111,7 +111,7 @@ const updateCarModelController = async (req: Request, res: Response) => {
       }
 
       // สร้าง path ใหม่
-      imagePath = `${files}`;
+      imagePath = `/uploads/carmodel/${files}`;
     }
 
     const carModel = await updateCarModel({
