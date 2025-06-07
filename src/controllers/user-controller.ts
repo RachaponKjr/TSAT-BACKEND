@@ -10,6 +10,7 @@ import {
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import logger from '../middlewares/activity-logger';
+import { AuthRequest } from '../middlewares/auth-admin';
 
 const createUserController = async (req: Request, res: Response) => {
   try {
@@ -90,12 +91,19 @@ const deleteUserController = async (req: Request, res: Response) => {
   }
 };
 
-const updateUserController = async (req: Request, res: Response) => {
+const updateUserController = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { username, password, role } = req.body;
 
-    const updateData: Partial<User> = {}; // ไม่ใส่ id ที่นี่ เพราะส่งแยกต่างหาก
+    if (req.user.role === 'ADMIN' && role === 'OWNER') {
+      res
+        .status(400)
+        .json({ message: 'คุณมีสิทธิ์ไม่พอในกับอัพเดทสิทธิ์ Owner' });
+      return;
+    }
+
+    const updateData: Partial<User> = {};
 
     if (username) updateData.username = username;
     if (role) updateData.role = role;

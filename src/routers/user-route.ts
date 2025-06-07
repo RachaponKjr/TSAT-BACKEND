@@ -24,7 +24,12 @@ router.delete(
   deleteUserController
 );
 router.post('/login', loginUserController);
-router.put('/update-user/:id', authenticateToken, isUser, updateUserController);
+router.put(
+  '/update-user/:id',
+  authenticateToken,
+  isAdmin,
+  updateUserController
+);
 // roter.put('/update-user/:id', () => {});
 // roter.delete('/delete-user/:id', () => {});
 
