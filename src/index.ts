@@ -19,6 +19,7 @@ import cmsHomeRouter from './routers/cms-router';
 import catagoryService from './routers/catagory-servie';
 import userRouter from './routers/user-route';
 import authRouter from './routers/auth-router';
+import logRequest from './middlewares/log-req';
 
 const app = express();
 const PORT = 3131;
@@ -31,6 +32,8 @@ const allowedOrigins = [
   'http://150.95.26.51:3030',
   'http://localhost:3000'
 ];
+
+app.use(logRequest);
 
 app.use(
   cors({

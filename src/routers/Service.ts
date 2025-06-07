@@ -23,13 +23,18 @@ import {
   updateServiceController
 } from '../controllers/ServiceControlle';
 import upload from '../libs/upload';
-import { authenticateToken, isOwner } from '../middlewares/auth-admin';
+import {
+  authenticateToken,
+  isAdmin,
+  isOwner,
+  isUser
+} from '../middlewares/auth-admin';
 const router = express.Router();
 
 router.post(
   '/create-service',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.array('images', 4),
   createService
 );
@@ -38,39 +43,34 @@ router.get('/get-service/:id', getCategoryByIdController);
 router.delete(
   '/delete-service/:id',
   authenticateToken,
-  isOwner,
+  isAdmin,
   deleteServiceController
 );
 router.put(
   '/update-service/:id',
   authenticateToken,
-  isOwner,
+  isUser,
   updateServiceController
 );
 
 router.post(
   '/create-sub-service',
   authenticateToken,
-  isOwner,
+  isUser,
   createSubServiceControlle
 );
-router.get(
-  '/get-subservice/:id',
-  authenticateToken,
-  isOwner,
-  getSubServiceById
-);
+router.get('/get-subservice/:id', authenticateToken, isUser, getSubServiceById);
 router.delete(
   '/del-sub-service/:id',
   authenticateToken,
-  isOwner,
+  isAdmin,
   delSubServiceController
 );
 
 router.post(
   '/create-product',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('imge'),
   createProductController
 );
@@ -79,7 +79,7 @@ router.get('/get-product/:id', getProductByIdController);
 router.delete(
   '/delete-product/:id',
   authenticateToken,
-  isOwner,
+  isAdmin,
   deleteProductController
 );
 // router.put('/update-product/:id', updateProductController);

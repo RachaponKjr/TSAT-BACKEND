@@ -1,9 +1,14 @@
 import express from 'express';
 import { getCatagory, postCatagory } from '../controllers/catagory-service';
-import { authenticateToken, isOwner } from '../middlewares/auth-admin';
+import {
+  authenticateToken,
+  isAdmin,
+  isOwner,
+  isUser
+} from '../middlewares/auth-admin';
 const router = express.Router();
 
-router.post('/create', authenticateToken, isOwner, postCatagory);
+router.post('/create', authenticateToken, isUser, postCatagory);
 router.get('/get', getCatagory);
 
 export default router;

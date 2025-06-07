@@ -5,7 +5,12 @@ import {
   uploadBlogImage,
   deleteBlogImage
 } from '../controllers/blog-controller';
-import { authenticateToken, isOwner } from '../middlewares/auth-admin';
+import {
+  authenticateToken,
+  isAdmin,
+  isOwner,
+  isUser
+} from '../middlewares/auth-admin';
 
 const router = express.Router();
 
@@ -41,7 +46,7 @@ const upload = multer({
 router.post(
   '/upload-blog-image',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('image'),
   uploadBlogImage
 );
@@ -49,7 +54,7 @@ router.post(
 router.put(
   '/edit-blog',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('image'),
   () => {
     console.log('ok');
@@ -57,6 +62,6 @@ router.put(
 );
 
 // DELETE /delete-blog-image/:filename
-router.delete('/delete-blog-image/:filename', deleteBlogImage);
+router.delete('/delete-blog-image/:filename', isAdmin, deleteBlogImage);
 
 export default router;

@@ -7,7 +7,12 @@ import {
 } from '../controllers/customer-review';
 import multer from 'multer';
 import path from 'path';
-import { authenticateToken, isOwner } from '../middlewares/auth-admin';
+import {
+  authenticateToken,
+  isAdmin,
+  isOwner,
+  isUser
+} from '../middlewares/auth-admin';
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -24,7 +29,7 @@ const upload = multer({ storage });
 router.post(
   '/create',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('image'),
   CustomerReviewController
 );
@@ -33,7 +38,7 @@ router.get('/get/:id', getReviewByIdController);
 router.delete(
   '/delete/:id',
   authenticateToken,
-  isOwner,
+  isAdmin,
   deleteReviewController
 );
 export default router;

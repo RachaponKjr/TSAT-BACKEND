@@ -10,7 +10,12 @@ import {
   getWorksController,
   updateWorkController
 } from '../controllers/customer-work';
-import { authenticateToken, isOwner } from '../middlewares/auth-admin';
+import {
+  authenticateToken,
+  isAdmin,
+  isOwner,
+  isUser
+} from '../middlewares/auth-admin';
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -27,14 +32,14 @@ const upload = multer({ storage });
 router.post(
   '/create-work',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('image'),
   createWorkController
 );
 router.put(
   '/update-work/:id',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('image'),
   updateWorkController
 );
@@ -45,7 +50,7 @@ router.get('/get-work/:id', getWorkController);
 router.delete(
   '/delete-work/:id',
   authenticateToken,
-  isOwner,
+  isAdmin,
   deleteWorkController
 );
 export default router;

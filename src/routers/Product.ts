@@ -15,13 +15,18 @@ import {
   //   updateProductController
 } from '../controllers/ProductController';
 import { upload } from '../middlewares/upload';
-import { authenticateToken, isOwner } from '../middlewares/auth-admin';
+import {
+  authenticateToken,
+  isAdmin,
+  isOwner,
+  isUser
+} from '../middlewares/auth-admin';
 const router = express.Router();
 
 router.post(
   '/create-category',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('image'),
   createCategoryController
 );
@@ -30,20 +35,20 @@ router.get('/get-category/:id', getCategoryByIdController);
 router.delete(
   '/delete-category/:id',
   authenticateToken,
-  isOwner,
+  isAdmin,
   deleteCategoryController
 );
 router.put(
   '/update-category/:id',
   authenticateToken,
-  isOwner,
+  isUser,
   updateCategoryController
 );
 
 router.post(
   '/create-product',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('image'),
   createProductController
 );
@@ -52,13 +57,13 @@ router.get('/get-product/:id', getProductByIdController);
 router.delete(
   '/delete-product/:id',
   authenticateToken,
-  isOwner,
+  isAdmin,
   deleteProductController
 );
 router.put(
   '/update-product/:id',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('image'),
   updateProductController
 );

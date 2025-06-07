@@ -9,6 +9,7 @@ import {
 } from '../service/user-service';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import logger from '../middlewares/activity-logger';
 
 const createUserController = async (req: Request, res: Response) => {
   try {
@@ -71,7 +72,6 @@ const loginUserController = async (req: Request, res: Response) => {
         expiresIn: '8h'
       }
     );
-
     res.status(200).json({ status: 200, data: user, token });
   } catch (error) {
     console.error('Login User Error:', error);

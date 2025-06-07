@@ -43,6 +43,7 @@
     "@types/multer": "^1.4.12",
     "@types/node": "^20.7.1",
     "@types/supertest": "^2.0.13",
+    "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
     "eslint": "^8.50.0",
@@ -72,10 +73,13 @@
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.13",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.2",
     "prisma": "^6.5.0",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
     "zod": "^3.24.2"
   }
 }

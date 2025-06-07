@@ -5,7 +5,7 @@ import {
   getWorkServiceController,
   WorkServiceController
 } from '../controllers/work-service-controlle';
-import { authenticateToken, isOwner } from '../middlewares/auth-admin';
+import { authenticateToken, isOwner, isUser } from '../middlewares/auth-admin';
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -22,7 +22,7 @@ const upload = multer({ storage });
 router.post(
   '/create-service',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('image'),
   WorkServiceController
 );

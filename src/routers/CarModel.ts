@@ -8,7 +8,12 @@ import {
 } from '../controllers/CarModelController';
 import multer from 'multer';
 import path from 'path';
-import { authenticateToken, isOwner } from '../middlewares/auth-admin';
+import {
+  authenticateToken,
+  isAdmin,
+  isOwner,
+  isUser
+} from '../middlewares/auth-admin';
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -25,7 +30,7 @@ const upload = multer({ storage });
 router.post(
   '/create',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('image_model'),
   createCarModelController
 );
@@ -34,10 +39,10 @@ router.get('/:id', getCarModelByIdController);
 router.put(
   '/:id',
   authenticateToken,
-  isOwner,
+  isUser,
   upload.single('image_model'),
   updateCarModelController
 );
-router.delete('/:id', authenticateToken, isOwner, deleteCarModelController);
+router.delete('/:id', authenticateToken, isAdmin, deleteCarModelController);
 
 export default router;
