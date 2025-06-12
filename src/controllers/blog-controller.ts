@@ -9,7 +9,6 @@ export const uploadBlogImage = async (
 ): Promise<void> => {
   try {
     const image = req.file as Express.Multer.File;
-    console.log(image);
     if (!image) {
       // อย่าลืม return **พร้อม** response เพื่อหยุด
       res.status(400).json({ message: 'กรุณาอัปโหลดรูปภาพ' });
@@ -19,7 +18,7 @@ export const uploadBlogImage = async (
     res.status(200).json({
       status: 200,
       filename: image.filename,
-      url: `http://localhost:3130/uploads/edit-blogs/${image.filename}`
+      url: `http://150.95.26.51:3131/uploads/edit-blogs/${image.filename}`
     });
     return;
   } catch (error) {

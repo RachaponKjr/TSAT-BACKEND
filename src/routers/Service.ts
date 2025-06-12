@@ -20,6 +20,7 @@ import {
   delSubServiceController,
   getService,
   getSubServiceById,
+  getSubServicesController,
   updateServiceController
 } from '../controllers/ServiceControlle';
 import upload from '../libs/upload';
@@ -58,6 +59,13 @@ router.post(
   authenticateToken,
   isUser,
   createSubServiceControlle
+);
+
+router.get(
+  '/get-subservices',
+  authenticateToken,
+  isUser,
+  getSubServicesController
 );
 router.get('/get-subservice/:id', authenticateToken, isUser, getSubServiceById);
 router.delete(

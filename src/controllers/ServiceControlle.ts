@@ -7,6 +7,7 @@ import {
   get_serive_id,
   get_Service,
   getSubservice,
+  getSubServices,
   updateService
 } from '../service/Service';
 import path from 'path';
@@ -14,7 +15,8 @@ import fs from 'fs/promises';
 
 const createService = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { serviceName, serviceDetail, title, explain, icon } = req.body;
+    const { serviceName, serviceDetail, title, explain, bgIcon, icon } =
+      req.body;
     const files = req.files as Express.Multer.File[];
 
     if (!serviceName || !files || files.length === 0) {
@@ -33,6 +35,7 @@ const createService = async (req: Request, res: Response): Promise<void> => {
       title,
       explain,
       icon,
+      bgIcon,
       image: imageFilenames
     });
 
@@ -57,15 +60,9 @@ const updateServiceController = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const body = req.body;
-
+    console.log(req.body);
     if (!id) {
       res.status(400).json({ message: 'กรุณาระบุรหัสบริการ' });
-      return;
-    }
-
-    if (!body || Object.keys(body).length === 0) {
-      res.status(400).json({ message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
       return;
     }
 
@@ -79,7 +76,7 @@ const updateServiceController = async (
     }
 
     // ทำการอัปเดต
-    const updated = await updateService(id, body);
+    const updated = await updateService(id, req.body);
 
     res.status(200).json({ message: 'แก้ไขบริการสำเร็จ', data: updated });
   } catch (error) {
@@ -179,6 +176,25 @@ const getSubServiceById = async (req: Request, res: Response) => {
   }
 };
 
+const getSubServicesController = async (req: Request, res: Response) => {
+  try {
+    const subService = await getSubServices();
+    console.log('🔍 subService:', subService);
+
+    res.status(200).json({
+      message: 'เรียกดูบริการย่อยสำเร็จ',
+      data: subService
+    });
+    return;
+  } catch (error) {
+    console.error('❌ Server Error:', error);
+    res.status(500).json({
+      message: 'เกิดข้อผิดพลาดของเซิร์ฟเวอร์'
+    });
+    return;
+  }
+};
+
 const delSubServiceController = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -208,5 +224,6 @@ export {
   deleteServiceController,
   createSubServiceControlle,
   delSubServiceController,
-  getSubServiceById
+  getSubServiceById,
+  getSubServicesController
 };

@@ -14,6 +14,7 @@ const createServiceService = async (data: {
   explain: string;
   title: string;
   icon: string;
+  bgIcon: string;
   image: string[];
 }) => {
   const imagePaths = data.image.map((img) => `/uploads/${img}`);
@@ -22,6 +23,7 @@ const createServiceService = async (data: {
       serviceName: data.serviceName,
       serviceDetail: data.serviceDetail,
       explain: data.explain,
+      bgIcon: data.bgIcon,
       title: data.title,
       icon: data.icon,
       images: imagePaths
@@ -56,18 +58,28 @@ const get_serive_id = async (id: string) => {
 };
 
 const updateService = async (id: string, data: any) => {
-  const subServices = data.subService?.map((s: any) => ({ id: s.id })) || [];
+  const serviceData: any = {
+    serviceName: data.serviceName,
+    serviceDetail: data.serviceDetail,
+    explain: data.explain,
+    bgIcon: data.bgIcon,
+    title: data.title,
+    icon: data.icon,
+    updatedAt: new Date()
+  };
+
+  // ✅ ถ้ามี subService และเป็น array ค่อยใส่เข้าไป
+  if (Array.isArray(data.subService)) {
+    serviceData.subService = {
+      connect: data.subService.map((s: any) => ({ id: s.id }))
+    };
+  }
 
   const service = await db.service.update({
     where: { id },
-    data: {
-      ...data,
-      updatedAt: new Date(),
-      subService: {
-        connect: subServices
-      }
-    }
+    data: serviceData
   });
+
   return service;
 };
 
@@ -105,6 +117,10 @@ const getSubservice = async (id: string) => {
   return subservice;
 };
 
+const getSubServices = async () => {
+  return await db.subService.findMany();
+};
+
 export {
   createServiceService,
   get_Service,
@@ -113,5 +129,6 @@ export {
   deleteService,
   createSubService,
   delSucService,
-  getSubservice
+  getSubservice,
+  getSubServices
 };

@@ -214,6 +214,7 @@ model Service {
   serviceName   String?
   serviceDetail String?
   images        String[]
+  bgIcon        String? //Base64
   createdAt     DateTime       @default(now()) @db.Timestamptz
   updatedAt     DateTime       @default(now()) @db.Timestamptz
   subService    SubService[]
