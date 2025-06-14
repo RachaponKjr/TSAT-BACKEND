@@ -42,6 +42,7 @@ router.put(
   '/update-category/:id',
   authenticateToken,
   isUser,
+  upload.single('image'),
   updateCategoryController
 );
 

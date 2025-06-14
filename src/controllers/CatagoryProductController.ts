@@ -3,8 +3,11 @@ import {
   createCategory,
   deleteCategory,
   getCategory,
-  getCategoryById
+  getCategoryById,
+  updateCategoryById
 } from '../service/Catagory-Product';
+import path from 'path';
+import { unlink } from 'fs/promises';
 
 const createCategoryController = async (
   req: Request,
@@ -64,23 +67,64 @@ const updateCategoryController = async (
   res: Response
 ): Promise<void> => {
   try {
-    if (!req.params.id) {
-      res.status(400).json({ message: 'ไม่พบ params ' });
+    const { id } = req.params;
+    const { name, categoryServiceId } = req.body;
+    if (!id) {
+      res.status(400).json({ message: 'ไม่พบ params' });
       return;
     }
-    const { name } = req.body;
     if (!name) {
-      res.status(400).json({ message: 'กรุณากรอก name ' });
+      res.status(400).json({ message: 'กรุณากรอก name' });
       return;
     }
-    const category = await createCategory(req.body);
+
+    const checkCategory = await getCategoryById(id);
+    if (!checkCategory) {
+      res.status(404).json({ message: 'ไม่พบ Category' });
+      return;
+    }
+
+    // ลบไฟล์เก่า ถ้ามีรูปใหม่มาแทน
+    if (checkCategory.image && req.file) {
+      const relativePath = checkCategory.image.replace(/^\/?public\//, '');
+      const filePath = path.join(process.cwd(), 'public', relativePath);
+
+      try {
+        await unlink(filePath);
+        console.log(`🗑️ ลบไฟล์สำเร็จ: ${filePath}`);
+      } catch (err: any) {
+        if (err.code === 'ENOENT') {
+          console.warn(`⚠️ ไฟล์ไม่พบ: ${filePath}`);
+        } else {
+          console.error(`❌ ลบไฟล์ไม่สำเร็จ: ${filePath}`, err);
+        }
+      }
+    }
+    const imagePath = req.file
+      ? `/public/products/${req.file.filename}`
+      : checkCategory.image.replace(
+          /^\/?public\/products\//,
+          '/public/products/'
+        );
+
+    const payload = {
+      name,
+      categoryServiceId: categoryServiceId || checkCategory.categoryServiceId,
+      image: imagePath
+    };
+
+    const category = await updateCategoryById({
+      id,
+      data: payload
+    });
+
     res.status(200).json({ status: 200, data: category });
-    return;
   } catch (error) {
+    console.error('❌ Error updating category:', error);
     res.status(500).json({ message: 'Server Error', error });
-    return;
   }
 };
+
 const deleteCategoryController = async (
   req: Request,
   res: Response

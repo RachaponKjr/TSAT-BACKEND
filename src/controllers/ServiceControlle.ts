@@ -19,6 +19,8 @@ const createService = async (req: Request, res: Response): Promise<void> => {
       req.body;
     const files = req.files as Express.Multer.File[];
 
+    console.log(files);
+
     if (!serviceName || !files || files.length === 0) {
       res.status(400).json({
         message: 'กรุณากรอกข้อมูลให้ครบ และอัปโหลดรูปอย่างน้อย 1 รูป'

@@ -17,6 +17,28 @@ const createCategory = async (data: {
   return category;
 };
 
+const updateCategoryById = async ({
+  id,
+  data
+}: {
+  id: string;
+  data: {
+    name?: string;
+    image?: string;
+    categoryServiceId?: string;
+  };
+}) => {
+  const category = await db.category.update({
+    where: { id },
+    data: {
+      name: data.name,
+      image: `${data.image}`,
+      categoryServiceId: data.categoryServiceId
+    }
+  });
+  return category;
+};
+
 const getCategory = async () => {
   const category = await db.category.findMany({
     orderBy: {
@@ -54,5 +76,6 @@ export {
   getCategory,
   deleteCategory,
   updateCategory,
-  getCategoryById
+  getCategoryById,
+  updateCategoryById
 };
