@@ -94,6 +94,7 @@ model CarModel {
   CustomerReview  CustomerReview[]
   WorkService     WorkService[]
   carServiceLinks CarServiceLink[] // ✅ พหูพจน์ และตรงความหมาย
+  CustomerBlog    CustomerBlog[]
 }
 
 model CarSubModel {
@@ -109,6 +110,7 @@ model CarSubModel {
   CustomerReview CustomerReview[]
   WorkService    WorkService[]
   CustomerWork   CustomerWork[]
+  CustomerBlog   CustomerBlog[]
 }
 
 model CategoryServiceCarModel {
@@ -174,6 +176,41 @@ model CustomerWork {
   @@index([createdAt])
 }
 
+model CustomerBlog {
+  id            String   @id @default(uuid()) @db.Uuid
+  isShow        Boolean  @default(false)
+  title         String
+  content       String
+  serviceId     String?  @db.Uuid
+  subServiceId  String?  @db.Uuid
+  carModelId    String?  @db.Uuid
+  carSubModelId String?  @db.Uuid
+  images        Json     @default("[]")
+  create_at     DateTime @default(now())
+
+  // Relations
+  carSubModel CarSubModel? @relation(fields: [carSubModelId], references: [id], onDelete: SetNull)
+  carModel    CarModel?    @relation(fields: [carModelId], references: [id], onDelete: SetNull)
+  service     Service?     @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  subService  SubService?  @relation(fields: [subServiceId], references: [id], onDelete: SetNull)
+  tags        BlogsTags[]
+
+  @@index([isShow])
+  @@index([create_at])
+  @@map("news")
+}
+
+model BlogsTags {
+  id             Int      @id @default(autoincrement())
+  customerblogId String   @db.Uuid
+  tagId          String   @db.Uuid
+  createdAt      DateTime @default(now()) @db.Timestamptz
+  updatedAt      DateTime @default(now()) @db.Timestamptz
+
+  customerblog CustomerBlog @relation(fields: [customerblogId], references: [id], onDelete: Cascade)
+  tag          Tag          @relation(fields: [tagId], references: [id])
+}
+
 model WorkService {
   id            String   @id @default(uuid()) @db.Uuid
   image         String
@@ -192,8 +229,9 @@ model CustomerWorkTag {
   createdAt      DateTime @default(now()) @db.Timestamptz
   updatedAt      DateTime @default(now()) @db.Timestamptz
 
-  customerWork CustomerWork @relation(fields: [customerWorkId], references: [id], onDelete: Cascade)
-  tag          Tag          @relation(fields: [tagId], references: [id])
+  customerWork   CustomerWork @relation(fields: [customerWorkId], references: [id], onDelete: Cascade)
+  tag            Tag          @relation(fields: [tagId], references: [id])
+  customerBlogId String?      @db.Uuid
 
   @@id([customerWorkId, tagId]) // composite key
 }
@@ -222,6 +260,7 @@ model Service {
   // categoryId    String          @db.Uuid
   // category      CategoryService @relation(fields: [categoryId], references: [id])
   CustomerWork  CustomerWork[]
+  CustomerBlog  CustomerBlog[]
 }
 
 model SubService {
@@ -231,6 +270,7 @@ model SubService {
   subServiceDetail String?
   Service          Service        @relation(fields: [serviceId], references: [id])
   CustomerWork     CustomerWork[]
+  CustomerBlog     CustomerBlog[]
 }
 
 model CarService {
@@ -262,6 +302,7 @@ model Tag {
   updatedAt       DateTime          @default(now()) @db.Timestamptz
   blogTags        BlogTag[] // เพิ่มการเชื่อมโยงไปยัง BlogTag
   CustomerWorkTag CustomerWorkTag[]
+  BlogsTags       BlogsTags[]
 }
 
 model BlogTag {

@@ -19,6 +19,7 @@ import cmsHomeRouter from './routers/cms-router';
 import catagoryService from './routers/catagory-servie';
 import userRouter from './routers/user-route';
 import authRouter from './routers/auth-router';
+import blogRouter from './routers/new-blog-router';
 import logRequest from './middlewares/log-req';
 
 const app = express();
@@ -82,6 +83,7 @@ app.use(`${versionApi}/user`, userRouter);
 app.use(`${versionApi}/token`, authRouter);
 app.use(`${versionApi}/category-service-car`, CategoryServiceRouter);
 app.use(`${versionApi}/edit-blog`, editBlogRouter);
+app.use(`${versionApi}/blog`, blogRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
