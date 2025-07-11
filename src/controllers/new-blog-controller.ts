@@ -100,7 +100,6 @@ const getBlogByCarmodel = async (req: Request, res: Response) => {
 };
 
 const updateBlogController = async (req: Request, res: Response) => {
-  console.log(req.body);
   try {
     const { id } = req.params as { id: string };
     const checkBlog = await getBlogById({ id });
@@ -135,6 +134,7 @@ const updateBlogController = async (req: Request, res: Response) => {
     const updateRes = await updateBlog({ id, data: payload });
     res.status(200).send({ data: { ...updateRes } });
   } catch (err) {
+    console.log(err);
     res.status(500).send({ err, message: 'Server Error!' });
   }
 };

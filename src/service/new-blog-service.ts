@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { isValidUUID, normalizeUUID } from '../libs/validuuid';
 
 const db = new PrismaClient();
 
@@ -169,7 +170,7 @@ const getBlogById = async ({ id }: { id: string }) => {
 };
 
 const updateBlog = async ({ id, data }: { id: string; data: CreateProps }) => {
-  // เช็คและแปลง tags ให้เป็น array
+  // แปลง tags เป็น array ให้ถูกต้อง
   let tags: string[] = [];
 
   if (typeof data.tags === 'string') {
@@ -183,10 +184,18 @@ const updateBlog = async ({ id, data }: { id: string; data: CreateProps }) => {
     tags = data.tags;
   }
 
+  // สร้าง updateData โดย sanitize ฟิลด์ UUID และ boolean
   const updateData: any = {
     ...data,
-    tags: undefined // ลบ key ที่ Prisma ไม่เข้าใจออกก่อน
+    tags: undefined, // ลบ key ที่ Prisma ไม่เข้าใจออกก่อน
+    serviceId: normalizeUUID(data.serviceId),
+    subServiceId: normalizeUUID(data.subServiceId),
+    carModelId: normalizeUUID(data.carModelId),
+    carSubModelId: normalizeUUID(data.carSubModelId),
+    isShow: data.isShow // แปลง string "true"/boolean true เป็น boolean
   };
+
+  console.log('Sanitized update data:', updateData);
 
   const res = await db.customerBlog.update({
     where: { id },

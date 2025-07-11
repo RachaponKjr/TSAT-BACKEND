@@ -185,7 +185,7 @@ model CustomerBlog {
   subServiceId  String?  @db.Uuid
   carModelId    String?  @db.Uuid
   carSubModelId String?  @db.Uuid
-  images        Json     @default("[]")
+  images        Json?    @default("[]")
   create_at     DateTime @default(now())
 
   // Relations
