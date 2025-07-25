@@ -195,8 +195,6 @@ const updateBlog = async ({ id, data }: { id: string; data: CreateProps }) => {
     isShow: data.isShow // แปลง string "true"/boolean true เป็น boolean
   };
 
-  console.log('Sanitized update data:', updateData);
-
   const res = await db.customerBlog.update({
     where: { id },
     data: {

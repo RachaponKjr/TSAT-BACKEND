@@ -10,12 +10,15 @@ import {
   updateBlog
 } from '../service/new-blog-service';
 import path from 'path';
+import { parseThaiDateString } from '../libs/thai-date';
 
 const createBlogController = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
+    console.log(req.body);
+
     const files = req.files as Express.Multer.File[];
     const imagePaths = files.map((file) => file.path);
     const parsedTags = JSON.parse(req.body.tags);
@@ -28,7 +31,9 @@ const createBlogController = async (
       carModelId: req.body.carModelId || undefined,
       carSubModelId: req.body.carSubModelId || undefined,
       images: imagePaths,
-      create_at: req.body.create_at ? req.body.create_at : new Date()
+      create_at: req.body.create_at
+        ? parseThaiDateString(req.body.create_at)
+        : new Date()
     };
 
     const create = await createPostService({
@@ -125,7 +130,7 @@ const updateBlogController = async (req: Request, res: Response) => {
     const payload = {
       ...req.body,
       isShow: req.body.isShow === 'true',
-      create_at: new Date()
+      create_at: req.body.create_at ? new Date(req.body.create_at) : new Date()
     };
 
     if (imagePaths.length > 0) {
