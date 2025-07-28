@@ -56,10 +56,6 @@ const createBlogController = async (
 const getBlogsController = async (req: Request, res: Response) => {
   try {
     const getRes = await getBlogs();
-    if (getRes.length === 0) {
-      res.status(400).send({ message: 'ไม่พบ Blogs' });
-      return;
-    }
     res.status(200).send({ data: [...getRes] });
     return;
   } catch (err) {
