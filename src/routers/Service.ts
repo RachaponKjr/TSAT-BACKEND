@@ -51,6 +51,7 @@ router.put(
   '/update-service/:id',
   authenticateToken,
   isUser,
+  upload.array('images', 4),
   updateServiceController
 );
 

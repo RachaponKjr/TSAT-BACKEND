@@ -19,8 +19,6 @@ const createService = async (req: Request, res: Response): Promise<void> => {
       req.body;
     const files = req.files as Express.Multer.File[];
 
-    console.log(files);
-
     if (!serviceName || !files || files.length === 0) {
       res.status(400).json({
         message: 'กรุณากรอกข้อมูลให้ครบ และอัปโหลดรูปอย่างน้อย 1 รูป'
@@ -62,7 +60,7 @@ const updateServiceController = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    console.log(req.body);
+    const files = req.files as Express.Multer.File[];
     if (!id) {
       res.status(400).json({ message: 'กรุณาระบุรหัสบริการ' });
       return;
@@ -76,9 +74,15 @@ const updateServiceController = async (
       res.status(404).json({ message: 'ไม่พบข้อมูลบริการที่ต้องการแก้ไข' });
       return;
     }
+    const imageFilenames = files.map((file) => `/uploads/${file.filename}`);
+
+    const payload = {
+      ...req.body,
+      image: files ? imageFilenames : undefined
+    };
 
     // ทำการอัปเดต
-    const updated = await updateService(id, req.body);
+    const updated = await updateService(id, payload);
 
     res.status(200).json({ message: 'แก้ไขบริการสำเร็จ', data: updated });
   } catch (error) {

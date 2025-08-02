@@ -65,6 +65,7 @@ const updateService = async (id: string, data: any) => {
     bgIcon: data.bgIcon,
     title: data.title,
     icon: data.icon,
+    images: data.image,
     updatedAt: new Date()
   };
 
