@@ -55,10 +55,21 @@ const createBlogController = async (
 
 const getBlogsController = async (req: Request, res: Response) => {
   try {
-    const getRes = await getBlogs();
-    res.status(200).send({ data: [...getRes] });
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const carmodel = String(req.query.carmodel as string) || '';
+    const filter = String(req.query.filter as string) || '';
+
+    const result = await getBlogs(page, limit, carmodel, filter);
+    if (result.data.length === 0) {
+      res.status(400).send({ message: 'ไม่พบBlog' });
+      return;
+    }
+
+    res.status(200).send(result);
     return;
   } catch (err) {
+    console.log(err);
     res.status(500).send('Server Error!');
   }
 };

@@ -10,59 +10,78 @@ datasource db {
 
 // CMS HomePage
 model CMSHomePage {
-  id           String  @id @default(uuid()) @db.Uuid
-  text_line_1  String?
-  text_line_2  String?
-  text_line_3  String?
-  text_line_4  String?
-  text_line_5  String?
-  text_line_6  String?
-  text_line_7  String?
-  text_line_8  String?
-  text_line_9  String?
-  text_line_10 String?
-  text_line_11 String?
-  text_line_12 String?
-  text_line_13 String?
+  id              String  @id @default(uuid()) @db.Uuid
+  seo_title       String?
+  seo_description String?
+  text_line_1     String?
+  text_line_2     String?
+  text_line_3     String?
+  text_line_4     String?
+  text_line_5     String?
+  text_line_6     String?
+  text_line_7     String?
+  text_line_8     String?
+  text_line_9     String?
+  text_line_10    String?
+  text_line_11    String?
+  text_line_12    String?
+  text_line_13    String?
+}
+
+model Seo {
+  id                 String   @id @default(uuid()) @db.Uuid
+  seo_facebook_pixel String?
+  seo_googel_manager String?
+  key_word           String[] @default([])
 }
 
 model CMSServicePage {
-  id          String  @id @default(uuid()) @db.Uuid
-  text_line_1 String?
-  text_line_2 String?
-  text_line_3 String?
-  text_line_4 String?
-  text_line_5 String?
-  text_line_6 String?
-  text_line_7 String?
+  id              String  @id @default(uuid()) @db.Uuid
+  seo_title       String?
+  seo_description String?
+  text_line_1     String?
+  text_line_2     String?
+  text_line_3     String?
+  text_line_4     String?
+  text_line_5     String?
+  text_line_6     String?
+  text_line_7     String?
 }
 
 model CMSProductPage {
-  id          String  @id @default(uuid()) @db.Uuid
-  text_line_1 String?
-  text_line_2 String?
-  text_line_3 String?
+  id              String  @id @default(uuid()) @db.Uuid
+  seo_title       String?
+  seo_description String?
+  text_line_1     String?
+  text_line_2     String?
+  text_line_3     String?
 }
 
 model CMSCustomerPage {
-  id          String  @id @default(uuid()) @db.Uuid
-  text_line_1 String?
-  text_line_2 String?
-  text_line_3 String?
+  id              String  @id @default(uuid()) @db.Uuid
+  seo_title       String?
+  seo_description String?
+  text_line_1     String?
+  text_line_2     String?
+  text_line_3     String?
 }
 
 model CMSAboutPage {
-  id          String  @id @default(uuid()) @db.Uuid
-  text_line_1 String?
-  text_line_2 String?
-  text_line_3 String?
+  id              String  @id @default(uuid()) @db.Uuid
+  seo_title       String?
+  seo_description String?
+  text_line_1     String?
+  text_line_2     String?
+  text_line_3     String?
 }
 
 model CMSContactPage {
-  id          String  @id @default(uuid()) @db.Uuid
-  text_line_1 String?
-  text_line_2 String?
-  text_line_3 String?
+  id              String  @id @default(uuid()) @db.Uuid
+  seo_title       String?
+  seo_description String?
+  text_line_1     String?
+  text_line_2     String?
+  text_line_3     String?
 }
 
 model ContactInformation {

@@ -47,29 +47,61 @@ const createPostService = async ({
   return res;
 };
 
-const getBlogs = async () => {
+const getBlogs = async (
+  page = 1,
+  limit = 20,
+  carmodel?: string,
+  filter?: string
+) => {
+  const skip = (page - 1) * limit;
+
+  // สร้าง where เงื่อนไขแบบ dynamic
+  const where: any = {};
+
+  // เช็คให้แน่ใจว่าไม่ใช่ "undefined" string หรือ undefined/null/empty
+  if (carmodel && carmodel !== 'undefined' && carmodel.trim() !== '') {
+    where.carModelId = carmodel;
+  }
+
+  if (filter && filter !== 'undefined' && filter.trim() !== '') {
+    where.serviceId = filter;
+  }
+
   const res = await db.customerBlog.findMany({
+    where,
     include: {
       carModel: {
-        select: {
-          name: true
-        }
+        select: { name: true }
       },
       tags: {
         select: {
           tag: { select: { name: true } }
         }
       }
-    }
+    },
+    orderBy: { create_at: 'desc' },
+    skip,
+    take: limit
   });
 
-  // แปลง tags: [{ tag: { name: string } }] → tags: string[]
+  // แปลง tags
   const transformed = res.map((blog) => ({
     ...blog,
     tags: blog.tags.map((t) => t.tag.name)
   }));
 
-  return transformed;
+  // นับจำนวนทั้งหมด (ตาม filter ด้วย)
+  const total = await db.customerBlog.count({ where });
+
+  return {
+    data: transformed,
+    pagination: {
+      currentPage: page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit)
+    }
+  };
 };
 
 const getBlogByCarModel = async ({
