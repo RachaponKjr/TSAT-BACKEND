@@ -185,8 +185,6 @@ const getSubServiceById = async (req: Request, res: Response) => {
 const getSubServicesController = async (req: Request, res: Response) => {
   try {
     const subService = await getSubServices();
-    console.log('🔍 subService:', subService);
-
     res.status(200).json({
       message: 'เรียกดูบริการย่อยสำเร็จ',
       data: subService

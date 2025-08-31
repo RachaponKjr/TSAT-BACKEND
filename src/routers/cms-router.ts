@@ -14,13 +14,30 @@ import {
   updateCustumersController
 } from '../controllers/cms-controller';
 import { authenticateToken, isOwner, isUser } from '../middlewares/auth-admin';
+import multer from 'multer';
+import path from 'path';
 const router = express.Router();
 
+const storage = multer.diskStorage({
+  destination: 'uploads/cms/',
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname); // .jpg, .png
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({ storage });
+
 router.get('/get-home', getCmsHomeController);
-router.put(
+router.patch(
   '/update-home/:id',
   authenticateToken,
   isUser,
+  upload.fields([
+    { name: 'bannerImage', maxCount: 1 },
+    { name: 'bannerImage2', maxCount: 1 }
+  ]),
   updateCmsHomeController
 );
 router.get('/get-service', getCmsServiceController);

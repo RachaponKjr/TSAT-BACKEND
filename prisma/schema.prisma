@@ -10,22 +10,24 @@ datasource db {
 
 // CMS HomePage
 model CMSHomePage {
-  id              String  @id @default(uuid()) @db.Uuid
-  seo_title       String?
-  seo_description String?
-  text_line_1     String?
-  text_line_2     String?
-  text_line_3     String?
-  text_line_4     String?
-  text_line_5     String?
-  text_line_6     String?
-  text_line_7     String?
-  text_line_8     String?
-  text_line_9     String?
-  text_line_10    String?
-  text_line_11    String?
-  text_line_12    String?
-  text_line_13    String?
+  id                String  @id @default(uuid()) @db.Uuid
+  seo_title         String?
+  seo_description   String?
+  text_line_1       String?
+  text_line_2       String?
+  text_line_3       String?
+  text_line_4       String?
+  text_line_5       String?
+  text_line_6       String?
+  text_line_7       String?
+  text_line_8       String?
+  text_line_9       String?
+  text_line_10      String?
+  text_line_11      String?
+  text_line_12      String?
+  text_line_13      String?
+  banner_image      String?
+  banner_info_image String?
 }
 
 model Seo {

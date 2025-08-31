@@ -114,9 +114,22 @@ const getBlogByCarmodel = async (req: Request, res: Response) => {
 const updateBlogController = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
+    let { keepimages, ...rest } = req.body;
     const checkBlog = await getBlogById({ id });
     const files = req.files as Express.Multer.File[];
     const imagePaths = files.map((file) => file.path);
+    if (typeof keepimages === 'string') {
+      try {
+        keepimages = JSON.parse(keepimages);
+      } catch {
+        keepimages = [keepimages];
+      }
+    }
+    if (!Array.isArray(keepimages)) keepimages = [];
+    // 🟢 filter blob ออก
+    keepimages = keepimages.filter(
+      (img: string) => typeof img === 'string' && !img.startsWith('blob:')
+    );
     if (imagePaths.length > 0) {
       if (Array.isArray(checkBlog?.images)) {
         checkBlog.images.forEach((imgPath) => {
@@ -135,13 +148,13 @@ const updateBlogController = async (req: Request, res: Response) => {
       }
     }
     const payload = {
-      ...req.body,
+      ...rest,
       isShow: req.body.isShow === 'true',
-      create_at: req.body.create_at ? new Date(req.body.create_at) : new Date()
+      create_at: req.body.create_at ? new Date(req.body.create_at) : new Date(),
+      images: []
     };
-
-    if (imagePaths.length > 0) {
-      payload.images = imagePaths;
+    if (imagePaths.length > 0 || keepimages) {
+      payload.images = [...keepimages, ...imagePaths];
     }
     const updateRes = await updateBlog({ id, data: payload });
     res.status(200).send({ data: { ...updateRes } });

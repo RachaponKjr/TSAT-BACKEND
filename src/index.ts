@@ -20,6 +20,7 @@ import catagoryService from './routers/catagory-servie';
 import userRouter from './routers/user-route';
 import authRouter from './routers/auth-router';
 import blogRouter from './routers/new-blog-router';
+import seoRouter from './routers/seo-router';
 import logRequest from './middlewares/log-req';
 
 const app = express();
@@ -47,7 +48,7 @@ app.use(
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
@@ -84,6 +85,7 @@ app.use(`${versionApi}/token`, authRouter);
 app.use(`${versionApi}/category-service-car`, CategoryServiceRouter);
 app.use(`${versionApi}/edit-blog`, editBlogRouter);
 app.use(`${versionApi}/blog`, blogRouter);
+app.use(`${versionApi}/seo`, seoRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

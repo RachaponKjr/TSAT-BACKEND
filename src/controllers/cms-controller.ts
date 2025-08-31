@@ -30,10 +30,32 @@ const getCmsHomeController = async (
 
 const updateCmsHomeController = async (req: Request, res: Response) => {
   try {
-    const cmsHome = await updateCmsHome({ data: req.body, id: req.params.id });
+    // ดึงไฟล์จาก multer
+    const files = req.files as {
+      [fieldname: string]: Express.Multer.File[];
+    };
+
+    // clone body มาใช้งาน
+    const payload: any = { ...req.body };
+
+    // ถ้ามีไฟล์ ก็เพิ่ม path/filename ลง payload
+    if (files?.bannerImage?.[0]) {
+      payload.banner_image = `/uploads/cms/${files.bannerImage[0].filename}`;
+    }
+    if (files?.bannerImage2?.[0]) {
+      payload.banner_info_image = `/uploads/cms/${files.bannerImage2[0].filename}`;
+    }
+
+    // ส่ง payload + id ไปอัปเดท
+    const cmsHome = await updateCmsHome({
+      data: payload,
+      id: req.params.id
+    });
+
     res.status(200).json({ status: 200, data: cmsHome });
     return;
   } catch (error) {
+    console.error('updateCmsHomeController error:', error);
     res.status(500).json({ message: 'Server Error', error });
     return;
   }
@@ -59,6 +81,7 @@ const updateCmsServiceController = async (req: Request, res: Response) => {
       data: req.body,
       id: req.params.id
     });
+
     res.status(200).json({ status: 200, data: cmsService });
     return;
   } catch (error) {
