@@ -16,8 +16,6 @@ router.get('/get-seo', async (req: Request, res: Response) => {
 router.patch('/update-seo/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    console.log(id);
-    console.log(req.body);
     const updateRes = await db.seo.update({
       where: {
         id
