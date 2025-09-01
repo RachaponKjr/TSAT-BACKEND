@@ -115,14 +115,6 @@ const updateBlogController = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
     let { keepimages, ...rest } = req.body;
-    const create_at = req.body.create_at
-      ? new Date(
-          new Date(req.body.create_at).setFullYear(
-            new Date(req.body.create_at).getFullYear() + 543
-          )
-        )
-      : new Date(new Date().setFullYear(new Date().getFullYear() + 543));
-
     const checkBlog = await getBlogById({ id });
     const files = req.files as Express.Multer.File[];
     const imagePaths = files.map((file) => file.path);
@@ -158,7 +150,7 @@ const updateBlogController = async (req: Request, res: Response) => {
     const payload = {
       ...rest,
       isShow: req.body.isShow === 'true',
-      create_at: create_at,
+      create_at: req.body.create_at ? new Date(req.body.create_at) : new Date(),
       images: []
     };
     if (imagePaths.length > 0 || keepimages) {
