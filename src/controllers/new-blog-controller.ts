@@ -130,23 +130,23 @@ const updateBlogController = async (req: Request, res: Response) => {
     keepimages = keepimages.filter(
       (img: string) => typeof img === 'string' && !img.startsWith('blob:')
     );
-    if (imagePaths.length > 0) {
-      if (Array.isArray(checkBlog?.images)) {
-        checkBlog.images.forEach((imgPath) => {
-          if (typeof imgPath === 'string') {
-            const filePath = path.join(__dirname, '../../', imgPath);
-            fs.unlink(filePath, async (err) => {
-              if (err) {
-                console.error('ลบรูปไม่สำเร็จ:', filePath, err.message);
-                return;
-              } else {
-                console.log('ลบรูปสำเร็จ:', filePath);
-              }
-            });
-          }
-        });
-      }
-    }
+    // if (imagePaths.length > 0) {
+    //   if (Array.isArray(checkBlog?.images)) {
+    //     checkBlog.images.forEach((imgPath) => {
+    //       if (typeof imgPath === 'string') {
+    //         const filePath = path.join(__dirname, '../../', imgPath);
+    //         fs.unlink(filePath, async (err) => {
+    //           if (err) {
+    //             console.error('ลบรูปไม่สำเร็จ:', filePath, err.message);
+    //             return;
+    //           } else {
+    //             console.log('ลบรูปสำเร็จ:', filePath);
+    //           }
+    //         });
+    //       }
+    //     });
+    //   }
+    // }
     const payload = {
       ...rest,
       isShow: req.body.isShow === 'true',
