@@ -153,7 +153,7 @@ const updateBlogController = async (req: Request, res: Response) => {
       create_at: req.body.create_at ? new Date(req.body.create_at) : new Date(),
       images: []
     };
-    if (imagePaths.length > 0 || keepimages) {
+    if (keepimages) {
       payload.images = [...keepimages, ...imagePaths];
     }
     const updateRes = await updateBlog({ id, data: payload });
