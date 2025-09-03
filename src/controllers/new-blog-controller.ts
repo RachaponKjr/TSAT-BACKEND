@@ -116,8 +116,11 @@ const updateBlogController = async (req: Request, res: Response) => {
     const { id } = req.params as { id: string };
     let { keepimages, ...rest } = req.body;
     const checkBlog = await getBlogById({ id });
+
     const files = req.files as Express.Multer.File[];
     const imagePaths = files.map((file) => file.path);
+
+    // 🟢 แปลง keepimages ให้เป็น array เสมอ
     if (typeof keepimages === 'string') {
       try {
         keepimages = JSON.parse(keepimages);
@@ -126,40 +129,28 @@ const updateBlogController = async (req: Request, res: Response) => {
       }
     }
     if (!Array.isArray(keepimages)) keepimages = [];
-    // 🟢 filter blob ออก
+
+    // 🟢 filter blob: ออก
     keepimages = keepimages.filter(
       (img: string) => typeof img === 'string' && !img.startsWith('blob:')
     );
-    // if (imagePaths.length > 0) {
-    //   if (Array.isArray(checkBlog?.images)) {
-    //     checkBlog.images.forEach((imgPath) => {
-    //       if (typeof imgPath === 'string') {
-    //         const filePath = path.join(__dirname, '../../', imgPath);
-    //         fs.unlink(filePath, async (err) => {
-    //           if (err) {
-    //             console.error('ลบรูปไม่สำเร็จ:', filePath, err.message);
-    //             return;
-    //           } else {
-    //             console.log('ลบรูปสำเร็จ:', filePath);
-    //           }
-    //         });
-    //       }
-    //     });
-    //   }
-    // }
+
+    // 🟢 payload base
     const payload = {
       ...rest,
       isShow: req.body.isShow === 'true',
       create_at: req.body.create_at ? new Date(req.body.create_at) : new Date(),
-      images: []
+      images: checkBlog.images
     };
-    if (keepimages) {
+
+    // 🟢 update images เฉพาะถ้ามีค่าใหม่
+    if (keepimages.length > 0 || imagePaths.length > 0) {
       payload.images = [...keepimages, ...imagePaths];
     }
     const updateRes = await updateBlog({ id, data: payload });
     res.status(200).send({ data: { ...updateRes } });
   } catch (err) {
-    console.log(err);
+    console.log('❌ updateBlogController error:', err);
     res.status(500).send({ err, message: 'Server Error!' });
   }
 };
