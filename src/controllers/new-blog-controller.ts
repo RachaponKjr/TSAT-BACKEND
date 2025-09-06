@@ -17,8 +17,6 @@ const createBlogController = async (
   res: Response
 ): Promise<void> => {
   try {
-    console.log(req.body);
-
     const files = req.files as Express.Multer.File[];
     const imagePaths = files.map((file) => file.path);
     const parsedTags = JSON.parse(req.body.tags);
@@ -58,9 +56,10 @@ const getBlogsController = async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const carmodel = String(req.query.carmodel as string) || '';
+    const subcar = String(req.query.subcar as string) || '';
     const filter = String(req.query.filter as string) || '';
 
-    const result = await getBlogs(page, limit, carmodel, filter);
+    const result = await getBlogs(page, limit, carmodel, subcar, filter);
     if (result.data.length === 0) {
       res.status(400).send({ message: 'ไม่พบBlog' });
       return;

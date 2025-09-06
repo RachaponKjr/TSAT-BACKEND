@@ -51,16 +51,20 @@ const getBlogs = async (
   page = 1,
   limit = 20,
   carmodel?: string,
+  carsubmodel?: string,
   filter?: string
 ) => {
   const skip = (page - 1) * limit;
 
   // สร้าง where เงื่อนไขแบบ dynamic
   const where: any = {};
-
   // เช็คให้แน่ใจว่าไม่ใช่ "undefined" string หรือ undefined/null/empty
   if (carmodel && carmodel !== 'undefined' && carmodel.trim() !== '') {
     where.carModelId = carmodel;
+  }
+
+  if (carsubmodel && carsubmodel !== 'undefined' && carsubmodel.trim() !== '') {
+    where.carSubModelId = carsubmodel; // filter ตาม carSubModelId
   }
 
   if (filter && filter !== 'undefined' && filter.trim() !== '') {
@@ -83,7 +87,6 @@ const getBlogs = async (
     skip,
     take: limit
   });
-
   // แปลง tags
   const transformed = res.map((blog) => ({
     ...blog,
