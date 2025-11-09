@@ -32,7 +32,8 @@ const versionApi = '/api/v1';
 const allowedOrigins = [
   'http://tsat-front:3030',
   'http://150.95.26.51:3030',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'https://topserviceautotechnic.com'
 ];
 
 app.use(logRequest);
