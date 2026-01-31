@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma as db } from '../libs/prisma';
 
-const db = new PrismaClient();
 const getContact = async () => {
   const contact = await db.contactInformation.findMany();
   return contact;

@@ -1,6 +1,5 @@
-import { PrismaClient, Role } from '@prisma/client';
-
-const db = new PrismaClient();
+import { Role } from '@prisma/client';
+import { prisma as db } from '../libs/prisma';
 
 export interface User {
   username: string;

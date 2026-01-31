@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma as db } from '../libs/prisma';
 import { isValidUUID, normalizeUUID } from '../libs/validuuid';
-
-const db = new PrismaClient();
 
 export interface CreateProps {
   tags?: string;

@@ -55,12 +55,15 @@ const getUserController = async (req: Request, res: Response) => {
 const loginUserController = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
+    console.log(username, password);
     const user = await getUserService({ username });
+
     if (!user) {
       res.status(401).json({ message: 'Invalid credentials.' });
       return;
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log(isPasswordValid);
     if (!isPasswordValid) {
       res.status(401).json({ message: 'Invalid credentials.' });
       return;

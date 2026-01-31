@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma as db } from '../libs/prisma';
 export interface CreateReviewInput {
   customerName: string;
   review: string;
@@ -6,7 +6,6 @@ export interface CreateReviewInput {
   carSubModelId: string;
 }
 
-const db = new PrismaClient();
 const CreateReviewService = async ({
   data,
   image

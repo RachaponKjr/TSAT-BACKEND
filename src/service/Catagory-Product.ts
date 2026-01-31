@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const db = new PrismaClient();
+import { prisma as db } from '../libs/prisma';
 
 const createCategory = async (data: {
   name: string;
