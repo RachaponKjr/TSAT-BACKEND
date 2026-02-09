@@ -27,6 +27,7 @@ model CMSHomePage {
   text_line_12      String?
   text_line_13      String?
   banner_image      String?
+  video_url         String?
   banner_info_image String?
 }
 

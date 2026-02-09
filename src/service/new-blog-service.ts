@@ -45,6 +45,16 @@ const createPostService = async ({
   return res;
 };
 
+const getPromotion = async () => {
+  const res = await db.customerBlog.findMany({
+    where: {
+      isShow: true
+    }
+  });
+  console.log(res);
+  return res;
+};
+
 const getBlogs = async (
   page = 1,
   limit = 20,
@@ -271,5 +281,6 @@ export {
   delBlog,
   getBlogs,
   getBlogByCarModel,
-  updateBlog
+  updateBlog,
+  getPromotion
 };

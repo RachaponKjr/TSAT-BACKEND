@@ -7,6 +7,7 @@ import {
   getBlogByCarModel,
   getBlogById,
   getBlogs,
+  getPromotion,
   updateBlog
 } from '../service/new-blog-service';
 import path from 'path';
@@ -47,6 +48,22 @@ const createBlogController = async (
     return;
   } catch (err) {
     res.status(500).send(err);
+    return;
+  }
+};
+
+const getPromotionController = async (req: Request, res: Response) => {
+  try {
+    const result = await getPromotion();
+    if (result.length === 0) {
+      res.status(400).send({ message: 'ไม่พบ Promotion' });
+      return;
+    }
+    res.status(200).send({ data: result, message: 'สำเร็จ' });
+    return;
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Server Error!');
     return;
   }
 };
@@ -196,5 +213,6 @@ export {
   getBlogsController,
   getBlogByCarmodel,
   getBlogByIdController,
-  updateBlogController
+  updateBlogController,
+  getPromotionController
 };

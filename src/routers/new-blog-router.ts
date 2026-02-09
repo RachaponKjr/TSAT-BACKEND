@@ -7,6 +7,7 @@ import {
   getBlogByCarmodel,
   getBlogByIdController,
   getBlogsController,
+  getPromotionController,
   updateBlogController
 } from '../controllers/new-blog-controller';
 import { authenticateToken, isAdmin, isUser } from '../middlewares/auth-admin';
@@ -30,6 +31,8 @@ router.post(
   upload.array('images'),
   createBlogController
 );
+
+router.get('/get-promotion', getPromotionController);
 router.get('/getall-blogs', getBlogsController);
 router.get('/getblog/:id', getBlogByIdController);
 router.get('/get-by-carsubmodel/:id', getBlogByCarmodel);
