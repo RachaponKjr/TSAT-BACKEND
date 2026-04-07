@@ -33,24 +33,37 @@ const allowedOrigins = [
   'http://tsat-front:3030',
   'http://150.95.26.51:3030',
   'http://localhost:3000',
-  'https://topserviceautotechnic.com'
+  'https://topserviceautotechnic.com',
+  'http://topserviceautotechnic.com', // เผื่อลูกค้าเข้าแบบไม่มี s
+  'https://www.topserviceautotechnic.com', // เผื่อมี www
+  'http://www.topserviceautotechnic.com'
 ];
 
 app.use(logRequest);
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // ถ้าไม่มี origin (เช่น curl หรือ mobile app) ให้ผ่านเลย
-      if (!origin || allowedOrigins.includes(origin)) {
+    origin: function (origin, callback) {
+      // ถ้าไม่มี origin (เช่น server-to-server) หรือ origin อยู่ในลิสต์
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
-        callback(new Error(`Not allowed by CORS: ${origin}`));
+        // แทนที่จะพ่น Error แรงๆ ให้ส่ง false ไปเฉยๆ
+        // หรือ console.log ดูว่าตัวที่หลุดมาคือ origin อะไร
+        console.log('Blocked by CORS:', origin);
+        callback(null, false);
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept'
+    ],
+    preflightContinue: false,
+    optionsSuccessStatus: 204 // สำคัญมาก: Chrome ชอบสถานะนี้สำหรับ OPTIONS
   })
 );
 
