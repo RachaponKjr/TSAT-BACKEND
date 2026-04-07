@@ -68,7 +68,7 @@ app.use(
 );
 
 // ✅ สำหรับ preflight requests
-app.options('*', cors());
+// app.options('*', cors());
 
 // ✅ Middleware ที่ควรอยู่ก่อน route ทุกตัว
 app.use(express.json());
