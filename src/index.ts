@@ -21,6 +21,7 @@ import userRouter from './routers/user-route';
 import authRouter from './routers/auth-router';
 import blogRouter from './routers/new-blog-router';
 import seoRouter from './routers/seo-router';
+import uploadRouter from './routers/upload-router';
 import logRequest from './middlewares/log-req';
 
 const app = express();
@@ -100,6 +101,7 @@ app.use(`${versionApi}/category-service-car`, CategoryServiceRouter);
 app.use(`${versionApi}/edit-blog`, editBlogRouter);
 app.use(`${versionApi}/blog`, blogRouter);
 app.use(`${versionApi}/seo`, seoRouter);
+app.use(`${versionApi}/upload`, uploadRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
