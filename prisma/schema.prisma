@@ -33,6 +33,7 @@ model CMSHomePage {
   video_url_3       String?
   video_url_4       String?
   banner_info_image String?
+  banner_show       String?
 }
 
 model Seo {

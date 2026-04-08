@@ -36,7 +36,8 @@ router.patch(
   isUser,
   upload.fields([
     { name: 'bannerImage', maxCount: 1 },
-    { name: 'bannerImage2', maxCount: 1 }
+    { name: 'bannerImage2', maxCount: 1 },
+    { name: 'bannerShow', maxCount: 1 }
   ]),
   updateCmsHomeController
 );

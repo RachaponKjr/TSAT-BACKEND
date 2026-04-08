@@ -45,6 +45,9 @@ const updateCmsHomeController = async (req: Request, res: Response) => {
     if (files?.bannerImage2?.[0]) {
       payload.banner_info_image = `/uploads/cms/${files.bannerImage2[0].filename}`;
     }
+    if (files?.bannerShow?.[0]) {
+      payload.banner_show = `/uploads/cms/${files.bannerShow[0].filename}`;
+    }
 
     // ส่ง payload + id ไปอัปเดท
     const cmsHome = await updateCmsHome({
