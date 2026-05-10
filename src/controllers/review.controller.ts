@@ -81,7 +81,7 @@ const getReviewController = async (req: Request, res: Response) => {
   }
 };
 
-const getReviewAllController = async (req: Request, res: Response) => {
+const getReviewAllActiveController = async (req: Request, res: Response) => {
   try {
     // ดึงข้อมูลจากฐานข้อมูลที่ Cron Job เตรียมไว้ให้แล้ว
     const reviews = await prisma.review.findMany({
@@ -94,6 +94,17 @@ const getReviewAllController = async (req: Request, res: Response) => {
       count: reviews.length,
       data: reviews
     });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error', error: error.message });
+  }
+};
+
+const getReviewAllController = async (req: Request, res: Response) => {
+  try {
+    const reviews = await prisma.review.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.status(200).json({ status: 200, count: reviews.length, data: reviews });
   } catch (error: any) {
     res.status(500).json({ message: 'Error', error: error.message });
   }
@@ -118,5 +129,6 @@ const updateShowReviewController = async (req: Request, res: Response) => {
 export {
   getReviewController,
   getReviewAllController,
-  updateShowReviewController
+  updateShowReviewController,
+  getReviewAllActiveController
 };
