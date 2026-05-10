@@ -25,7 +25,7 @@ const getReviewController = async (req: Request, res: Response) => {
       user: item.customer_name,
       comment: item.comment,
       user_image: item.image,
-      rating: item.responses.rating,
+      rating: parseInt(item.responses.rating) || 5,
       // ใช้เวลาจริงจาก API ต้นทาง
       createdAt: new Date(item.created_at)
     }));
