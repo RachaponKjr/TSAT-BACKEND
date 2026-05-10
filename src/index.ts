@@ -4,7 +4,7 @@ import http from 'http';
 import express, { Request } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-
+import cron from 'node-cron';
 import carModelRouter from './routers/CarModel';
 import subCarModelRouter from './routers/SubCarModel';
 import catagoryProductRouter from './routers/Product';
@@ -23,6 +23,8 @@ import blogRouter from './routers/new-blog-router';
 import seoRouter from './routers/seo-router';
 import uploadRouter from './routers/upload-router';
 import logRequest from './middlewares/log-req';
+import reviewRouter from './routers/review.route';
+import { syncReviewsToDatabase } from './libs/syncReviewsToDatabase';
 
 const app = express();
 const PORT = 3131;
@@ -102,10 +104,21 @@ app.use(`${versionApi}/edit-blog`, editBlogRouter);
 app.use(`${versionApi}/blog`, blogRouter);
 app.use(`${versionApi}/seo`, seoRouter);
 app.use(`${versionApi}/upload`, uploadRouter);
+app.use(`${versionApi}/review`, reviewRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+cron.schedule(
+  '0 0 * * 1',
+  () => {
+    syncReviewsToDatabase();
+  },
+  {
+    timezone: 'Asia/Bangkok'
+  }
+);
 
 // ✅ Start server
 const server = http.createServer(app);

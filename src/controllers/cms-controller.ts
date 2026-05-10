@@ -37,16 +37,12 @@ const updateCmsHomeController = async (req: Request, res: Response) => {
 
     // clone body มาใช้งาน
     const payload: any = { ...req.body };
-
     // ถ้ามีไฟล์ ก็เพิ่ม path/filename ลง payload
     if (files?.bannerImage?.[0]) {
       payload.banner_image = `/uploads/cms/${files.bannerImage[0].filename}`;
     }
     if (files?.bannerImage2?.[0]) {
       payload.banner_info_image = `/uploads/cms/${files.bannerImage2[0].filename}`;
-    }
-    if (files?.bannerShow?.[0]) {
-      payload.banner_show = `/uploads/cms/${files.bannerShow[0].filename}`;
     }
 
     // ส่ง payload + id ไปอัปเดท
