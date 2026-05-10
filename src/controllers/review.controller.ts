@@ -99,4 +99,24 @@ const getReviewAllController = async (req: Request, res: Response) => {
   }
 };
 
-export { getReviewController, getReviewAllController };
+const updateShowReviewController = async (req: Request, res: Response) => {
+  try {
+    const { id, showActive } = req.body;
+    const updatedReview = await prisma.review.update({
+      where: { id },
+      data: { showActive }
+    });
+    res.status(200).json({
+      status: 200,
+      data: updatedReview
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error', error: error.message });
+  }
+};
+
+export {
+  getReviewController,
+  getReviewAllController,
+  updateShowReviewController
+};
