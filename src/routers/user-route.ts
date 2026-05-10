@@ -15,7 +15,7 @@ import {
 
 const router = express.Router();
 
-router.post('/create-user', authenticateToken, isUser, createUserController);
+router.post('/create-user', createUserController);
 router.get('/get-users', authenticateToken, isUser, getUserController);
 router.delete(
   '/delete-user/:id',
