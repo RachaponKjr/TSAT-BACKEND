@@ -35,7 +35,7 @@ const getReviewController = async (req: Request, res: Response) => {
       source: 'Google',
       user: item.name,
       comment: item.text,
-      user_image: item.profilePhotoUrl,
+      user_image: item.reviewerPhotoUrl,
       rating: parseInt(item.stars) || 0,
       // ใช้เวลาจริงที่ Google ระบุ (Apify มักส่งมาใน PublishedAtDate)
       createdAt: item.publishedAtDate
