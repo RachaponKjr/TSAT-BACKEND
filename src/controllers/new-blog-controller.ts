@@ -12,6 +12,7 @@ import {
 } from '../service/new-blog-service';
 import path from 'path';
 import { parseThaiDateString } from '../libs/thai-date';
+import redisClient from '../libs/redis';
 
 const createBlogController = async (
   req: Request,
@@ -76,11 +77,25 @@ const getBlogsController = async (req: Request, res: Response) => {
     const subcar = String(req.query.subcar as string) || '';
     const filter = String(req.query.filter as string) || '';
 
+    const CACHE_KEY = `blog:list:page=${page}:limit=${limit}:carmodel=${carmodel}:subcar=${subcar}:filter=${filter}`;
+
+    const cachedBlogs = await redisClient.get(CACHE_KEY);
+
+    if (cachedBlogs) {
+      res.status(200).send(JSON.parse(cachedBlogs));
+      return;
+    }
+
     const result = await getBlogs(page, limit, carmodel, subcar, filter);
+
     if (result.data.length === 0) {
       res.status(400).send({ message: 'ไม่พบBlog' });
       return;
     }
+
+    await redisClient.set(CACHE_KEY, JSON.stringify(result), {
+      EX: 3600
+    });
 
     res.status(200).send(result);
     return;

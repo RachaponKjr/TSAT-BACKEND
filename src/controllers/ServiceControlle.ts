@@ -12,6 +12,7 @@ import {
 } from '../service/Service';
 import path from 'path';
 import fs from 'fs/promises';
+import redisClient from '../libs/redis';
 
 const createService = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -46,14 +47,34 @@ const createService = async (req: Request, res: Response): Promise<void> => {
 };
 
 const getService = async (req: Request, res: Response): Promise<void> => {
+  const CACHE_KEY = 'service:all:data';
+
   try {
+    const cachedService = await redisClient.get(CACHE_KEY);
+
+    if (cachedService) {
+      res.status(200).json({
+        status: 200,
+        service: JSON.parse(cachedService),
+        fromCache: true
+      });
+      return;
+    }
+
     const service = await get_Service();
+
+    await redisClient.set(CACHE_KEY, JSON.stringify(service), {
+      EX: 3600 * 6
+    });
+
     res.status(200).json({ status: 200, service });
+    return;
   } catch (error) {
+    console.error('❌ Error in getService Controller:', error);
     res.status(500).json({ message: 'Server Error!', error });
+    return;
   }
 };
-
 const updateServiceController = async (
   req: Request,
   res: Response
