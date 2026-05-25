@@ -89,6 +89,16 @@ const getBlogs = async (
         select: {
           tag: { select: { name: true } }
         }
+      },
+      service: {
+        select: {
+          serviceName: true
+        }
+      },
+      subService: {
+        select: {
+          subServiceName: true
+        }
       }
     },
     orderBy: { create_at: 'desc' },

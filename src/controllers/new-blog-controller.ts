@@ -14,6 +14,23 @@ import path from 'path';
 import { parseThaiDateString } from '../libs/thai-date';
 import redisClient from '../libs/redis';
 
+const clearCachePattern = async (pattern: string) => {
+  let cursor = '0';
+  do {
+    // สแกนหาคีย์ตาม Pattern (ทีละ 100 คีย์เพื่อไม่ให้เซิร์ฟเวอร์ค้าง)
+    const reply = await redisClient.scan(cursor, {
+      MATCH: pattern,
+      COUNT: 100
+    });
+    cursor = reply.cursor;
+    const keys = reply.keys;
+
+    if (keys.length > 0) {
+      await redisClient.del(keys);
+    }
+  } while (cursor !== '0');
+};
+
 const createBlogController = async (
   req: Request,
   res: Response
@@ -108,11 +125,20 @@ const getBlogsController = async (req: Request, res: Response) => {
 const getBlogByIdController = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
+    const CACHE_KEY = `blog:id:${id}`;
+    const cachedBlog = await redisClient.get(CACHE_KEY);
+    if (cachedBlog) {
+      res
+        .status(200)
+        .send({ data: JSON.parse(cachedBlog), message: 'สำเร็จ (จากแคช)' });
+      return;
+    }
     const getRes = await getBlogById({ id });
     if (!getRes) {
       res.status(400).send({ message: 'ไม่พบ Blog' });
       return;
     }
+    await redisClient.set(CACHE_KEY, JSON.stringify(getRes), { EX: 3600 });
     res.status(200).send({ data: getRes, message: 'สำเร็จ' });
     return;
   } catch (err) {
@@ -124,6 +150,12 @@ const getBlogByIdController = async (req: Request, res: Response) => {
 const getBlogByCarmodel = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const CACHE_KEY = `blog:carmodel:${id}`;
+    const cachedCarBlogs = await redisClient.get(CACHE_KEY);
+    if (cachedCarBlogs) {
+      res.status(200).send({ data: JSON.parse(cachedCarBlogs) });
+      return;
+    }
     if (!id) {
       res.status(400).send({ message: ' กรุณาส่ง carModelId' });
       return;
@@ -133,6 +165,7 @@ const getBlogByCarmodel = async (req: Request, res: Response) => {
       res.status(400).send({ message: 'ไม่พบBlog' });
       return;
     }
+    await redisClient.set(CACHE_KEY, JSON.stringify(resCarmodel), { EX: 3600 });
     res.status(200).send({
       data: [...resCarmodel]
     });
@@ -181,7 +214,11 @@ const updateBlogController = async (req: Request, res: Response) => {
     }
     const updateRes = await updateBlog({ id, data: payload });
 
-    await redisClient.del(CACHE_KEY);
+    await Promise.all([
+      clearCachePattern('blog:list:*'),
+      redisClient.del(`blog:id:${id}`),
+      clearCachePattern('blog:carmodel:*')
+    ]);
 
     res.status(200).send({ data: { ...updateRes } });
   } catch (err) {
