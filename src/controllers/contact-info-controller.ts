@@ -35,10 +35,12 @@ const getContactController = async (
   }
 };
 const updateContactController = async (req: Request, res: Response) => {
+  const CACHE_KEY = 'contact:all:data';
   try {
     const id = req.params.id;
     const body = req.body;
     const contact = await updateContact({ data: body, id });
+    await redisClient.del(CACHE_KEY);
     res.status(200).json({ status: 200, data: contact });
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error });

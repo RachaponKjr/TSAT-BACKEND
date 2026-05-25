@@ -79,6 +79,8 @@ const updateServiceController = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  const CACHE_KEY = 'service:all:data';
+
   try {
     const { id } = req.params;
     const files = req.files as Express.Multer.File[];
@@ -104,6 +106,8 @@ const updateServiceController = async (
 
     // ทำการอัปเดต
     const updated = await updateService(id, payload);
+
+    await redisClient.del(CACHE_KEY);
 
     res.status(200).json({ message: 'แก้ไขบริการสำเร็จ', data: updated });
   } catch (error) {

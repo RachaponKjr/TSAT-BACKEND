@@ -51,6 +51,8 @@ const getCmsHomeController = async (
 
 const updateCmsHomeController = async (req: Request, res: Response) => {
   try {
+    const CACHE_KEY = 'cms:home:data';
+
     // ดึงไฟล์จาก multer
     const files = req.files as {
       [fieldname: string]: Express.Multer.File[];
@@ -71,6 +73,8 @@ const updateCmsHomeController = async (req: Request, res: Response) => {
       data: payload,
       id: req.params.id
     });
+
+    await redisClient.del(CACHE_KEY);
 
     res.status(200).json({ status: 200, data: cmsHome });
     return;
@@ -115,10 +119,14 @@ const getCmsServiceController = async (
 };
 const updateCmsServiceController = async (req: Request, res: Response) => {
   try {
+    const CACHE_KEY = 'cms:service:data';
+
     const cmsService = await updateCmsService({
       data: req.body,
       id: req.params.id
     });
+
+    await redisClient.del(CACHE_KEY);
 
     res.status(200).json({ status: 200, data: cmsService });
     return;
@@ -162,10 +170,15 @@ const getCmsProductController = async (
 
 const updateCmsProductController = async (req: Request, res: Response) => {
   try {
+    const CACHE_KEY = 'cms:product:data';
+
     const cmsProduct = await updateCmsProduct({
       data: req.body,
       id: req.params.id
     });
+
+    await redisClient.del(CACHE_KEY);
+
     res.status(200).json({ status: 200, data: cmsProduct });
     return;
   } catch (error) {
@@ -209,10 +222,15 @@ const getCustumersController = async (
 
 const updateCustumersController = async (req: Request, res: Response) => {
   try {
+    const CACHE_KEY = 'cms:customer:data';
+
     const data = await updateCmsCustumer({
       id: req.params.id,
       data: req.body
     });
+
+    await redisClient.del(CACHE_KEY);
+
     res.status(200).json({ status: 200, data });
     return;
   } catch (error) {
@@ -254,10 +272,14 @@ const getAboutController = async (
 };
 const updateAboutController = async (req: Request, res: Response) => {
   try {
+    const CACHE_KEY = 'cms:about:data';
+
     const data = await updateCmsAbout({
       id: req.params.id,
       data: req.body
     });
+    await redisClient.del(CACHE_KEY);
+
     res.status(200).json({ status: 200, data });
     return;
   } catch (error) {
@@ -300,10 +322,15 @@ const getContactController = async (
 
 const updateContactController = async (req: Request, res: Response) => {
   try {
+    const CACHE_KEY = 'cms:contact:data';
+
     const data = await updateCmsContact({
       id: req.params.id,
       data: req.body
     });
+
+    await redisClient.del(CACHE_KEY);
+
     res.status(200).json({ status: 200, data });
     return;
   } catch (error) {

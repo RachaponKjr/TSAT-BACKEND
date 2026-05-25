@@ -143,6 +143,7 @@ const getBlogByCarmodel = async (req: Request, res: Response) => {
 };
 
 const updateBlogController = async (req: Request, res: Response) => {
+  const CACHE_KEY = 'blog:list:page=:limit=:carmodel=:subcar=:filter';
   try {
     const { id } = req.params as { id: string };
     let { keepimages, ...rest } = req.body;
@@ -179,6 +180,9 @@ const updateBlogController = async (req: Request, res: Response) => {
       payload.images = [...keepimages, ...imagePaths];
     }
     const updateRes = await updateBlog({ id, data: payload });
+
+    await redisClient.del(CACHE_KEY);
+
     res.status(200).send({ data: { ...updateRes } });
   } catch (err) {
     console.log('❌ updateBlogController error:', err);
