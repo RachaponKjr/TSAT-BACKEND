@@ -16,6 +16,8 @@ import redisClient from '../libs/redis';
 
 const createService = async (req: Request, res: Response): Promise<void> => {
   try {
+    const CACHE_KEY = 'service:all:data';
+
     const { serviceName, serviceDetail, title, explain, bgIcon, icon } =
       req.body;
     const files = req.files as Express.Multer.File[];
@@ -40,6 +42,7 @@ const createService = async (req: Request, res: Response): Promise<void> => {
       image: imageFilenames
     });
 
+    await redisClient.del(CACHE_KEY);
     res.status(201).json({ message: 'สร้างบริการสำเร็จ', data: service });
   } catch (error) {
     res.status(500).json({ message: 'Server Error!', error });
@@ -122,6 +125,7 @@ const deleteServiceController = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const CACHE_KEY = 'service:all:data';
 
     if (!id) {
       res.status(400).json({ message: 'กรุณาระบุรหัสบริการ' });
@@ -152,6 +156,7 @@ const deleteServiceController = async (
 
     // ทำการลบบริการจากฐานข้อมูล
     await deleteService(id);
+    await redisClient.del(CACHE_KEY);
 
     res.status(200).json({ message: 'ลบบริการและรูปภาพสำเร็จ' });
   } catch (error) {
@@ -162,6 +167,8 @@ const deleteServiceController = async (
 
 const createSubServiceControlle = async (req: Request, res: Response) => {
   try {
+    const CACHE_KEY = 'service:all:data';
+
     const { serviceId, subServiceName, subServiceDetail } = req.body;
     const dataReq = {
       serviceId,
@@ -183,6 +190,8 @@ const createSubServiceControlle = async (req: Request, res: Response) => {
 
     const createDb = await createSubService(dataReq);
     if (createDb) {
+      await redisClient.del(CACHE_KEY);
+
       res.status(201).json({ data: createDb, message: 'สร้างสำเร็จ' });
       return;
     }
@@ -226,13 +235,16 @@ const getSubServicesController = async (req: Request, res: Response) => {
 
 const delSubServiceController = async (req: Request, res: Response) => {
   try {
+    const CACHE_KEY = 'service:all:data';
+
     const { id } = req.params;
     if (!id) {
       res.status(400).json({ message: 'กรุณา ส่ง id' });
       return;
     }
     await delSucService(id)
-      .then(() => {
+      .then(async () => {
+        await redisClient.del(CACHE_KEY);
         res.status(200).json({ message: 'del Ok!' });
         return;
       })
