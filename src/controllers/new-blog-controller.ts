@@ -63,7 +63,11 @@ const createBlogController = async (
       res.status(400).send({ message: 'ไม่สามารถ สร้างblog ได้' });
       return;
     }
-    await clearCachePattern('blog:list:*');
+    await Promise.all([
+      clearCachePattern('blog:list:*'),
+      clearCachePattern('blog:carmodel:*')
+    ]);
+
     res.status(201).send({ create, message: 'สร้างสำเร็จ' });
     return;
   } catch (err) {
@@ -256,6 +260,12 @@ const delBlogController = async (req: Request, res: Response) => {
         }
       });
     }
+
+    await Promise.all([
+      clearCachePattern('blog:list:*'),
+      redisClient.del(`blog:id:${id}`),
+      clearCachePattern('blog:carmodel:*')
+    ]);
 
     await delBlog(id);
     res.status(200).send({ message: 'ลบสำเร็จ', data: { ...checkBlog } });
