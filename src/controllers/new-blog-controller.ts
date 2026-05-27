@@ -36,6 +36,7 @@ const createBlogController = async (
   res: Response
 ): Promise<void> => {
   try {
+    const CACHE_KEY = 'blog:list:*';
     const files = req.files as Express.Multer.File[];
     const imagePaths = files.map((file) => file.path);
     const parsedTags = JSON.parse(req.body.tags);
@@ -62,6 +63,7 @@ const createBlogController = async (
       res.status(400).send({ message: 'ไม่สามารถ สร้างblog ได้' });
       return;
     }
+    await clearCachePattern('blog:list:*');
     res.status(201).send({ create, message: 'สร้างสำเร็จ' });
     return;
   } catch (err) {
@@ -176,10 +178,10 @@ const getBlogByCarmodel = async (req: Request, res: Response) => {
 };
 
 const updateBlogController = async (req: Request, res: Response) => {
-  const CACHE_KEY = 'blog:list:page=:limit=:carmodel=:subcar=:filter';
   try {
     const { id } = req.params as { id: string };
     let { keepimages, ...rest } = req.body;
+
     const checkBlog = await getBlogById({ id });
 
     const files = req.files as Express.Multer.File[];
