@@ -74,8 +74,8 @@ app.use(
 // app.options('*', cors());
 
 // ✅ Middleware ที่ควรอยู่ก่อน route ทุกตัว
-app.use(express.json());
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '50mb' })); // 🟢 ต้องระบุลิมิตตรงนี้ด้วย
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
 // ✅ Static file serving
