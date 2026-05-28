@@ -102,9 +102,16 @@ const updateServiceController = async (
     }
     const imageFilenames = files.map((file) => `/uploads/${file.filename}`);
 
+    const existingImages = req.body.existingImages
+      ? JSON.parse(req.body.existingImages)
+      : [];
+
+    // รวมรูปเดิม + รูปใหม่
+    const allImages = [...existingImages, ...imageFilenames];
+
     const payload = {
       ...req.body,
-      image: files ? imageFilenames : undefined
+      image: allImages.length > 0 ? allImages : existingService.images
     };
 
     // ทำการอัปเดต
