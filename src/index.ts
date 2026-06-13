@@ -24,6 +24,7 @@ import seoRouter from './routers/seo-router';
 import uploadRouter from './routers/upload-router';
 import logRequest from './middlewares/log-req';
 import reviewRouter from './routers/review.route';
+import pdfRouter from './routers/pdf.route';
 import { syncReviewsToDatabase } from './libs/syncReviewsToDatabase';
 
 const app = express();
@@ -105,6 +106,7 @@ app.use(`${versionApi}/blog`, blogRouter);
 app.use(`${versionApi}/seo`, seoRouter);
 app.use(`${versionApi}/upload`, uploadRouter);
 app.use(`${versionApi}/review`, reviewRouter);
+app.use(`${versionApi}/pdf`, pdfRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
