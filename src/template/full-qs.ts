@@ -316,10 +316,11 @@ export function generatePDFQS(data: IDataService): string {
           <thead>
             <tr>
               <th style="width: 20px;" class="text-center">ลำดับ</th>
-              <th style="width: 200px;">รายการตรวจเช็ค</th>
-              <th style="width: 70px;" class="text-center">ผลการตรวจ</th>
-              <th style="width: 150px;">การแก้ไข / เสนอซ่อม</th>
-              <th>มาตรฐานการวัด</th>
+              <th style="width: 170px;">รายการตรวจเช็ค</th>
+              <th style="width: 150px;">รายละเอียด</th>
+              <th style="width: 130px;" class="text-center">วิธีการวัด</th>
+              <th style="width: 90px;">เกณฑ์ ปกติ/ไม่ปกติ</th>
+              <th>หมายเหตุ/การแก้ไข</th>
             </tr>
           </thead>
           <tbody>
@@ -328,7 +329,7 @@ export function generatePDFQS(data: IDataService): string {
             .map((category, i) => {
               return `
     <tr class="category-row">
-      <td colspan="5">${category.name}</td>
+      <td colspan="6">${category.name}</td>
     </tr>
    ${category.items
      .map((item, index) => {
@@ -345,6 +346,8 @@ export function generatePDFQS(data: IDataService): string {
             }
           </td>
               <td>${item.name}</td>
+              <td>${criteria.measurement_standard || '-'}</td>
+              <td>${criteria.standard_value || '-'}</td>
               <td>
                 <div class="result-container">
                   <span class="circle circle-pass ${
@@ -356,7 +359,6 @@ export function generatePDFQS(data: IDataService): string {
                 </div>
               </td>
               <td>${criteria.repair_suggestion || '-'}</td>
-              <td>${criteria.standard_value}</td>
             </tr>
             `;
          })
