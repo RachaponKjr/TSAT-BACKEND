@@ -52,7 +52,7 @@ export interface IService {
 export class PdfController {
   async createPdf(req: Request, res: Response) {
     try {
-      const { quotationNumber } = req.body;
+      const { quotationNumber, type } = req.body;
 
       if (!quotationNumber) {
         // เอา return ออก เปลี่ยนเป็นส่ง res ไปเฉยๆ แล้วสั่งจบการทำงานด้วยการใส่ปีกกาปิด
@@ -62,11 +62,11 @@ export class PdfController {
         return; // ใส่ return เปล่าๆ เพื่อให้หยุดการทำงานในฟังก์ชันนี้พอ
       }
 
-      const meta = await pdfService.generateAndSavePdf(quotationNumber);
+      const meta = await pdfService.generateAndSavePdf(quotationNumber, type);
       // เอา return ออก
       res.status(201).json({
         message: 'สร้างและบันทึกไฟล์ PDF เรียบร้อย',
-        pdfId: meta
+        url: meta
       });
     } catch (error: any) {
       // เอา return ออก

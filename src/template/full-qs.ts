@@ -16,7 +16,7 @@ export function generatePDFQS(data: IDataService): string {
 
     /* ตั้งค่าหน้ากระดาษและภาพรวม */
     @page {
-      size: A4;
+      size: A4 portrait;
       margin: 10mm;
     }
 
