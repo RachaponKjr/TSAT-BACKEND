@@ -20,12 +20,9 @@ export class PdfService {
     const fileName = `${quotationNumber}_${type}.pdf`;
     const targetFilePath = path.join(UPLOAD_DIR, fileName);
 
+    // ลบไฟล์เก่าถ้ามี
     if (fs.existsSync(targetFilePath)) {
-      const roRes = await fetch(
-        `https://tsatdata.com/api/checkups/${quotationNumber}`
-      );
-      const data = (await roRes.json()) as IService;
-      return { ...data, fileUrl: `/uploads/pdf/${fileName}` };
+      fs.unlinkSync(targetFilePath);
     }
 
     const roRes = await fetch(
@@ -58,7 +55,6 @@ export class PdfService {
             ]
           };
 
-    // แปลง HTML เป็น PDF
     const pdfBuffer: Buffer = await new Promise((resolve, reject) => {
       htmlPdf.generatePdf(
         { content: htmlContent },
@@ -72,8 +68,6 @@ export class PdfService {
 
     fs.writeFileSync(targetFilePath, pdfBuffer as any);
 
-    return {
-      fileUrl: `/uploads/pdf/${fileName}`
-    };
+    return { fileUrl: `/uploads/pdf/${fileName}` };
   }
 }

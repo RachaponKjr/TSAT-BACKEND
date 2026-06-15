@@ -61,7 +61,7 @@ export function generatePDFQS(data: IDataService): string {
 
     .company-info h6 {
       margin: 0 0 4px 0;
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 600;
       line-height: 1.2;
     }
@@ -69,7 +69,7 @@ export function generatePDFQS(data: IDataService): string {
     .company-info p,
     .company-info span {
       margin: 0;
-      font-size: 10px;
+      font-size: 12px;
       line-height: 1.3;
       display: block;
     }
@@ -89,7 +89,7 @@ export function generatePDFQS(data: IDataService): string {
 
     .customer-section h5 {
       margin: 0;
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 600;
     }
 
@@ -100,7 +100,7 @@ export function generatePDFQS(data: IDataService): string {
     }
 
     .label-item {
-      font-size: 11px;
+      font-size: 12px;
     }
 
     .label-item .label-title {
@@ -124,7 +124,7 @@ export function generatePDFQS(data: IDataService): string {
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 10px;
+      font-size: 13px;
     }
 
     th,
@@ -139,6 +139,7 @@ export function generatePDFQS(data: IDataService): string {
       background-color: #F5F5F5;
       color: #555555;
       font-weight: 600;
+      text-align: center;
       text-shadow: none;
     }
 
@@ -158,7 +159,7 @@ export function generatePDFQS(data: IDataService): string {
     .category-row td {
       font-weight: 700;
       color: #374151;
-      font-size: 11px;
+      font-size: 14px;
     }
 
     /* วงกลมผลการตรวจ (Pass / Fail) */
@@ -211,7 +212,7 @@ export function generatePDFQS(data: IDataService): string {
     }
 
     .remark-box span {
-      font-size: 11px;
+      font-size: 14px;
       font-weight: 500;
       white-space: nowrap;
     }
@@ -240,7 +241,7 @@ export function generatePDFQS(data: IDataService): string {
     }
 
     .sig-row span {
-      font-size: 11px;
+      font-size: 14px;
       white-space: nowrap;
     }
 
@@ -319,7 +320,7 @@ export function generatePDFQS(data: IDataService): string {
               <th style="width: 170px;">รายการตรวจเช็ค</th>
               <th style="width: 150px;">รายละเอียด</th>
               <th style="width: 130px;" class="text-center">วิธีการวัด</th>
-              <th style="width: 90px;">เกณฑ์ ปกติ/ไม่ปกติ</th>
+              <th style="width: 70px;">เกณฑ์ ปกติ/ไม่ปกติ</th>
               <th>หมายเหตุ/การแก้ไข</th>
             </tr>
           </thead>
