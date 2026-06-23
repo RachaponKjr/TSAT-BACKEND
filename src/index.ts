@@ -25,7 +25,10 @@ import uploadRouter from './routers/upload-router';
 import logRequest from './middlewares/log-req';
 import reviewRouter from './routers/review.route';
 import pdfRouter from './routers/pdf.route';
+import scrapeRouter from './routers/scrape.route';
 import { syncReviewsToDatabase } from './libs/syncReviewsToDatabase';
+import { runFullWebScraper } from './libs/seoScraper';
+import redisClient from './libs/redis';
 
 const app = express();
 const PORT = 3131;
@@ -107,6 +110,7 @@ app.use(`${versionApi}/seo`, seoRouter);
 app.use(`${versionApi}/upload`, uploadRouter);
 app.use(`${versionApi}/review`, reviewRouter);
 app.use(`${versionApi}/pdf`, pdfRouter);
+app.use(`${versionApi}/scrape`, scrapeRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -121,6 +125,17 @@ cron.schedule(
     timezone: 'Asia/Bangkok'
   }
 );
+
+cron.schedule('0 2 * * *', async () => {
+  console.log('🕑 Auto re-scrape started...');
+  const result = await runFullWebScraper(
+    'https://topserviceautotechnic.com/sitemap.xml'
+  );
+  await redisClient.set('tsat:seo:content', JSON.stringify(result), {
+    EX: 60 * 60 * 25
+  });
+  console.log('✅ Auto re-scrape done');
+});
 
 // ✅ Start server
 const server = http.createServer(app);
