@@ -48,7 +48,12 @@ const getReportListByIdController = async (
   res: Response
 ): Promise<void> => {
   try {
-    const reportList = await getReportListById(req.params.id);
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ message: 'Missing required fields' });
+      return;
+    }
+    const reportList = await getReportListById(id);
     res.status(200).json({ data: reportList });
     return;
   } catch (error) {
@@ -65,8 +70,8 @@ const updateCategoryController = async (
   try {
     const { title, icon_url, reportId } =
       req.body as Partial<typeReqCreateCategory>;
-    const id = req.params.id;
-    if (!title || !icon_url || !reportId) {
+    const { id } = req.params;
+    if (!id) {
       res.status(400).json({ message: 'Missing required fields' });
       return;
     }
@@ -90,7 +95,12 @@ const deleteCategoryController = async (
   res: Response
 ): Promise<void> => {
   try {
-    const categoryRes = await deleteCategory(req.params.id);
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ message: 'Missing required fields' });
+      return;
+    }
+    const categoryRes = await deleteCategory(id);
     res.status(200).json({ data: categoryRes });
     return;
   } catch (error) {

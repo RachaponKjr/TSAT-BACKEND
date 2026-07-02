@@ -55,6 +55,7 @@ const updateReportMainController = async (
   try {
     const payload = req.body as Partial<TypeReqCreateReportMain>;
     const { id } = req.params;
+
     if (!id) {
       res.status(400).json({ message: 'Missing required fields' });
       return;

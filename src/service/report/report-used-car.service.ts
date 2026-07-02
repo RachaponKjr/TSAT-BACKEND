@@ -5,7 +5,7 @@ const openReport = async ({ data }: { data: ReqOpenReport }) => {
   const report = await db.reportInfo.create({
     data: {
       customerName: data.customerName,
-      carModelId: data.carModel,
+      carModelId: data.carModelId,
       carSubModelId: data.carSubModelId,
       vin_code: data.vin_code,
       year: data.year,
@@ -23,11 +23,11 @@ const updateReport = async ({
   data: Partial<ReqOpenReport>;
   id: string;
 }) => {
-  const report = await db.report.update({
-    where: {
-      id
-    },
-    data: data
+  const report = await db.reportInfo.update({
+    where: { id },
+    data: {
+      ...data
+    }
   });
   return report;
 };

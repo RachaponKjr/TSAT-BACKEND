@@ -70,12 +70,7 @@ const getItemReportController = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
-    if (!id) {
-      res.status(400).json({ message: 'Missing required fields' });
-      return;
-    }
-    const item = await getItemReport(id);
+    const item = await getItemReport();
     res.status(200).json({ data: item });
     return;
   } catch (error) {

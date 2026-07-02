@@ -48,13 +48,9 @@ const deleteItemReport = async (id: string) => {
   }
 };
 
-const getItemReport = async (id: string) => {
+const getItemReport = async () => {
   try {
-    const item = await db.reportItem.findUnique({
-      where: {
-        id
-      }
-    });
+    const item = await db.reportItem.findMany({});
     return item;
   } catch (error) {
     console.error('Error getting item:', error);

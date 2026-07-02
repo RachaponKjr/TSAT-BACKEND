@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-const ReqOpenReportSchema = z.object({
+export const ReqOpenReportSchema = z.object({
   customerName: z.string(),
-  carModel: z.string().optional(),
+  carModelId: z.string().optional(),
   carSubModelId: z.string().optional(),
   vin_code: z.string(),
   year: z.string().optional(),

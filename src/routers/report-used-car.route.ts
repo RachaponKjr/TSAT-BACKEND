@@ -42,8 +42,8 @@ route.patch('/update-report/:id', updateApproveReportController);
 route.delete('/del-report/:id', delReportController);
 
 // REPORT MAIN
-route.get('/list-report', createReportMainController);
-route.get('/list-report/:id', getReportMainListController);
+route.post('/create-report', createReportMainController);
+route.get('/list-report', getReportMainListController);
 route.patch('/update-report/:id', updateReportMainController);
 route.delete('/del-report/:id', deleteReportMainController);
 
