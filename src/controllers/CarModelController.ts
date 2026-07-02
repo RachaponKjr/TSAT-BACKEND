@@ -20,8 +20,6 @@ const createCarModelController = async (
 
     const files = req.file?.filename;
 
-    console.log(files);
-
     if (!name || !files) {
       res.status(400).json({ message: 'กรุณากรอกข้อมูลให้ครบ' });
       return;

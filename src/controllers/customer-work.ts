@@ -191,7 +191,6 @@ const deleteWorkController = async (req: Request, res: Response) => {
     const id = req.params.id;
     // 1. ดึงข้อมูลก่อนลบ เพื่อได้ path รูป
     const works = await getCustomerWork({ id });
-    console.log('works', works);
     if (!works) {
       res.status(404).json({ status: 404, message: 'ไม่พบข้อมูล' });
       return;
