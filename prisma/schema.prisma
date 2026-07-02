@@ -134,6 +134,7 @@ model CarModel {
   WorkService     WorkService[]
   carServiceLinks CarServiceLink[] // ✅ พหูพจน์ และตรงความหมาย
   CustomerBlog    CustomerBlog[]
+  reportInfos     ReportInfo[]
 }
 
 model CarSubModel {
@@ -150,6 +151,7 @@ model CarSubModel {
   WorkService    WorkService[]
   CustomerWork   CustomerWork[]
   CustomerBlog   CustomerBlog[]
+  reportInfos    ReportInfo[]
 }
 
 model CategoryServiceCarModel {
@@ -396,4 +398,63 @@ model User {
   role      Role     @default(USER)
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
+}
+
+model ReportInfo {
+  id            String  @id @default(uuid()) @db.Uuid
+  customerName  String
+  carModelId    String? @db.Uuid
+  carSubModelId String? @db.Uuid
+  vin_code      String
+  year          String?
+  mileage       String?
+  license_plate String?
+  reportId      String? @db.Uuid // ✅ FK จริง
+
+  report      Report?      @relation(fields: [reportId], references: [id])
+  carModel    CarModel?    @relation(fields: [carModelId], references: [id])
+  carSubModel CarSubModel? @relation(fields: [carSubModelId], references: [id])
+}
+
+model Report {
+  id            String         @id @default(uuid()) @db.Uuid
+  car_url       String
+  inspector     String?
+  approver      String?
+  overallGrade  String? // เช่น "A" ตามภาพ
+  totalScore    Int? // 370
+  maxScore      Int? // 378
+  reportDetails ReportDetail[]
+  reportInfos   ReportInfo[]
+}
+
+model ReportDetail {
+  id       String  @id @default(uuid()) @db.Uuid
+  icon_url String?
+  title    String // "ขับขี่ได้ปกติทั้งกลางวันและกลางคืน"
+  reportId String  @db.Uuid
+
+  report      Report       @relation(fields: [reportId], references: [id])
+  reportItems ReportItem[] // ✅ 1 หมวด มีหลายรายการ
+}
+
+model ReportItem {
+  id             String  @id @default(uuid()) @db.Uuid
+  title          String // "ระบบสตาร์ทเครื่องยนต์"
+  note           String?
+  image_url      String?
+  reportDetailId String  @db.Uuid // ✅ FK ฝั่ง many
+
+  reportDetail ReportDetail  @relation(fields: [reportDetailId], references: [id], onDelete: Cascade)
+  reportScores ReportScore[]
+}
+
+model ReportScore {
+  id           String  @id @default(uuid()) @db.Uuid
+  title        String // "คะแนนประเมินสภาพ" / "คะแนนระยะทาง" / "คะแนนอายุการใช้งาน"
+  score        Int
+  description  String?
+  reportItemId String  @db.Uuid
+
+  reportItem ReportItem @relation(fields: [reportItemId], references: [id])
 }
