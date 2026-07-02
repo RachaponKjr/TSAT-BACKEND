@@ -7,7 +7,8 @@ export const ReqOpenReportSchema = z.object({
   vin_code: z.string(),
   year: z.string().optional(),
   mileage: z.string().optional(),
-  license_plate: z.string().optional()
+  license_plate: z.string().optional(),
+  reportId: z.string().optional()
 });
 
 export type ReqOpenReport = z.infer<typeof ReqOpenReportSchema>;
