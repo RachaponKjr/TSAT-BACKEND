@@ -19,6 +19,12 @@ import {
   selectScoreOptionController,
   updateScoreReportController
 } from '../controllers/report-score.controller';
+import {
+  createTemplateController,
+  deactivateTemplateController,
+  getTemplateByIdController,
+  getTemplateListController
+} from '../controllers/report-template.controller';
 
 const route = Router();
 
@@ -41,5 +47,11 @@ route.patch('/update-item/:id', updateItemReportController);
 route.get('/list-score', getScoreReportListController);
 route.patch('/update-score/:id', updateScoreReportController);
 route.patch('/select-score-option/:id', selectScoreOptionController);
+
+// TEMPLATE (admin, ตั้งค่าครั้งเดียว)
+route.post('/create-template', createTemplateController);
+route.get('/list-template', getTemplateListController);
+route.get('/template/:id', getTemplateByIdController);
+route.patch('/deactivate-template/:id', deactivateTemplateController);
 
 export default route;
