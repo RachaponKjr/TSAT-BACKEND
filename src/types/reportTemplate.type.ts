@@ -38,7 +38,94 @@ const ReqCreateTemplateSchema = z.object({
     .min(1, 'template ต้องมีอย่างน้อย 1 category')
 });
 
-type ReqCreateTemplate = z.infer<typeof ReqCreateTemplateSchema>;
+// แก้ชื่อ template
+const ReqUpdateTemplateSchema = z.object({
+  name: z.string().min(1).optional(),
+  isActive: z.boolean().optional()
+});
 
-export { ReqCreateTemplateSchema };
-export type { ReqCreateTemplate };
+// แก้ category (name, order)
+const ReqUpdateCategorySchema = z.object({
+  name: z.string().min(1).optional(),
+  order: z.number().int().optional()
+});
+
+// แก้ item (name, description, order)
+const ReqUpdateItemSchema = z.object({
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  order: z.number().int().optional()
+});
+
+// เพิ่ม item ใหม่เข้า category ที่มีอยู่แล้ว
+const ReqCreateItemSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  order: z.number().int().default(0),
+  criteria: z
+    .array(
+      z.object({
+        label: z.string().min(1),
+        order: z.number().int().default(0),
+        options: z
+          .array(
+            z.object({
+              score: z.number().int(),
+              description: z.string().min(1),
+              order: z.number().int().default(0)
+            })
+          )
+          .min(1)
+      })
+    )
+    .min(1)
+});
+
+// แก้ criteria (label, order)
+const ReqUpdateCriteriaSchema = z.object({
+  label: z.string().min(1).optional(),
+  order: z.number().int().optional()
+});
+
+// แก้ option เดิม (score, description) — จุดที่แก้บ่อยสุด
+const ReqUpdateOptionSchema = z.object({
+  score: z.number().int().optional(),
+  description: z.string().min(1).optional(),
+  order: z.number().int().optional()
+});
+
+// เพิ่ม option ใหม่เข้า criteria ที่มีอยู่แล้ว
+const ReqCreateOptionSchema = z.object({
+  score: z.number().int(),
+  description: z.string().min(1),
+  order: z.number().int().default(0)
+});
+
+type ReqCreateTemplate = z.infer<typeof ReqCreateTemplateSchema>;
+type ReqUpdateTemplate = z.infer<typeof ReqUpdateTemplateSchema>;
+type ReqUpdateCategory = z.infer<typeof ReqUpdateCategorySchema>;
+type ReqUpdateItem = z.infer<typeof ReqUpdateItemSchema>;
+type ReqCreateItem = z.infer<typeof ReqCreateItemSchema>;
+type ReqUpdateCriteria = z.infer<typeof ReqUpdateCriteriaSchema>;
+type ReqUpdateOption = z.infer<typeof ReqUpdateOptionSchema>;
+type ReqCreateOption = z.infer<typeof ReqCreateOptionSchema>;
+export {
+  ReqCreateTemplateSchema,
+  ReqUpdateTemplateSchema,
+  ReqUpdateCategorySchema,
+  ReqUpdateItemSchema,
+  ReqCreateItemSchema,
+  ReqUpdateCriteriaSchema,
+  ReqUpdateOptionSchema,
+  ReqCreateOptionSchema
+};
+export type {
+  ReqCreateTemplate,
+  ReqUpdateTemplate,
+  ReqUpdateCategory,
+  ReqUpdateItem,
+  ReqCreateItem,
+  ReqUpdateCriteria,
+  ReqUpdateOption,
+  ReqCreateOption
+};

@@ -20,10 +20,19 @@ import {
   updateScoreReportController
 } from '../controllers/report-score.controller';
 import {
+  createItemController,
+  createOptionController,
   createTemplateController,
   deactivateTemplateController,
+  deleteItemController,
+  deleteOptionController,
   getTemplateByIdController,
-  getTemplateListController
+  getTemplateListController,
+  updateCategoryController,
+  updateCriteriaController,
+  updateItemController,
+  updateOptionController,
+  updateTemplateController
 } from '../controllers/report-template.controller';
 
 const route = Router();
@@ -53,5 +62,16 @@ route.post('/create-template', createTemplateController);
 route.get('/list-template', getTemplateListController);
 route.get('/template/:id', getTemplateByIdController);
 route.patch('/deactivate-template/:id', deactivateTemplateController);
+
+// TEMPLATE — แก้ไข
+route.patch('/update-template/:id', updateTemplateController);
+route.patch('/update-template-category/:id', updateCategoryController);
+route.patch('/update-template-item/:id', updateItemController);
+route.post('/create-template-item/:categoryId', createItemController);
+route.delete('/del-template-item/:id', deleteItemController);
+route.patch('/update-template-criteria/:id', updateCriteriaController);
+route.patch('/update-template-option/:id', updateOptionController);
+route.post('/create-template-option/:criteriaId', createOptionController);
+route.delete('/del-template-option/:id', deleteOptionController);
 
 export default route;
