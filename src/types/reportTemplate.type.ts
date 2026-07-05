@@ -101,6 +101,51 @@ const ReqCreateOptionSchema = z.object({
   order: z.number().int().default(0)
 });
 
+const ReqCreateCategorySchema = z.object({
+  name: z.string().min(1),
+  order: z.number().int().default(0),
+  items: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        description: z.string().optional(),
+        order: z.number().int().default(0),
+        criteria: z
+          .array(
+            z.object({
+              label: z.string().min(1),
+              order: z.number().int().default(0),
+              options: z
+                .array(
+                  z.object({
+                    score: z.number().int(),
+                    description: z.string().min(1),
+                    order: z.number().int().default(0)
+                  })
+                )
+                .min(1)
+            })
+          )
+          .min(1)
+      })
+    )
+    .default([]) // สร้าง category เปล่าก่อนได้ แล้วค่อยเพิ่ม item ทีหลังผ่าน create-template-item
+});
+
+const ReqCreateCriteriaSchema = z.object({
+  label: z.string().min(1),
+  order: z.number().int().default(0),
+  options: z
+    .array(
+      z.object({
+        score: z.number().int(),
+        description: z.string().min(1),
+        order: z.number().int().default(0)
+      })
+    )
+    .min(1)
+});
+
 type ReqCreateTemplate = z.infer<typeof ReqCreateTemplateSchema>;
 type ReqUpdateTemplate = z.infer<typeof ReqUpdateTemplateSchema>;
 type ReqUpdateCategory = z.infer<typeof ReqUpdateCategorySchema>;
@@ -109,6 +154,8 @@ type ReqCreateItem = z.infer<typeof ReqCreateItemSchema>;
 type ReqUpdateCriteria = z.infer<typeof ReqUpdateCriteriaSchema>;
 type ReqUpdateOption = z.infer<typeof ReqUpdateOptionSchema>;
 type ReqCreateOption = z.infer<typeof ReqCreateOptionSchema>;
+type ReqCreateCategory = z.infer<typeof ReqCreateCategorySchema>;
+type ReqCreateCriteria = z.infer<typeof ReqCreateCriteriaSchema>;
 export {
   ReqCreateTemplateSchema,
   ReqUpdateTemplateSchema,
@@ -117,7 +164,9 @@ export {
   ReqCreateItemSchema,
   ReqUpdateCriteriaSchema,
   ReqUpdateOptionSchema,
-  ReqCreateOptionSchema
+  ReqCreateOptionSchema,
+  ReqCreateCategorySchema,
+  ReqCreateCriteriaSchema
 };
 export type {
   ReqCreateTemplate,
@@ -127,5 +176,7 @@ export type {
   ReqCreateItem,
   ReqUpdateCriteria,
   ReqUpdateOption,
-  ReqCreateOption
+  ReqCreateOption,
+  ReqCreateCategory,
+  ReqCreateCriteria
 };

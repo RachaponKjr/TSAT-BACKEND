@@ -20,12 +20,17 @@ import {
   updateScoreReportController
 } from '../controllers/report-score.controller';
 import {
+  createCategoryController,
+  createCriteriaController,
   createItemController,
   createOptionController,
   createTemplateController,
   deactivateTemplateController,
+  deleteCategoryController,
+  deleteCriteriaController,
   deleteItemController,
   deleteOptionController,
+  getCriteriaOptionListController,
   getTemplateByIdController,
   getTemplateListController,
   updateCategoryController,
@@ -47,6 +52,8 @@ route.delete('/del-report/:id', delReportController);
 // CATEGORY RESULT — อ่านอย่างเดียว (โครงมาจาก template)
 route.get('/list-category', getReportCategoryListController);
 route.get('/category/:id', getReportCategoryByIdController);
+route.post('/create-template-category/:templateId', createCategoryController);
+route.delete('/del-template-category/:id', deleteCategoryController);
 
 // ITEM RESULT — แก้ได้แค่รูปภาพ
 route.get('/list-item', getItemReportController);
@@ -56,6 +63,9 @@ route.patch('/update-item/:id', updateItemReportController);
 route.get('/list-score', getScoreReportListController);
 route.patch('/update-score/:id', updateScoreReportController);
 route.patch('/select-score-option/:id', selectScoreOptionController);
+route.post('/create-template-criteria/:itemId', createCriteriaController);
+route.delete('/del-template-criteria/:id', deleteCriteriaController);
+route.get('/criteria-options/:criteriaId', getCriteriaOptionListController);
 
 // TEMPLATE (admin, ตั้งค่าครั้งเดียว)
 route.post('/create-template', createTemplateController);

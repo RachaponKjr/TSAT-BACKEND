@@ -1,5 +1,7 @@
 import { prisma as db } from '../libs/prisma';
 import {
+  ReqCreateCategory,
+  ReqCreateCriteria,
   ReqCreateItem,
   ReqCreateOption,
   ReqCreateTemplate,
@@ -242,6 +244,105 @@ const deleteCriteriaOption = async ({ id }: { id: string }) => {
   return option;
 };
 
+const getCriteriaOptionList = async ({
+  criteriaId
+}: {
+  criteriaId: string;
+}) => {
+  const options = await db.inspectionCriteriaOption.findMany({
+    where: { criteriaId },
+    orderBy: { order: 'asc' }
+  });
+  return options;
+};
+
+const createCategoryTemplate = async ({
+  templateId,
+  data
+}: {
+  templateId: string;
+  data: ReqCreateCategory;
+}) => {
+  const category = await db.inspectionCategoryTemplate.create({
+    data: {
+      templateId,
+      name: data.name,
+      order: data.order,
+      items: {
+        create: data.items.map((item) => ({
+          name: item.name,
+          description: item.description,
+          order: item.order,
+          criteria: {
+            create: item.criteria.map((c) => ({
+              label: c.label,
+              order: c.order,
+              options: { create: c.options }
+            }))
+          }
+        }))
+      }
+    },
+    include: {
+      items: {
+        include: { criteria: { include: { options: true } } }
+      }
+    }
+  });
+
+  return category;
+};
+
+// ลบ category — กันพังถ้ามีใบตรวจเก่าอ้างอิงอยู่ (ผ่าน item ใน category นี้)
+const deleteCategoryTemplate = async ({ id }: { id: string }) => {
+  const usedCount = await db.inspectionCategoryResult.count({
+    where: { categoryId: id }
+  });
+  if (usedCount > 0) {
+    throw new Error(
+      `ลบไม่ได้ เพราะมีใบตรวจ ${usedCount} ใบใช้ category นี้อยู่แล้ว`
+    );
+  }
+  const category = await db.inspectionCategoryTemplate.delete({
+    where: { id }
+  });
+  return category;
+};
+
+const createCriteriaTemplate = async ({
+  itemId,
+  data
+}: {
+  itemId: string;
+  data: ReqCreateCriteria;
+}) => {
+  const criteria = await db.inspectionCriteriaTemplate.create({
+    data: {
+      itemId,
+      label: data.label,
+      order: data.order,
+      options: { create: data.options }
+    },
+    include: { options: true }
+  });
+  return criteria;
+};
+
+const deleteCriteriaTemplate = async ({ id }: { id: string }) => {
+  const usedCount = await db.inspectionCriteriaResult.count({
+    where: { criteriaId: id }
+  });
+  if (usedCount > 0) {
+    throw new Error(
+      `ลบไม่ได้ เพราะมีใบตรวจ ${usedCount} ใบใช้ criteria นี้อยู่แล้ว`
+    );
+  }
+  const criteria = await db.inspectionCriteriaTemplate.delete({
+    where: { id }
+  });
+  return criteria;
+};
+
 export {
   createTemplate,
   getTemplateList,
@@ -255,5 +356,10 @@ export {
   updateCriteriaTemplate,
   updateCriteriaOption,
   createCriteriaOption,
-  deleteCriteriaOption
+  deleteCriteriaOption,
+  getCriteriaOptionList,
+  createCategoryTemplate,
+  deleteCategoryTemplate,
+  createCriteriaTemplate,
+  deleteCriteriaTemplate
 };

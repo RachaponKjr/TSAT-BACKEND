@@ -1,5 +1,7 @@
 import { Response, Request } from 'express';
 import {
+  ReqCreateCategorySchema,
+  ReqCreateCriteriaSchema,
   ReqCreateItemSchema,
   ReqCreateOptionSchema,
   ReqCreateTemplateSchema,
@@ -10,12 +12,17 @@ import {
   ReqUpdateTemplateSchema
 } from '../types/reportTemplate.type';
 import {
+  createCategoryTemplate,
   createCriteriaOption,
+  createCriteriaTemplate,
   createItemTemplate,
   createTemplate,
   deactivateTemplate,
+  deleteCategoryTemplate,
   deleteCriteriaOption,
+  deleteCriteriaTemplate,
   deleteItemTemplate,
+  getCriteriaOptionList,
   getTemplateById,
   getTemplateList,
   updateCategoryTemplate,
@@ -319,6 +326,113 @@ const deleteOptionController = async (
   }
 };
 
+const getCriteriaOptionListController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { criteriaId } = req.params;
+    const options = await getCriteriaOptionList({ criteriaId });
+    res.status(200).json({ data: options });
+    return;
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: error instanceof Error ? error.message : error });
+    return;
+  }
+};
+
+const createCategoryController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { templateId } = req.params;
+    const parseResult = ReqCreateCategorySchema.safeParse(req.body);
+    if (!parseResult.success) {
+      res.status(400).json({
+        message: 'Invalid request data',
+        errors: parseResult.error.flatten().fieldErrors
+      });
+      return;
+    }
+    const result = await createCategoryTemplate({
+      templateId,
+      data: parseResult.data
+    });
+    res.status(200).json({ data: result });
+    return;
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: error instanceof Error ? error.message : error });
+    return;
+  }
+};
+
+const deleteCategoryController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const result = await deleteCategoryTemplate({ id });
+    res.status(200).json({ data: result });
+    return;
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: error instanceof Error ? error.message : error });
+    return;
+  }
+};
+
+const createCriteriaController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { itemId } = req.params;
+    const parseResult = ReqCreateCriteriaSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      res.status(400).json({
+        message: 'Invalid request data',
+        errors: parseResult.error.flatten().fieldErrors
+      });
+      return;
+    }
+    const result = await createCriteriaTemplate({
+      itemId,
+      data: parseResult.data
+    });
+    res.status(200).json({ data: result });
+    return;
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: error instanceof Error ? error.message : error });
+    return;
+  }
+};
+
+const deleteCriteriaController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const result = await deleteCriteriaTemplate({ id });
+    res.status(200).json({ data: result });
+    return;
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: error instanceof Error ? error.message : error });
+    return;
+  }
+};
+
 export {
   createTemplateController,
   getTemplateListController,
@@ -332,5 +446,10 @@ export {
   updateCriteriaController,
   updateOptionController,
   createOptionController,
-  deleteOptionController
+  deleteOptionController,
+  getCriteriaOptionListController,
+  createCategoryController,
+  deleteCategoryController,
+  createCriteriaController,
+  deleteCriteriaController
 };
