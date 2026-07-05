@@ -474,6 +474,7 @@ model InspectionReport {
   templateId String
   template   InspectionTemplate @relation(fields: [templateId], references: [id])
 
+  imageCar     String?
   customerName String // ลูกค้า
   carModel     String // รุ่นรถ
   modelYear    String // ปี

@@ -6,6 +6,7 @@ import { z } from 'zod';
 const ReqOpenReportSchema = z.object({
   templateId: z.string().min(1, 'templateId is required'),
   customerName: z.string().min(1, 'customerName is required'),
+  imageCar: z.string().optional().nullable(),
   carModel: z.string().min(1, 'carModel is required'),
   modelYear: z.string().min(1, 'modelYear is required'),
   vin: z.string().min(1, 'vin is required'),

@@ -30,6 +30,7 @@ const openReport = async ({ data }: { data: ReqOpenReport }) => {
       customerName: data.customerName,
       carModel: data.carModel,
       modelYear: data.modelYear,
+      imageCar: data.imageCar,
       vin: data.vin,
       odometer: data.odometer,
       licensePlate: data.licensePlate,
