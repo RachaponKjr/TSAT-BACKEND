@@ -134,7 +134,6 @@ model CarModel {
   WorkService     WorkService[]
   carServiceLinks CarServiceLink[] // ✅ พหูพจน์ และตรงความหมาย
   CustomerBlog    CustomerBlog[]
-  reportInfos     ReportInfo[]
 }
 
 model CarSubModel {
@@ -151,7 +150,6 @@ model CarSubModel {
   WorkService    WorkService[]
   CustomerWork   CustomerWork[]
   CustomerBlog   CustomerBlog[]
-  reportInfos    ReportInfo[]
 }
 
 model CategoryServiceCarModel {
@@ -400,72 +398,156 @@ model User {
   updatedAt DateTime @updatedAt @db.Timestamptz
 }
 
-model ReportInfo {
-  id            String   @id @default(uuid()) @db.Uuid
-  customerName  String
-  carModelId    String?  @db.Uuid
-  carSubModelId String?  @db.Uuid
-  vin_code      String
-  year          String?
-  mileage       String?
-  license_plate String?
-  reportId      String?  @db.Uuid // ✅ FK จริง
-  createdAt     DateTime @default(now()) @db.Timestamptz
-  updatedAt     DateTime @updatedAt @db.Timestamptz
+// ============================
+// TEMPLATE LAYER (ตายตัว)
+// ============================
 
-  report      Report?      @relation(fields: [reportId], references: [id])
-  carModel    CarModel?    @relation(fields: [carModelId], references: [id])
-  carSubModel CarSubModel? @relation(fields: [carSubModelId], references: [id])
+model InspectionTemplate {
+  id         String                       @id @default(cuid())
+  name       String // เช่น "แบบตรวจสภาพรถใช้แล้ว v1"
+  isActive   Boolean                      @default(true)
+  categories InspectionCategoryTemplate[]
+  reports    InspectionReport[]
+  createdAt  DateTime                     @default(now())
+  updatedAt  DateTime                     @updatedAt
 }
 
-model Report {
-  id           String   @id @default(uuid()) @db.Uuid
-  car_url      String
-  inspector    String?
-  approver     String?
-  overallGrade String? // เช่น "A" ตามภาพ
-  totalScore   Int? // 370
-  maxScore     Int? // 378
-  createdAt    DateTime @default(now()) @db.Timestamptz
-  updatedAt    DateTime @updatedAt @db.Timestamptz
+// กลุ่มใหญ่ เช่น "ขับขี่ได้ปกติทั้งกลางวันและกลางคืน"
+model InspectionCategoryTemplate {
+  id         String                     @id @default(cuid())
+  templateId String
+  template   InspectionTemplate         @relation(fields: [templateId], references: [id])
+  name       String
+  order      Int                        @default(0)
+  items      InspectionItemTemplate[]
+  results    InspectionCategoryResult[]
 
-  reportDetails ReportDetail[]
-  reportInfos   ReportInfo[]
+  @@index([templateId])
 }
 
-model ReportDetail {
-  id        String   @id @default(uuid()) @db.Uuid
-  icon_url  String?
-  title     String // "ขับขี่ได้ปกติทั้งกลางวันและกลางคืน"
-  reportId  String   @db.Uuid
-  createdAt DateTime @default(now()) @db.Timestamptz
-  updatedAt DateTime @updatedAt @db.Timestamptz
+// รายการย่อยในกลุ่ม เช่น "ระบบสตาร์ทเครื่องยนต์"
+model InspectionItemTemplate {
+  id          String                       @id @default(cuid())
+  categoryId  String
+  category    InspectionCategoryTemplate   @relation(fields: [categoryId], references: [id])
+  name        String
+  description String? // เช่น "สตาร์ทง่าย ติดทันที ไม่มีเสียงผิดปกติ"
+  order       Int                          @default(0)
+  criteria    InspectionCriteriaTemplate[]
+  results     InspectionItemResult[]
 
-  report      Report       @relation(fields: [reportId], references: [id])
-  reportItems ReportItem[] // ✅ 1 หมวด มีหลายรายการ
+  @@index([categoryId])
 }
 
-model ReportItem {
-  id             String   @id @default(uuid()) @db.Uuid
-  title          String // "ระบบสตาร์ทเครื่องยนต์"
-  note           String?
-  image_url      String?
-  reportDetailId String   @db.Uuid // ✅ FK ฝั่ง many
-  createdAt      DateTime @default(now()) @db.Timestamptz
-  updatedAt      DateTime @updatedAt @db.Timestamptz
+// หัวข้อคะแนนย่อยของแต่ละรายการ เช่น "คะแนนประเมินสภาพ", "คะแนนระยะทาง(เลขไมล์)", "คะแนนอายุการใช้งาน"
+model InspectionCriteriaTemplate {
+  id      String                     @id @default(cuid())
+  itemId  String
+  item    InspectionItemTemplate     @relation(fields: [itemId], references: [id])
+  label   String // "คะแนนประเมินสภาพ"
+  order   Int                        @default(0)
+  options InspectionCriteriaOption[] // rubric ตายตัว
+  results InspectionCriteriaResult[]
 
-  reportDetail ReportDetail  @relation(fields: [reportDetailId], references: [id], onDelete: Cascade)
-  reportScores ReportScore[]
+  @@index([itemId])
 }
 
-model ReportScore {
-  id           String   @id @default(uuid()) @db.Uuid
-  title        String // "คะแนนประเมินสภาพ" / "คะแนนระยะทาง" / "คะแนนอายุการใช้งาน"
-  score        Int
-  description  String?
-  reportItemId String   @db.Uuid
-  createdAt    DateTime @default(now()) @db.Timestamptz
-  updatedAt    DateTime @updatedAt @db.Timestamptz
+// ตัวเลือกคะแนนของแต่ละหัวข้อ (หลักเกณฑ์การให้คะแนน) เช่น
+// 3 = "สภาพใช้งานได้ปกติ", 2 = "ถึงกำหนดเปลี่ยนแต่ยังใช้งานได้", 1 = "สภาพชำรุดต้องเปลี่ยน"
+model InspectionCriteriaOption {
+  id                        String                     @id @default(cuid())
+  criteriaId                String
+  criteria                  InspectionCriteriaTemplate @relation(fields: [criteriaId], references: [id])
+  score                     Int // 3, 2, 1 ...
+  description               String // คำอธิบาย default ของคะแนนนี้
+  order                     Int                        @default(0)
+  inspectionCriteriaResults InspectionCriteriaResult[]
 
-  reportItem ReportItem @relation(fields: [reportItemId], references: [id])
+  @@index([criteriaId])
+}
+
+// ============================
+// REPORT LAYER (ต่อใบตรวจ)
+// ============================
+model InspectionReport {
+  id         String             @id @default(cuid())
+  templateId String
+  template   InspectionTemplate @relation(fields: [templateId], references: [id])
+
+  customerName String // ลูกค้า
+  carModel     String // รุ่นรถ
+  modelYear    String // ปี
+  vin          String // รหัสตัวถัง (VIN)
+  odometer     Int // เลขไมล์
+  licensePlate String // ทะเบียน
+
+  inspectorName String?
+  inspectedAt   DateTime?
+  approverName  String?
+  approvedAt    DateTime?
+
+  overallGrade String? // A, B, C...
+  totalScore   Int?
+  maxScore     Int?
+
+  categoryResults InspectionCategoryResult[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([templateId])
+  @@index([customerName])
+}
+
+// ผลของแต่ละกลุ่มในใบตรวจนี้ (คะแนนรวมของกลุ่ม)
+model InspectionCategoryResult {
+  id         String                     @id @default(cuid())
+  reportId   String
+  report     InspectionReport           @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   InspectionCategoryTemplate @relation(fields: [categoryId], references: [id])
+
+  score    Int @default(0)
+  maxScore Int @default(0)
+
+  itemResults InspectionItemResult[]
+
+  @@unique([reportId, categoryId])
+  @@index([reportId])
+}
+
+// ผลของแต่ละรายการ (เช่น ระบบสตาร์ทเครื่องยนต์) ในใบตรวจนี้
+model InspectionItemResult {
+  id               String                   @id @default(cuid())
+  categoryResultId String
+  categoryResult   InspectionCategoryResult @relation(fields: [categoryResultId], references: [id], onDelete: Cascade)
+  itemId           String
+  item             InspectionItemTemplate   @relation(fields: [itemId], references: [id])
+
+  imageUrl String?
+  score    Int     @default(0)
+  maxScore Int     @default(0)
+
+  criteriaResults InspectionCriteriaResult[]
+
+  @@unique([categoryResultId, itemId])
+  @@index([categoryResultId])
+}
+
+// ผลของหัวข้อคะแนนย่อย — จุดที่ "เปลี่ยนได้แค่คะแนนกับคำอธิบาย"
+model InspectionCriteriaResult {
+  id           String                     @id @default(cuid())
+  itemResultId String
+  itemResult   InspectionItemResult       @relation(fields: [itemResultId], references: [id], onDelete: Cascade)
+  criteriaId   String
+  criteria     InspectionCriteriaTemplate @relation(fields: [criteriaId], references: [id])
+
+  selectedOptionId String? // ref ตัวเลือก rubric ที่เลือก (ถ้าเลือกจาก dropdown)
+  selectedOption   InspectionCriteriaOption? @relation(fields: [selectedOptionId], references: [id])
+
+  score       Int // ค่าจริงที่ใช้ (แก้ไขได้ แม้จะมาจาก option เดิม)
+  description String // คำอธิบายจริงที่ใช้ (แก้ไขได้)
+
+  @@unique([itemResultId, criteriaId])
+  @@index([itemResultId])
 }

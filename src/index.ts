@@ -26,7 +26,7 @@ import logRequest from './middlewares/log-req';
 import reviewRouter from './routers/review.route';
 import pdfRouter from './routers/pdf.route';
 import scrapeRouter from './routers/scrape.route';
-import reportUsedCarRouter from './routers/report-used-car.route';
+import reportUsedCarRouter from './routers/report-inspection.route';
 import { syncReviewsToDatabase } from './libs/syncReviewsToDatabase';
 import { runFullWebScraper } from './libs/seoScraper';
 import redisClient from './libs/redis';
