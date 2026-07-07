@@ -13,7 +13,9 @@ const ReqOpenReportSchema = z.object({
   odometer: z.number().int().nonnegative(),
   licensePlate: z.string().min(1, 'licensePlate is required'),
   inspectorName: z.string().optional(),
-  approverName: z.string().optional()
+  approverName: z.string().optional(),
+  approvedAt: z.string().optional(),
+  inspectedAt: z.string().optional()
 });
 
 type ReqOpenReport = z.infer<typeof ReqOpenReportSchema>;

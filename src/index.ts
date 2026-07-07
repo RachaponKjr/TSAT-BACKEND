@@ -41,6 +41,7 @@ const allowedOrigins = [
   'http://tsat-front:3030',
   'http://150.95.26.51:3030',
   'http://localhost:3000',
+  'http://127.0.0.1:3000',
   'https://topserviceautotechnic.com',
   'http://topserviceautotechnic.com', // เผื่อลูกค้าเข้าแบบไม่มี s
   'https://www.topserviceautotechnic.com', // เผื่อมี www
@@ -48,18 +49,15 @@ const allowedOrigins = [
 ];
 
 app.use(logRequest);
-
 app.use(
   cors({
     origin: function (origin, callback) {
-      // ถ้าไม่มี origin (เช่น server-to-server) หรือ origin อยู่ในลิสต์
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
-        // แทนที่จะพ่น Error แรงๆ ให้ส่ง false ไปเฉยๆ
-        // หรือ console.log ดูว่าตัวที่หลุดมาคือ origin อะไร
         console.log('Blocked by CORS:', origin);
-        callback(null, false);
+        // พ่นคีย์ Error ออกไปเพื่อให้แพ็กเกจเคลียร์สิทธิ์ตัดรอบได้สมบูรณ์
+        callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
@@ -71,12 +69,12 @@ app.use(
       'Accept'
     ],
     preflightContinue: false,
-    optionsSuccessStatus: 204 // สำคัญมาก: Chrome ชอบสถานะนี้สำหรับ OPTIONS
+    optionsSuccessStatus: 204
   })
 );
 
 // ✅ สำหรับ preflight requests
-// app.options('*', cors());
+app.options('*', cors());
 
 // ✅ Middleware ที่ควรอยู่ก่อน route ทุกตัว
 app.use(express.json({ limit: '50mb' })); // 🟢 ต้องระบุลิมิตตรงนี้ด้วย

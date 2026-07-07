@@ -36,6 +36,8 @@ const openReport = async ({ data }: { data: ReqOpenReport }) => {
       licensePlate: data.licensePlate,
       inspectorName: data.inspectorName,
       approverName: data.approverName,
+      approvedAt: data.approvedAt,
+      inspectedAt: data.inspectedAt,
       categoryResults: {
         create: template.categories.map((category) => ({
           categoryId: category.id,
