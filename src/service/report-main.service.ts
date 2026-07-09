@@ -176,12 +176,15 @@ const getReportById = async ({ id }: { id: string }) => {
     include: {
       template: true,
       categoryResults: {
+        orderBy: { category: { order: 'asc' } },
         include: {
           category: true,
           itemResults: {
+            orderBy: { item: { order: 'asc' } },
             include: {
               item: true,
               criteriaResults: {
+                orderBy: { criteria: { order: 'asc' } },
                 include: {
                   criteria: true,
                   selectedOption: true
