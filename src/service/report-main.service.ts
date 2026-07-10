@@ -174,19 +174,18 @@ const getReportById = async ({ id }: { id: string }) => {
   const report = await db.inspectionReport.findUnique({
     where: { id },
     include: {
-      // 1. ดึงโครงสร้างเทมเพลตและบังคับจัดเรียง (orderBy) ล็อกตายตัวจากชั้นนี้เลย!
       template: {
         include: {
           categories: {
-            orderBy: { order: 'asc' }, // ✅ ล็อกลำดับหมวดหมู่ใหญ่
+            orderBy: { order: 'asc' },
             include: {
               items: {
-                orderBy: { order: 'asc' }, // ✅ ล็อกลำดับรายการย่อย
+                orderBy: { order: 'asc' },
                 include: {
                   criteria: {
-                    orderBy: { order: 'asc' }, // ✅ ล็อกลำดับเกณฑ์ประเมิน
+                    orderBy: { order: 'asc' },
                     include: {
-                      options: { orderBy: { order: 'asc' } } // ✅ ล็อกตัวเลือกคะแนน
+                      options: { orderBy: { order: 'asc' } }
                     }
                   }
                 }
@@ -195,7 +194,6 @@ const getReportById = async ({ id }: { id: string }) => {
           }
         }
       },
-      // 2. ส่วนข้อมูลผลลัพธ์ (Results) ดึงมาเก็บไว้ธรรมดา ไม่ต้องสั่ง orderBy ซับซ้อนให้มันเอ๋อ
       categoryResults: {
         include: {
           itemResults: {
@@ -212,7 +210,38 @@ const getReportById = async ({ id }: { id: string }) => {
     }
   });
 
-  return report;
+  if (!report) return null;
+
+  // 🟢 1. ตั้งตัวแปรสำหรับนับจำนวนตัวเลือกแต่ละคะแนน
+  let countScore3 = 0;
+  let countScore2 = 0;
+  let countScore1 = 0;
+
+  // 🟢 2. วนลูปเจาะลึกลงไปในข้อมูลชุดผลลัพธ์ (Results) เพื่อค้นหาและนับคะแนน
+  report.categoryResults?.forEach((catResult) => {
+    catResult.itemResults?.forEach((itemResult) => {
+      itemResult.criteriaResults?.forEach((criteriaResult) => {
+        // อ้างอิงจากคะแนนที่ประเมินได้ในข้อนั้นๆ (criteriaResult.score)
+        const score = criteriaResult.score;
+
+        if (score === 3) countScore3++;
+        else if (score === 2) countScore2++;
+        else if (score === 1) countScore1++;
+      });
+    });
+  });
+
+  // 🟢 3. ส่งข้อมูลกลับไปพร้อมกับตัวนับสรุปคะแนน
+  return {
+    ...report,
+    summary: {
+      score3Count: countScore3,
+      score2Count: countScore2,
+      score1Count: countScore1,
+      // สามารถแถมตัวรวมทั้งหมดที่ประเมินไปแล้วให้หน้าบ้านได้ด้วยครับ
+      totalEvaluated: countScore3 + countScore2 + countScore1
+    }
+  };
 };
 
 export { openReport, updateReport, deleteReport, getReportFull, getReportById };
