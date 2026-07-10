@@ -76,51 +76,119 @@ const recalculateScores = async ({
 }: {
   criteriaResultId: string;
 }) => {
-  const criteriaResult = await db.inspectionCriteriaResult.findUnique({
+  // 1. หาความสัมพันธ์ของ IDs ทั้งหมด (Item, Category, Report) จาก Criteria ตัวที่กดเลือก
+  const currentCriteria = await db.inspectionCriteriaResult.findUnique({
     where: { id: criteriaResultId },
-    include: { itemResult: true }
-  });
-  if (!criteriaResult) return null;
-
-  // 1. sum criteria ทั้งหมดในitem เดียวกัน -> อัปเดต itemResult.score
-  const itemTotal = await db.inspectionCriteriaResult.aggregate({
-    where: { itemResultId: criteriaResult.itemResultId },
-    _sum: { score: true }
-  });
-
-  const itemResult = await db.inspectionItemResult.update({
-    where: { id: criteriaResult.itemResultId },
-    data: { score: itemTotal._sum.score ?? 0 }
+    include: {
+      itemResult: {
+        include: {
+          categoryResult: true
+        }
+      }
+    }
   });
 
-  // 2. sum item ทั้งหมดใน category เดียวกัน -> อัปเดต categoryResult.score
-  const categoryTotal = await db.inspectionItemResult.aggregate({
-    where: { categoryResultId: itemResult.categoryResultId },
-    _sum: { score: true }
+  if (!currentCriteria || !currentCriteria.itemResult) return null;
+
+  const itemResultId = currentCriteria.itemResultId;
+  const categoryResultId = currentCriteria.itemResult.categoryResultId;
+  const reportId = currentCriteria.itemResult.categoryResult.reportId;
+
+  // -------------------------------------------------------------
+  // ชั้นที่ 1: คำนวณในระดับ ItemResult (รวมทุก Criteria ใน Item เดียวกัน)
+  // -------------------------------------------------------------
+  // ดึง Criteria ทุกข้อที่อยู่ใน Item นี้ เพื่อหาผลรวมของคะแนนจริง และคะแนนเต็มสูงสุด
+  const allCriteriaInItem = await db.inspectionCriteriaResult.findMany({
+    where: { itemResultId: itemResultId },
+    include: {
+      criteria: {
+        include: {
+          options: true // ดึงตัวเลือก Rubric ทั้งหมดมาหาคะแนนที่มากที่สุด
+        }
+      }
+    }
   });
 
-  const categoryResult = await db.inspectionCategoryResult.update({
-    where: { id: itemResult.categoryResultId },
-    data: { score: categoryTotal._sum.score ?? 0 }
+  let itemScore = 0;
+  let itemMaxScore = 0;
+
+  for (const crit of allCriteriaInItem) {
+    itemScore += crit.score ?? 0; // คะแนนที่ช่างเลือกจริง
+
+    // หาคะแนนที่สูงที่สุดในบรรดา Option ของ Criteria ข้อนี้ เพื่อใช้เป็นคะแนนเต็ม (Max Score)
+    const maxOptionScore = crit.criteria.options.reduce((max, opt) => {
+      return opt.score > max ? opt.score : max;
+    }, 0);
+
+    itemMaxScore += maxOptionScore;
+  }
+
+  // อัปเดตผลลัพธ์ลงใน ItemResult ตัวปัจจุบัน
+  await db.inspectionItemResult.update({
+    where: { id: itemResultId },
+    data: {
+      score: itemScore,
+      maxScore: itemMaxScore
+    }
   });
 
-  // 3. sum category ทั้งหมดใน report เดียวกัน -> อัปเดต report.totalScore/maxScore/overallGrade
-  const reportTotal = await db.inspectionCategoryResult.aggregate({
-    where: { reportId: categoryResult.reportId },
-    _sum: { score: true, maxScore: true }
+  // -------------------------------------------------------------
+  // ชั้นที่ 2: คำนวณในระดับ CategoryResult (รวมทุก Item ใน Category เดียวกัน)
+  // -------------------------------------------------------------
+  const itemAgg = await db.inspectionItemResult.aggregate({
+    where: { categoryResultId: categoryResultId },
+    _sum: {
+      score: true,
+      maxScore: true
+    }
   });
 
-  const totalScore = reportTotal._sum.score ?? 0;
-  const maxScore = reportTotal._sum.maxScore ?? 0;
+  await db.inspectionCategoryResult.update({
+    where: { id: categoryResultId },
+    data: {
+      score: itemAgg._sum.score ?? 0,
+      maxScore: itemAgg._sum.maxScore ?? 0
+    }
+  });
+
+  // -------------------------------------------------------------
+  // ชั้นที่ 3: คำนวณในระดับ InspectionReport (รวมทุก Category ใน Report ฉบับนี้)
+  // -------------------------------------------------------------
+  const categoryAgg = await db.inspectionCategoryResult.aggregate({
+    where: { reportId: reportId },
+    _sum: {
+      score: true,
+      maxScore: true
+    }
+  });
+
+  const totalScore = categoryAgg._sum.score ?? 0;
+  const maxScore = categoryAgg._sum.maxScore ?? 0;
+
+  // ป้องกันการหารด้วย 0 (Division by zero)
   const percentage = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
+
+  // เรียกใช้ฟังก์ชันคำนวณเกรดของคุณ (เช่น >= 90 ได้ A, >= 80 ได้ B)
   const overallGrade = calculateGrade(percentage);
 
+  // อัปเดตคะแนนรวมสุทธิและเกรดลงในใบประเมิน
   const updatedReport = await db.inspectionReport.update({
-    where: { id: categoryResult.reportId },
+    where: { id: reportId },
     data: {
       totalScore,
       maxScore,
       overallGrade
+    },
+    include: {
+      categoryResults: {
+        include: {
+          itemResults: {
+            include: {
+              criteriaResults: true
+            }
+          }
+        }
+      }
     }
   });
 

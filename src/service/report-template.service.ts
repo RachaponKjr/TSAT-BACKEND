@@ -263,6 +263,7 @@ const createCategoryTemplate = async ({
   templateId: string;
   data: ReqCreateCategory;
 }) => {
+  // 1. สร้าง Category และโครงสร้าง Items / Criteria ทั้งหมดในฝั่ง Template ก่อน
   const category = await db.inspectionCategoryTemplate.create({
     data: {
       templateId,
@@ -289,6 +290,42 @@ const createCategoryTemplate = async ({
       }
     }
   });
+
+  // 💡 2. ไฮไลท์เด็ด: ดึงใบงาน (Reports) ทั้งหมดในระบบที่ยังตรวจไม่เสร็จ หรือผูกอยู่กับ Template นี้
+  const activeReports = await db.inspectionReport.findMany({
+    where: { templateId: templateId }
+  });
+
+  // 💡 3. วิ่ง Loop เพื่อสร้างข้อมูลผลลัพธ์ (Result Layer) ยัดกลับเข้าไปในใบงานเดิมให้ครบตามโครงสร้างใหม่
+  if (activeReports.length > 0) {
+    for (const report of activeReports) {
+      // สร้าง CategoryResult ผูกเข้ากับใบงานนั้นๆ
+      await db.inspectionCategoryResult.create({
+        data: {
+          reportId: report.id,
+          categoryId: category.id,
+          score: 0,
+          maxScore: 0,
+          // แตกไอเทมย่อย (Items)
+          itemResults: {
+            create: category.items.map((item) => ({
+              itemId: item.id,
+              score: 0,
+              maxScore: 0,
+              // แตกเกณฑ์ประเมินย่อย (Criteria)
+              criteriaResults: {
+                create: item.criteria.map((c) => ({
+                  criteriaId: c.id,
+                  score: 0,
+                  description: '' // เว้นว่างรอให้ช่างมากรอกหรือเลือก option
+                }))
+              }
+            }))
+          }
+        }
+      });
+    }
+  }
 
   return category;
 };

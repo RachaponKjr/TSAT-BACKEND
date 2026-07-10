@@ -174,19 +174,34 @@ const getReportById = async ({ id }: { id: string }) => {
   const report = await db.inspectionReport.findUnique({
     where: { id },
     include: {
-      template: true,
-      categoryResults: {
-        orderBy: { category: { order: 'asc' } },
+      // 1. ดึงโครงสร้างเทมเพลตและบังคับจัดเรียง (orderBy) ล็อกตายตัวจากชั้นนี้เลย!
+      template: {
         include: {
-          category: true,
-          itemResults: {
-            orderBy: { item: { order: 'asc' } },
+          categories: {
+            orderBy: { order: 'asc' }, // ✅ ล็อกลำดับหมวดหมู่ใหญ่
             include: {
-              item: true,
-              criteriaResults: {
-                orderBy: { criteria: { order: 'asc' } },
+              items: {
+                orderBy: { order: 'asc' }, // ✅ ล็อกลำดับรายการย่อย
                 include: {
-                  criteria: true,
+                  criteria: {
+                    orderBy: { order: 'asc' }, // ✅ ล็อกลำดับเกณฑ์ประเมิน
+                    include: {
+                      options: { orderBy: { order: 'asc' } } // ✅ ล็อกตัวเลือกคะแนน
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      // 2. ส่วนข้อมูลผลลัพธ์ (Results) ดึงมาเก็บไว้ธรรมดา ไม่ต้องสั่ง orderBy ซับซ้อนให้มันเอ๋อ
+      categoryResults: {
+        include: {
+          itemResults: {
+            include: {
+              criteriaResults: {
+                include: {
                   selectedOption: true
                 }
               }
@@ -196,6 +211,7 @@ const getReportById = async ({ id }: { id: string }) => {
       }
     }
   });
+
   return report;
 };
 
