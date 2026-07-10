@@ -36,11 +36,16 @@ const updateScoreReport = async ({
 // เลือกจาก rubric option โดยตรง (ปุ่ม +3 สภาพดี ในภาพตัวอย่าง)
 const selectScoreOption = async ({
   criteriaResultId,
+  itemResultId,
+  criteriaId,
   optionId
 }: {
-  criteriaResultId: string;
+  criteriaResultId: string | null;
+  itemResultId: string;
+  criteriaId: string;
   optionId: string;
 }) => {
+  // 1. หาข้อมูล Option ของเกณฑ์คะแนนก่อนเพื่อเอาค่าคะแนน (score) และคำอธิบาย (description)
   const option = await db.inspectionCriteriaOption.findUnique({
     where: { id: optionId }
   });
@@ -48,24 +53,39 @@ const selectScoreOption = async ({
     throw new Error('Option not found');
   }
 
-  const existingCriteriaResult = await db.inspectionCriteriaResult.findUnique({
-    where: { id: criteriaResultId }
-  });
-  if (!existingCriteriaResult) {
-    throw new Error(`ไม่พบ criteriaResult id: ${criteriaResultId}`);
-  }
-
-  const criteriaResult = await db.inspectionCriteriaResult.update({
-    where: { id: criteriaResultId },
-    data: {
+  // 2. ใช้คำสั่ง upsert: ถ้ามีอยู่แล้วจะอัปเดต ถ้ายังไม่เคยมี (เช่น คะแนนเริ่มจาก 0) จะสร้างแถวใหม่ให้ทันที
+  const criteriaResult = await db.inspectionCriteriaResult.upsert({
+    where: {
+      // 💡 หากไม่มี criteriaResultId ส่งมา ให้ใช้เงื่อนไขแบบจับคู่เพื่อความถูกต้อง (Composite Unique)
+      // สมมติชื่อฟิลด์ใน Schema ของคุณคือ itemResultId_criteriaId
+      id: criteriaResultId || 'new-record-placeholder',
+      ...(criteriaResultId
+        ? {}
+        : {
+            itemResultId_criteriaId: { itemResultId, criteriaId }
+          })
+    },
+    // เคสที่ 1: มีข้อมูลอยู่แล้ว -> ทำการอัปเดตคะแนนที่เลือกใหม่
+    update: {
+      selectedOptionId: option.id,
+      score: option.score,
+      description: option.description
+    },
+    // เคสที่ 2: ยังไม่เคยมีข้อมูล (ข้อที่ยังไม่เคยถูกตรวจ) -> บันทึกเป็นรายการตรวจใหม่ในตารางผลลัพธ์
+    create: {
+      itemResultId,
+      criteriaId,
       selectedOptionId: option.id,
       score: option.score,
       description: option.description
     }
   });
 
-  // ไล่คะแนนขึ้นทุกชั้น พร้อมอัปเดต totalScore/maxScore/overallGrade ของใบตรวจด้วย
-  const updatedReport = await recalculateScores({ criteriaResultId });
+  // 3. เรียกฟังก์ชันคำนวณคะแนนรวมทุกชั้น (Recalculate) ตามโค้ดเดิมของคุณ
+  // ส่งไอดีของ criteriaResult ที่พึ่งอัปเดต/สร้างใหม่เสร็จเข้าไป
+  const updatedReport = await recalculateScores({
+    criteriaResultId: criteriaResult.id
+  });
 
   return { criteriaResult, report: updatedReport };
 };

@@ -62,7 +62,7 @@ route.patch('/update-item/:id', updateItemReportController);
 // CRITERIA RESULT — จุดเดียวที่แก้ score + description ได้จริง
 route.get('/list-score', getScoreReportListController);
 route.patch('/update-score/:id', updateScoreReportController);
-route.patch('/select-score-option/:id', selectScoreOptionController);
+route.patch('/select-score-option', selectScoreOptionController);
 route.post('/create-template-criteria/:itemId', createCriteriaController);
 route.delete('/del-template-criteria/:id', deleteCriteriaController);
 route.get('/criteria-options/:criteriaId', getCriteriaOptionListController);

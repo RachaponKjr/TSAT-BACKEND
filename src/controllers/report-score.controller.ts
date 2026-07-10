@@ -46,16 +46,26 @@ const selectScoreOptionController = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params; // criteriaResultId
-    const { optionId } = req.body;
-    if (!id || !optionId) {
-      res.status(400).json({ message: 'Missing criteriaResultId or optionId' });
+    // 🟢 เปลี่ยนมารับค่าทั้งหมดผ่าน req.body ตามที่หน้าบ้านยิงมา
+    const { criteriaResultId, itemResultId, criteriaId, optionId } = req.body;
+
+    // บังคับเช็คข้อมูลที่จำเป็นสำหรับการ Upsert (กรณีไม่มี criteriaResultId ต้องมี itemResultId และ criteriaId มาแทน)
+    if (!optionId || (!criteriaResultId && (!itemResultId || !criteriaId))) {
+      res.status(400).json({
+        message:
+          'Missing required parameters (optionId, itemResultId, or criteriaId)'
+      });
       return;
     }
+
+    // ส่งข้อมูลทั้งหมดเข้าไปที่ Service
     const result = await selectScoreOption({
-      criteriaResultId: id,
+      criteriaResultId: criteriaResultId || null,
+      itemResultId,
+      criteriaId,
       optionId
     });
+
     res.status(200).json({ data: result });
     return;
   } catch (error: any) {
