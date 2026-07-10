@@ -46,7 +46,6 @@ const selectScoreOptionController = async (
   res: Response
 ): Promise<void> => {
   try {
-    // 🟢 เปลี่ยนมารับค่าทั้งหมดผ่าน req.body ตามที่หน้าบ้านยิงมา
     const {
       criteriaResultId,
       itemResultId,
@@ -56,21 +55,30 @@ const selectScoreOptionController = async (
       itemId
     } = req.body;
 
-    // บังคับเช็คข้อมูลที่จำเป็นสำหรับการ Upsert (กรณีไม่มี criteriaResultId ต้องมี itemResultId และ criteriaId มาแทน)
-    if (!optionId || (!criteriaResultId && (!itemResultId || !criteriaId))) {
-      res.status(400).json({
-        message:
-          'Missing required parameters (optionId, itemResultId, or criteriaId)'
-      });
+    // 1. ตรวจสอบเบื้องต้นว่าต้องส่ง optionId และ criteriaId มาเสมอ
+    if (!optionId || !criteriaId) {
+      res.status(400).json({ message: 'Missing criteriaId or optionId' });
       return;
     }
 
-    // ส่งข้อมูลทั้งหมดเข้าไปที่ Service
+    // 2. 🟢 เงื่อนไขใหม่: ถ้าไม่มีทั้ง criteriaResultId และ itemResultId (เคสข้อตรวจคะแนน 0)
+    // จำเป็นต้องมี categoryResultId และ itemId ส่งมาด้วยเพื่อนำไปสร้างแถวข้อมูลใหม่
+    if (!criteriaResultId && !itemResultId) {
+      if (!categoryResultId || !itemId) {
+        res.status(400).json({
+          message:
+            'Missing categoryResultId or itemId for initializing new item result'
+        });
+        return;
+      }
+    }
+
+    // ส่งข้อมูลทั้งหมดเข้าไปที่ Service (ปรับลอจิกแปลงค่าว่างให้เป็น null หรือ string เปล่าให้เคลียร์)
     const result = await selectScoreOption({
       criteriaResultId: criteriaResultId || null,
-      itemResultId,
-      categoryResultId,
-      itemId,
+      itemResultId: itemResultId || null, // 🟢 เผื่อหน้าบ้านส่ง "" มา ให้แปลงเป็น null
+      categoryResultId: categoryResultId || '',
+      itemId: itemId || '',
       criteriaId,
       optionId
     });
