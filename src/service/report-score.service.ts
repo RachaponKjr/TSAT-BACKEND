@@ -45,7 +45,7 @@ const selectScoreOption = async ({
   criteriaId: string;
   optionId: string;
 }) => {
-  // 1. หาข้อมูล Option ของเกณฑ์คะแนนก่อนเพื่อเอาค่าคะแนน (score) และคำอธิบาย (description)
+  // 1. ค้นหาข้อมูลช้อยส์เกณฑ์คะแนน (Option)
   const option = await db.inspectionCriteriaOption.findUnique({
     where: { id: optionId }
   });
@@ -53,25 +53,25 @@ const selectScoreOption = async ({
     throw new Error('Option not found');
   }
 
-  // 2. ใช้คำสั่ง upsert: ถ้ามีอยู่แล้วจะอัปเดต ถ้ายังไม่เคยมี (เช่น คะแนนเริ่มจาก 0) จะสร้างแถวใหม่ให้ทันที
+  // 2. ใช้คำสั่ง upsert แยกโครงสร้าง where ออกมาให้เคลียร์
   const criteriaResult = await db.inspectionCriteriaResult.upsert({
-    where: {
-      // 💡 หากไม่มี criteriaResultId ส่งมา ให้ใช้เงื่อนไขแบบจับคู่เพื่อความถูกต้อง (Composite Unique)
-      // สมมติชื่อฟิลด์ใน Schema ของคุณคือ itemResultId_criteriaId
-      id: criteriaResultId || 'new-record-placeholder',
-      ...(criteriaResultId
-        ? {}
-        : {
-            itemResultId_criteriaId: { itemResultId, criteriaId }
-          })
-    },
-    // เคสที่ 1: มีข้อมูลอยู่แล้ว -> ทำการอัปเดตคะแนนที่เลือกใหม่
+    // 💡 จัดระเบียบจุดนี้ใหม่: ถ้าหน้าบ้านส่ง id มา ให้หาด้วย id ตรงๆ
+    // แต่ถ้าไม่มี id (เป็นเคสเริ่มต้นคะแนน 0) ให้หาด้วยคีย์คู่ที่ล็อกตามสเปกตาราง
+    where: criteriaResultId
+      ? { id: criteriaResultId }
+      : {
+          itemResultId_criteriaId: {
+            itemResultId,
+            criteriaId
+          }
+        },
+    // เคสที่ 1: เจอข้อมูลเก่าอยู่แล้ว -> อัปเดตคะแนนและรายละเอียดใหม่
     update: {
       selectedOptionId: option.id,
       score: option.score,
       description: option.description
     },
-    // เคสที่ 2: ยังไม่เคยมีข้อมูล (ข้อที่ยังไม่เคยถูกตรวจ) -> บันทึกเป็นรายการตรวจใหม่ในตารางผลลัพธ์
+    // เคสที่ 2: ยังไม่เคยมีข้อมูลในระบบ (เป็นคะแนนแรก) -> สร้างข้อมูลลงตารางใหม่
     create: {
       itemResultId,
       criteriaId,
@@ -81,8 +81,7 @@ const selectScoreOption = async ({
     }
   });
 
-  // 3. เรียกฟังก์ชันคำนวณคะแนนรวมทุกชั้น (Recalculate) ตามโค้ดเดิมของคุณ
-  // ส่งไอดีของ criteriaResult ที่พึ่งอัปเดต/สร้างใหม่เสร็จเข้าไป
+  // 3. อัปเดตคะแนนรวมไล่ขึ้นไปบนใบตรวจหลัก
   const updatedReport = await recalculateScores({
     criteriaResultId: criteriaResult.id
   });
