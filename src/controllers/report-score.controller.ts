@@ -47,7 +47,14 @@ const selectScoreOptionController = async (
 ): Promise<void> => {
   try {
     // 🟢 เปลี่ยนมารับค่าทั้งหมดผ่าน req.body ตามที่หน้าบ้านยิงมา
-    const { criteriaResultId, itemResultId, criteriaId, optionId } = req.body;
+    const {
+      criteriaResultId,
+      itemResultId,
+      criteriaId,
+      optionId,
+      categoryResultId,
+      itemId
+    } = req.body;
 
     // บังคับเช็คข้อมูลที่จำเป็นสำหรับการ Upsert (กรณีไม่มี criteriaResultId ต้องมี itemResultId และ criteriaId มาแทน)
     if (!optionId || (!criteriaResultId && (!itemResultId || !criteriaId))) {
@@ -62,6 +69,8 @@ const selectScoreOptionController = async (
     const result = await selectScoreOption({
       criteriaResultId: criteriaResultId || null,
       itemResultId,
+      categoryResultId,
+      itemId,
       criteriaId,
       optionId
     });

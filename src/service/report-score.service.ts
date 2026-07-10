@@ -37,15 +37,19 @@ const updateScoreReport = async ({
 const selectScoreOption = async ({
   criteriaResultId,
   itemResultId,
+  categoryResultId, // 🟢 รับเพิ่มเข้ามาจากบอดี้
+  itemId, // 🟢 รับเพิ่มเข้ามาจากบอดี้
   criteriaId,
   optionId
 }: {
   criteriaResultId: string | null;
-  itemResultId: string;
+  itemResultId: string | null;
+  categoryResultId: string;
+  itemId: string;
   criteriaId: string;
   optionId: string;
 }) => {
-  // 1. ค้นหาข้อมูลช้อยส์เกณฑ์คะแนน (Option)
+  // 1. ตรวจหาตัวเลือกคะแนน (Option)
   const option = await db.inspectionCriteriaOption.findUnique({
     where: { id: optionId }
   });
@@ -53,27 +57,50 @@ const selectScoreOption = async ({
     throw new Error('Option not found');
   }
 
-  // 2. ใช้คำสั่ง upsert แยกโครงสร้าง where ออกมาให้เคลียร์
+  // 2. 🚀 ด่านคัดกรองสำคัญ: หาก itemResultId ไม่มีค่า (กรณีข้อตรวจเริ่มจากคะแนน 0)
+  let finalItemResultId = itemResultId;
+
+  if (!finalItemResultId) {
+    // ตรวจสอบว่าเคยมีการสร้างแถวไอเทมนี้แอบซ่อนไว้บ้างแล้วรึยัง
+    const existingItemResult = await db.inspectionItemResult.findUnique({
+      where: {
+        categoryResultId_itemId: { categoryResultId, itemId }
+      }
+    });
+
+    if (existingItemResult) {
+      finalItemResultId = existingItemResult.id;
+    } else {
+      // 🟢 ถ้ายังไม่มีจริงๆ ให้ใช้สิทธิ์จัดตั้ง สร้างแถวผลลัพธ์ของไอเทมนี้ขึ้นมาใหม่ทันที!
+      const newItemResult = await db.inspectionItemResult.create({
+        data: {
+          categoryResultId,
+          itemId,
+          score: 0,
+          maxScore: 0
+        }
+      });
+      finalItemResultId = newItemResult.id;
+    }
+  }
+
+  // 3. ยิงคำสั่ง upsert ข้อมูลคะแนนย่อยลงฐานข้อมูล โดยอิงจาก finalItemResultId ที่การันตีว่ามีแน่ๆ แล้ว
   const criteriaResult = await db.inspectionCriteriaResult.upsert({
-    // 💡 จัดระเบียบจุดนี้ใหม่: ถ้าหน้าบ้านส่ง id มา ให้หาด้วย id ตรงๆ
-    // แต่ถ้าไม่มี id (เป็นเคสเริ่มต้นคะแนน 0) ให้หาด้วยคีย์คู่ที่ล็อกตามสเปกตาราง
     where: criteriaResultId
       ? { id: criteriaResultId }
       : {
           itemResultId_criteriaId: {
-            itemResultId,
+            itemResultId: finalItemResultId,
             criteriaId
           }
         },
-    // เคสที่ 1: เจอข้อมูลเก่าอยู่แล้ว -> อัปเดตคะแนนและรายละเอียดใหม่
     update: {
       selectedOptionId: option.id,
       score: option.score,
       description: option.description
     },
-    // เคสที่ 2: ยังไม่เคยมีข้อมูลในระบบ (เป็นคะแนนแรก) -> สร้างข้อมูลลงตารางใหม่
     create: {
-      itemResultId,
+      itemResultId: finalItemResultId,
       criteriaId,
       selectedOptionId: option.id,
       score: option.score,
@@ -81,7 +108,7 @@ const selectScoreOption = async ({
     }
   });
 
-  // 3. อัปเดตคะแนนรวมไล่ขึ้นไปบนใบตรวจหลัก
+  // 4. สั่งคำนวณคะแนนย้อนกลับขึ้นไปด้านบนเพื่ออัปเดตหน้าจอรายงานสรุปผล
   const updatedReport = await recalculateScores({
     criteriaResultId: criteriaResult.id
   });
