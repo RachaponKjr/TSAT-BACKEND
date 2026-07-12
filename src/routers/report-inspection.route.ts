@@ -35,6 +35,7 @@ import {
   getTemplateByIdController,
   getTemplateListController,
   updateCategoryController,
+  updateCategoryResultController,
   updateCriteriaController,
   updateItemController,
   updateOptionController,
@@ -55,6 +56,7 @@ route.get('/list-category', getReportCategoryListController);
 route.get('/category/:id', getReportCategoryByIdController);
 route.post('/create-template-category/:templateId', createCategoryController);
 route.delete('/del-template-category/:id', deleteCategoryController);
+route.patch('/update-category-result/:id', updateCategoryResultController);
 
 // ITEM RESULT — แก้ได้แค่รูปภาพ
 route.get('/list-item', getItemReportController);

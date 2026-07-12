@@ -502,14 +502,14 @@ model InspectionReport {
 
 // ผลของแต่ละกลุ่มในใบตรวจนี้ (คะแนนรวมของกลุ่ม)
 model InspectionCategoryResult {
-  id         String                     @id @default(cuid())
-  reportId   String
-  report     InspectionReport           @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  categoryId String
-  category   InspectionCategoryTemplate @relation(fields: [categoryId], references: [id])
-
-  score    Int @default(0)
-  maxScore Int @default(0)
+  id          String                     @id @default(cuid())
+  reportId    String
+  report      InspectionReport           @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  categoryId  String
+  category    InspectionCategoryTemplate @relation(fields: [categoryId], references: [id])
+  description String?                    @default("")
+  score       Int                        @default(0)
+  maxScore    Int                        @default(0)
 
   itemResults InspectionItemResult[]
 

@@ -26,4 +26,18 @@ const getReportCategoryById = async ({ id }: { id: string }) => {
   return category;
 };
 
-export { getReportCategoryList, getReportCategoryById };
+const updateCategoryResult = async ({
+  id,
+  data
+}: {
+  id: string;
+  data: { description: string };
+}) => {
+  const result = await db.inspectionCategoryResult.update({
+    where: { id },
+    data
+  });
+  return result;
+};
+
+export { getReportCategoryList, getReportCategoryById, updateCategoryResult };
