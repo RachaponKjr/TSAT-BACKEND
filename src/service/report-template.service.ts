@@ -11,6 +11,7 @@ import {
   ReqUpdateOption,
   ReqUpdateTemplate
 } from '../types/reportTemplate.type';
+import { ReqUpdateFullTemplate } from '../types/reportTemplateUpdate.type';
 
 // สร้าง template ทั้งชุด (category -> item -> criteria -> option) ในทีเดียว
 const createTemplate = async ({ data }: { data: ReqCreateTemplate }) => {
@@ -380,6 +381,221 @@ const deleteCriteriaTemplate = async ({ id }: { id: string }) => {
   return criteria;
 };
 
+const deleteTemplateById = async ({ id }: { id: string }) => {
+  const template = await db.inspectionTemplate.delete({
+    where: { id }
+  });
+  return template;
+};
+
+const updateFullTemplate = async ({
+  id,
+  data
+}: {
+  id: string;
+  data: ReqUpdateFullTemplate;
+}) => {
+  return db.$transaction(async (tx) => {
+    // 1. อัปเดตชื่อ template (ถ้ามีส่งมา)
+    if (data.name) {
+      await tx.inspectionTemplate.update({
+        where: { id },
+        data: { name: data.name }
+      });
+    }
+
+    // ถ้าไม่ได้ส่ง categories มาเลย ก็จบแค่นี้ (แก้แค่ชื่อ)
+    if (!data.categories) {
+      return tx.inspectionTemplate.findUnique({
+        where: { id },
+        include: {
+          categories: {
+            include: {
+              items: { include: { criteria: { include: { options: true } } } }
+            }
+          }
+        }
+      });
+    }
+
+    // 2. โหลดโครงเดิมทั้งหมดไว้เทียบว่าอะไรถูกลบออกจาก payload บ้าง
+    const existingTemplate = await tx.inspectionTemplate.findUnique({
+      where: { id },
+      include: {
+        categories: {
+          include: {
+            items: { include: { criteria: { include: { options: true } } } }
+          }
+        }
+      }
+    });
+    if (!existingTemplate) {
+      throw new Error('Template not found');
+    }
+
+    const incomingCategoryIds = data.categories
+      .map((c) => c.id)
+      .filter((v): v is string => Boolean(v));
+
+    // 3. ลบ category เดิมที่หายไปจาก payload (cascade ลบ item/criteria/option ตามไปด้วย)
+    for (const existingCategory of existingTemplate.categories) {
+      if (!incomingCategoryIds.includes(existingCategory.id)) {
+        await tx.inspectionCategoryTemplate.delete({
+          where: { id: existingCategory.id }
+        });
+      }
+    }
+
+    // 4. ไล่ทีละ category ใน payload: มี id = update, ไม่มี id = create
+    for (const category of data.categories) {
+      let categoryId = category.id;
+
+      if (categoryId) {
+        await tx.inspectionCategoryTemplate.update({
+          where: { id: categoryId },
+          data: { name: category.name, order: category.order }
+        });
+      } else {
+        const created = await tx.inspectionCategoryTemplate.create({
+          data: { templateId: id, name: category.name, order: category.order }
+        });
+        categoryId = created.id;
+      }
+
+      const existingCategory = existingTemplate.categories.find(
+        (c) => c.id === category.id
+      );
+      const existingItems = existingCategory?.items ?? [];
+      const incomingItemIds = category.items
+        .map((i) => i.id)
+        .filter((v): v is string => Boolean(v));
+
+      // ลบ item เดิมที่หายไป
+      for (const existingItem of existingItems) {
+        if (!incomingItemIds.includes(existingItem.id)) {
+          await tx.inspectionItemTemplate.delete({
+            where: { id: existingItem.id }
+          });
+        }
+      }
+
+      for (const item of category.items) {
+        let itemId = item.id;
+
+        if (itemId) {
+          await tx.inspectionItemTemplate.update({
+            where: { id: itemId },
+            data: {
+              name: item.name,
+              description: item.description,
+              order: item.order
+            }
+          });
+        } else {
+          const createdItem = await tx.inspectionItemTemplate.create({
+            data: {
+              categoryId,
+              name: item.name,
+              description: item.description,
+              order: item.order
+            }
+          });
+          itemId = createdItem.id;
+        }
+
+        const existingItem = existingItems.find((i) => i.id === item.id);
+        const existingCriteria = existingItem?.criteria ?? [];
+        const incomingCriteriaIds = item.criteria
+          .map((c) => c.id)
+          .filter((v): v is string => Boolean(v));
+
+        for (const existingCrit of existingCriteria) {
+          if (!incomingCriteriaIds.includes(existingCrit.id)) {
+            await tx.inspectionCriteriaTemplate.delete({
+              where: { id: existingCrit.id }
+            });
+          }
+        }
+
+        for (const crit of item.criteria) {
+          let criteriaId = crit.id;
+
+          if (criteriaId) {
+            await tx.inspectionCriteriaTemplate.update({
+              where: { id: criteriaId },
+              data: { label: crit.label, order: crit.order }
+            });
+          } else {
+            const createdCrit = await tx.inspectionCriteriaTemplate.create({
+              data: { itemId, label: crit.label, order: crit.order }
+            });
+            criteriaId = createdCrit.id;
+          }
+
+          const existingCritRecord = existingCriteria.find(
+            (c) => c.id === crit.id
+          );
+          const existingOptions = existingCritRecord?.options ?? [];
+          const incomingOptionIds = crit.options
+            .map((o) => o.id)
+            .filter((v): v is string => Boolean(v));
+
+          for (const existingOpt of existingOptions) {
+            if (!incomingOptionIds.includes(existingOpt.id)) {
+              await tx.inspectionCriteriaOption.delete({
+                where: { id: existingOpt.id }
+              });
+            }
+          }
+
+          for (const opt of crit.options) {
+            if (opt.id) {
+              await tx.inspectionCriteriaOption.update({
+                where: { id: opt.id },
+                data: {
+                  score: opt.score,
+                  description: opt.description,
+                  order: opt.order
+                }
+              });
+            } else {
+              await tx.inspectionCriteriaOption.create({
+                data: {
+                  criteriaId,
+                  score: opt.score,
+                  description: opt.description,
+                  order: opt.order
+                }
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // 5. คืนค่า template เต็มก้อนล่าสุดหลัง sync เสร็จ
+    return tx.inspectionTemplate.findUnique({
+      where: { id },
+      include: {
+        categories: {
+          orderBy: { order: 'asc' },
+          include: {
+            items: {
+              orderBy: { order: 'asc' },
+              include: {
+                criteria: {
+                  orderBy: { order: 'asc' },
+                  include: { options: { orderBy: { order: 'asc' } } }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+  });
+};
+
 export {
   createTemplate,
   getTemplateList,
@@ -398,5 +614,7 @@ export {
   createCategoryTemplate,
   deleteCategoryTemplate,
   createCriteriaTemplate,
-  deleteCriteriaTemplate
+  deleteCriteriaTemplate,
+  deleteTemplateById,
+  updateFullTemplate
 };

@@ -30,6 +30,7 @@ import {
   deleteCriteriaController,
   deleteItemController,
   deleteOptionController,
+  deleteTemplateController,
   getCriteriaOptionListController,
   getTemplateByIdController,
   getTemplateListController,
@@ -72,6 +73,7 @@ route.post('/create-template', createTemplateController);
 route.get('/list-template', getTemplateListController);
 route.get('/template/:id', getTemplateByIdController);
 route.patch('/deactivate-template/:id', deactivateTemplateController);
+route.delete('/del-template/:id', deleteTemplateController);
 
 // TEMPLATE — แก้ไข
 route.patch('/update-template/:id', updateTemplateController);

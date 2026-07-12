@@ -22,15 +22,18 @@ import {
   deleteCriteriaOption,
   deleteCriteriaTemplate,
   deleteItemTemplate,
+  deleteTemplateById,
   getCriteriaOptionList,
   getTemplateById,
   getTemplateList,
   updateCategoryTemplate,
   updateCriteriaOption,
   updateCriteriaTemplate,
+  updateFullTemplate,
   updateItemTemplate,
   updateTemplateInfo
 } from '../service/report-template.service';
+import { ReqUpdateFullTemplateSchema } from '../types/reportTemplateUpdate.type';
 
 const createTemplateController = async (
   req: Request,
@@ -116,7 +119,12 @@ const updateTemplateController = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const parseResult = ReqUpdateTemplateSchema.safeParse(req.body);
+    if (!id) {
+      res.status(400).json({ message: 'Missing template ID in params' });
+      return;
+    }
+
+    const parseResult = ReqUpdateFullTemplateSchema.safeParse(req.body);
     if (!parseResult.success) {
       res.status(400).json({
         message: 'Invalid request data',
@@ -124,13 +132,14 @@ const updateTemplateController = async (
       });
       return;
     }
-    const result = await updateTemplateInfo({ id, data: parseResult.data });
+
+    const result = await updateFullTemplate({ id, data: parseResult.data });
     res.status(200).json({ data: result });
     return;
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: error instanceof Error ? error.message : error });
+    res.status(500).json({
+      message: error instanceof Error ? error.message : 'Internal Server Error'
+    });
     return;
   }
 };
@@ -433,6 +442,23 @@ const deleteCriteriaController = async (
   }
 };
 
+const deleteTemplateController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const result = await deleteTemplateById({ id });
+    res.status(200).json({ data: result });
+    return;
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: error instanceof Error ? error.message : error });
+    return;
+  }
+};
+
 export {
   createTemplateController,
   getTemplateListController,
@@ -451,5 +477,6 @@ export {
   createCategoryController,
   deleteCategoryController,
   createCriteriaController,
-  deleteCriteriaController
+  deleteCriteriaController,
+  deleteTemplateController
 };
