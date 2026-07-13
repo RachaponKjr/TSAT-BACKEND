@@ -33,7 +33,7 @@ const updateCategoryResult = async ({
   id: string;
   data: { description: string };
 }) => {
-  const result = await db.inspectionCategoryResult.update({
+  const result = await db.inspectionItemResult.update({
     where: { id },
     data
   });
@@ -47,7 +47,7 @@ const updateCategoryResultRecommend = async ({
   id: string;
   data: { recommend: string };
 }) => {
-  const result = await db.inspectionCategoryResult.update({
+  const result = await db.inspectionItemResult.update({
     where: { id },
     data
   });
