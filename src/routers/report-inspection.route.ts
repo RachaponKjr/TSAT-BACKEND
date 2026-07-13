@@ -59,7 +59,7 @@ route.post('/create-template-category/:templateId', createCategoryController);
 route.delete('/del-template-category/:id', deleteCategoryController);
 route.patch('/update-category-result/:id', updateCategoryResultController);
 route.patch(
-  '/update-category-recommend',
+  '/update-category-recommend/:id',
   updateCategoryResultRecommendController
 );
 
