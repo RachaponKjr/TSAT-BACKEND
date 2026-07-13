@@ -382,6 +382,7 @@ enum Role {
   USER
   ADMIN
   OWNER
+  MECHANIC
 }
 
 // enum BlogType {

@@ -14,7 +14,7 @@ import { AuthRequest } from '../middlewares/auth-admin';
 
 const createUserController = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, role } = req.body;
 
     if (!username || !password) {
       res.status(400).json({ message: 'Username and password are required.' });
@@ -30,7 +30,8 @@ const createUserController = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await createUserService({
       password: hashedPassword,
-      username
+      username,
+      role
     });
 
     res.status(201).json({ status: 201, data: newUser });
