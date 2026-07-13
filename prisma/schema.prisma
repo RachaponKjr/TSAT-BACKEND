@@ -508,6 +508,7 @@ model InspectionCategoryResult {
   categoryId  String
   category    InspectionCategoryTemplate @relation(fields: [categoryId], references: [id])
   description String?                    @default("")
+  recommend   String?                    @default("")
   score       Int                        @default(0)
   maxScore    Int                        @default(0)
 

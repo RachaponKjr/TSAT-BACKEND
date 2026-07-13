@@ -34,7 +34,10 @@ import {
   updateTemplateInfo
 } from '../service/report-template.service';
 import { ReqUpdateFullTemplateSchema } from '../types/reportTemplateUpdate.type';
-import { updateCategoryResult } from '../service/report-category.service';
+import {
+  updateCategoryResult,
+  updateCategoryResultRecommend
+} from '../service/report-category.service';
 
 const createTemplateController = async (
   req: Request,
@@ -481,6 +484,27 @@ const updateCategoryResultController = async (
   }
 };
 
+const updateCategoryResultRecommendController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { recommend } = req.body as { recommend: string };
+    const result = await updateCategoryResultRecommend({
+      id,
+      data: { recommend }
+    });
+    res.status(200).json({ data: result });
+    return;
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: error instanceof Error ? error.message : error });
+    return;
+  }
+};
+
 export {
   createTemplateController,
   getTemplateListController,
@@ -501,5 +525,6 @@ export {
   createCriteriaController,
   deleteCriteriaController,
   deleteTemplateController,
-  updateCategoryResultController
+  updateCategoryResultController,
+  updateCategoryResultRecommendController
 };
