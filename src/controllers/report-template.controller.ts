@@ -24,6 +24,7 @@ import {
   deleteItemTemplate,
   deleteTemplateById,
   getCriteriaOptionList,
+  getReportData,
   getTemplateById,
   getTemplateList,
   updateCategoryTemplate,
@@ -31,6 +32,7 @@ import {
   updateCriteriaTemplate,
   updateFullTemplate,
   updateItemTemplate,
+  updateReportCarUsedPdf,
   updateTemplateInfo
 } from '../service/report-template.service';
 import { ReqUpdateFullTemplateSchema } from '../types/reportTemplateUpdate.type';
@@ -38,6 +40,9 @@ import {
   updateCategoryResult,
   updateCategoryResultRecommend
 } from '../service/report-category.service';
+import { generatePDFUsedCar } from '../template/used-car-form';
+import { generatePdfFromTemplate } from '../service/main-pdf.service';
+import { deletePdfFile } from '../libs/del-pdffile';
 
 const createTemplateController = async (
   req: Request,
@@ -505,6 +510,37 @@ const updateCategoryResultRecommendController = async (
   }
 };
 
+const getReportController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const result = await getReportData({ id });
+
+    const { fileUrl } = await generatePdfFromTemplate(
+      generatePDFUsedCar,
+      result
+    );
+
+    let deleted = false;
+    if (result.pdfUrl) {
+      const { deleted: del } = deletePdfFile(result.pdfUrl);
+      deleted = del;
+    }
+
+    const updateReport = await updateReportCarUsedPdf({ id, url: fileUrl });
+
+    res.status(200).json({ url: fileUrl, deleted, report: updateReport });
+    return;
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: error instanceof Error ? error.message : error });
+    return;
+  }
+};
+
 export {
   createTemplateController,
   getTemplateListController,
@@ -526,5 +562,6 @@ export {
   deleteCriteriaController,
   deleteTemplateController,
   updateCategoryResultController,
-  updateCategoryResultRecommendController
+  updateCategoryResultRecommendController,
+  getReportController
 };

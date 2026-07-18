@@ -32,6 +32,7 @@ import {
   deleteOptionController,
   deleteTemplateController,
   getCriteriaOptionListController,
+  getReportController,
   getTemplateByIdController,
   getTemplateListController,
   updateCategoryController,
@@ -245,5 +246,9 @@ route.delete(
   isMechanic,
   deleteOptionController
 );
+
+// Report GET
+
+route.get('/get-report/:id', getReportController);
 
 export default route;

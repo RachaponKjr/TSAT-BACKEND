@@ -1,4 +1,5 @@
 import { prisma as db } from '../libs/prisma';
+import { InspectionForm } from '../template/used-car-form';
 import {
   ReqCreateCategory,
   ReqCreateCriteria,
@@ -596,6 +597,82 @@ const updateFullTemplate = async ({
   });
 };
 
+const getReportData = async ({ id }: { id: string }) => {
+  const template = await db.inspectionReport.findUnique({
+    where: { id },
+    include: {
+      categoryResults: {
+        orderBy: { id: 'asc' }, // หรือ field ที่กำหนดลำดับ category
+        include: {
+          category: true,
+          itemResults: {
+            orderBy: { id: 'asc' }, // หรือ field ที่กำหนดลำดับ item
+            include: {
+              item: true,
+              criteriaResults: {
+                orderBy: { id: 'asc' }, // หรือ field ที่กำหนดลำดับ criteria
+                include: {
+                  selectedOption: true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  const payload = {
+    customerName: template?.customerName || '-',
+    carModel: template?.carModel || '-',
+    modelYear: template?.modelYear || '-',
+    vin: template?.vin || '-',
+    pdfUrl: template?.pdfUrl || '',
+    odometer: template?.odometer || '-',
+    licensePlate: template?.licensePlate || '-',
+    inspectorName: template?.inspectorName || '-',
+    inspectedAt: template?.inspectedAt || '-',
+    approverName: template?.approverName || '-',
+    approvedAt: template?.approvedAt || '-',
+    overallGrade: template?.overallGrade || '-',
+    totalScore: template?.totalScore || 0,
+    maxScore: template?.maxScore || 0,
+    categoryResults: template?.categoryResults?.map((category) => ({
+      categoryName: category.category.name,
+      score: category.score,
+      maxScore: category.maxScore,
+      itemResults: category.itemResults.map((item) => ({
+        item: item.item.name,
+        description: item.description || '-',
+        selectScore: item.criteriaResults.map((cri) => ({
+          score: cri.selectedOption?.score,
+          description: item.description || '-'
+        }))
+      }))
+    }))
+  };
+
+  return payload as InspectionForm;
+};
+
+const updateReportCarUsedPdf = async ({
+  id,
+  url
+}: {
+  id: string;
+  url: string;
+}) => {
+  const res = await db.inspectionReport.update({
+    where: { id },
+    data: {
+      pdfUrl: url,
+      pdfExpireDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    }
+  });
+
+  return res;
+};
+
 export {
   createTemplate,
   getTemplateList,
@@ -616,5 +693,7 @@ export {
   createCriteriaTemplate,
   deleteCriteriaTemplate,
   deleteTemplateById,
-  updateFullTemplate
+  updateFullTemplate,
+  getReportData,
+  updateReportCarUsedPdf
 };
