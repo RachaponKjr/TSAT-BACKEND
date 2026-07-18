@@ -222,7 +222,7 @@ export function generatePDFUsedCar(data: InspectionForm): string {
 
     th,
     td {
-      padding: 6px 8px;
+      padding: 8px 8px;
       text-align: left;
       vertical-align: middle;
     }
