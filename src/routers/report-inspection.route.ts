@@ -249,6 +249,11 @@ route.delete(
 
 // Report GET
 
-route.get('/get-report/:id', getReportController);
+route.get(
+  '/get-report/:id',
+  authenticateToken,
+  isMechanic,
+  getReportController
+);
 
 export default route;

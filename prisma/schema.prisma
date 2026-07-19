@@ -559,3 +559,13 @@ model InspectionCriteriaResult {
   @@unique([itemResultId, criteriaId])
   @@index([itemResultId])
 }
+
+model Items {
+  id        String   @id @default(cuid())
+  imageUrl  String?
+  name      String
+  unit      String
+  price     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -27,6 +27,7 @@ import reviewRouter from './routers/review.route';
 import pdfRouter from './routers/pdf.route';
 import scrapeRouter from './routers/scrape.route';
 import reportUsedCarRouter from './routers/report-inspection.route';
+import itemsRouter from './routers/items.route';
 import { syncReviewsToDatabase } from './libs/syncReviewsToDatabase';
 import { runFullWebScraper } from './libs/seoScraper';
 import redisClient from './libs/redis';
@@ -111,6 +112,7 @@ app.use(`${versionApi}/review`, reviewRouter);
 app.use(`${versionApi}/pdf`, pdfRouter);
 app.use(`${versionApi}/scrape`, scrapeRouter);
 app.use(`${versionApi}/report-used-car`, reportUsedCarRouter);
+app.use(`${versionApi}/items`, itemsRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
