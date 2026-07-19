@@ -12,10 +12,10 @@ const ReqOpenReportSchema = z.object({
   vin: z.string().min(1, 'vin is required'),
   odometer: z.number().int().nonnegative(),
   licensePlate: z.string().min(1, 'licensePlate is required'),
-  inspectorName: z.string().optional(),
-  approverName: z.string().optional(),
-  approvedAt: z.string().optional(),
-  inspectedAt: z.string().optional()
+  inspectorName: z.string().optional().nullable(),
+  approverName: z.string().optional().nullable(),
+  approvedAt: z.string().optional().nullable(),
+  inspectedAt: z.string().optional().nullable()
 });
 
 type ReqOpenReport = z.infer<typeof ReqOpenReportSchema>;
