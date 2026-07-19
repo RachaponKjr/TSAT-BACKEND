@@ -4,6 +4,7 @@ import { prisma as db } from '../libs/prisma';
 export interface User {
   username: string;
   password: string;
+  fullName: string;
   role?: string;
 }
 
@@ -31,6 +32,7 @@ const getUserAllService = async () => {
     select: {
       id: true,
       username: true,
+      fullName: true,
       role: true
     }
   });

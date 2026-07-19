@@ -30,7 +30,8 @@ const checkTokenStatus = (req: Request, res: Response) => {
       user: {
         id: decoded.id,
         email: decoded.email,
-        role: decoded.role
+        role: decoded.role,
+        fullName: decoded.fullName
       },
       expiresIn: timeUntilExpiry,
       expiresAt: new Date(decoded.exp * 1000)

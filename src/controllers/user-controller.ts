@@ -14,9 +14,9 @@ import { AuthRequest } from '../middlewares/auth-admin';
 
 const createUserController = async (req: Request, res: Response) => {
   try {
-    const { username, password, role } = req.body;
+    const { username, password, fullName, role } = req.body;
 
-    if (!username || !password) {
+    if (!username || !password || !fullName) {
       res.status(400).json({ message: 'Username and password are required.' });
       return;
     }
@@ -31,6 +31,7 @@ const createUserController = async (req: Request, res: Response) => {
     const newUser = await createUserService({
       password: hashedPassword,
       username,
+      fullName,
       role
     });
 
@@ -69,7 +70,7 @@ const loginUserController = async (req: Request, res: Response) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, role: user.role },
+      { id: user.id, role: user.role, fullName: user.fullName },
       process.env.JWT_SECRET as string,
       {
         expiresIn: '8h'
@@ -96,7 +97,7 @@ const deleteUserController = async (req: Request, res: Response) => {
 const updateUserController = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { username, password, role } = req.body;
+    const { username, password, fullName, role } = req.body;
 
     if (req.user.role === 'ADMIN' && role === 'OWNER') {
       res
@@ -108,6 +109,7 @@ const updateUserController = async (req: AuthRequest, res: Response) => {
     const updateData: Partial<User> = {};
 
     if (username) updateData.username = username;
+    if (fullName) updateData.fullName = fullName;
     if (role) updateData.role = role;
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
