@@ -43,6 +43,7 @@ import {
 import { generatePDFUsedCar } from '../template/used-car-form';
 import { generatePdfFromTemplate } from '../service/main-pdf.service';
 import { deletePdfFile } from '../libs/del-pdffile';
+import { generatePDFUsedCarPerformace } from '../template/used-car-perfomance';
 
 const createTemplateController = async (
   req: Request,
@@ -523,15 +524,37 @@ const getReportController = async (
       result
     );
 
+    const { fileUrl: performanceFileUrl } = await generatePdfFromTemplate(
+      generatePDFUsedCarPerformace,
+      result
+    );
+
     let deleted = false;
     if (result.pdfUrl) {
       const { deleted: del } = deletePdfFile(result.pdfUrl);
-      deleted = del;
+      if (result.performancePdfUrl) {
+        const { deleted: delPerformance } = deletePdfFile(
+          result.performancePdfUrl
+        );
+        deleted = del && delPerformance;
+      } else {
+        deleted = del;
+      }
     }
 
-    const updateReport = await updateReportCarUsedPdf({ id, url: fileUrl });
+    const updateReport = await updateReportCarUsedPdf({
+      id,
+      url: fileUrl,
+      performanceUrl: performanceFileUrl
+    });
 
-    res.status(200).json({ url: fileUrl, deleted, report: updateReport });
+    res.status(200).json({
+      url: fileUrl,
+      performanceUrl: performanceFileUrl,
+      deleted,
+      report: updateReport,
+      payload: result
+    });
     return;
   } catch (error) {
     res

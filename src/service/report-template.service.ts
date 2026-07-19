@@ -627,7 +627,9 @@ const getReportData = async ({ id }: { id: string }) => {
     carModel: template?.carModel || '-',
     modelYear: template?.modelYear || '-',
     vin: template?.vin || '-',
+    imageCar: template?.imageCar || '-',
     pdfUrl: template?.pdfUrl || '',
+    performancePdfUrl: template?.performancePdfUrl || '',
     odometer: template?.odometer || '-',
     licensePlate: template?.licensePlate || '-',
     inspectorName: template?.inspectorName || '-',
@@ -657,15 +659,18 @@ const getReportData = async ({ id }: { id: string }) => {
 
 const updateReportCarUsedPdf = async ({
   id,
-  url
+  url,
+  performanceUrl
 }: {
   id: string;
   url: string;
+  performanceUrl: string;
 }) => {
   const res = await db.inspectionReport.update({
     where: { id },
     data: {
       pdfUrl: url,
+      performancePdfUrl: performanceUrl,
       pdfExpireDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     }
   });

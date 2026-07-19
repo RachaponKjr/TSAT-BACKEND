@@ -2,8 +2,8 @@ import { prisma as db } from '../libs/prisma';
 import { ReqUpdateCriteriaResult } from '../types/reportInspection.type';
 
 const calculateGrade = (percentage: number): string => {
-  if (percentage >= 90) return 'A';
-  if (percentage >= 75) return 'B';
+  if (percentage >= 85) return 'A';
+  if (percentage >= 55) return 'B';
   return 'C';
 };
 

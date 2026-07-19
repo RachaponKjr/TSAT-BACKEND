@@ -492,8 +492,9 @@ model InspectionReport {
   totalScore   Int?
   maxScore     Int?
 
-  pdfUrl        String?   @default("")
-  pdfExpireDate DateTime? @default(now())
+  pdfUrl            String?   @default("")
+  performancePdfUrl String?   @default("")
+  pdfExpireDate     DateTime? @default(now())
 
   categoryResults InspectionCategoryResult[]
 

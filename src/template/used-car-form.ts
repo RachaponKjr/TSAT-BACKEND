@@ -22,6 +22,8 @@ export interface InspectionForm {
   modelYear: string;
   vin: string;
   pdfUrl: string;
+  imageCar: string;
+  performancePdfUrl: string;
   odometer: string;
   licensePlate: string;
   inspectorName: string;
@@ -50,6 +52,15 @@ function getGradeLabel(grade: string): string {
     B: 'สภาพดี',
     C: 'สภาพปานกลาง',
     D: 'ควรซ่อมแซม'
+  };
+  return map[grade] ?? '';
+}
+
+function getGradeLabelUsedCar(grade: string): string {
+  const map: Record<string, string> = {
+    A: 'ราคาตลาดสูงสุด ซื้อขายจริง',
+    B: 'ราคากลางตลาด ซื้อขายจริง',
+    C: 'ลดราคาลงตามมูลค่างานซ่อม หรือ ราคาต่ำสุดตลาด ซื้อขายจริง'
   };
   return map[grade] ?? '';
 }
@@ -213,7 +224,7 @@ export function generatePDFUsedCar(data: InspectionForm): string {
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 10px;
+      font-size: 12px;
     }
     
     tbody tr:nth-child(even) {
@@ -222,14 +233,14 @@ export function generatePDFUsedCar(data: InspectionForm): string {
 
     th,
     td {
-      padding: 8px 8px;
+      padding: 6px 8px;
       text-align: left;
       vertical-align: middle;
     }
 
     th {
       font-weight: 600;
-      font-size:10px;
+      font-size:12px;
       text-align: center;
       text-shadow: none;
     }
@@ -427,7 +438,9 @@ export function generatePDFUsedCar(data: InspectionForm): string {
   <div style="display: flex; align-items: center;">
     <div style="flex: 0.8;">
       <div style="font-size: 0.85em; color: #666;">ผลการประเมิน</div>
-      <div style="font-weight: bold; font-size: 1.1em;">ราคาตลาดสูงสุด ซื้อขายจริง</div>
+      <div style="font-weight: bold; font-size: 1.1em;">${getGradeLabelUsedCar(
+        data.overallGrade
+      )}</div>
     </div>
     <div style="flex: 1; border-left: 1px solid #ccc; padding-left: 15px; display: flex; gap: 20px;">
       <div>
