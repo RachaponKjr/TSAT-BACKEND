@@ -542,7 +542,7 @@ const getReportController = async (
       }
     }
 
-    const updateReport = await updateReportCarUsedPdf({
+    await updateReportCarUsedPdf({
       id,
       url: fileUrl,
       performanceUrl: performanceFileUrl
@@ -550,10 +550,7 @@ const getReportController = async (
 
     res.status(200).json({
       url: fileUrl,
-      performanceUrl: performanceFileUrl,
-      deleted,
-      report: updateReport,
-      payload: result
+      performanceUrl: performanceFileUrl
     });
     return;
   } catch (error) {
