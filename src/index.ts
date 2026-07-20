@@ -28,6 +28,7 @@ import pdfRouter from './routers/pdf.route';
 import scrapeRouter from './routers/scrape.route';
 import reportUsedCarRouter from './routers/report-inspection.route';
 import itemsRouter from './routers/items.route';
+import quotationRouter from './routers/quotation.route';
 import { syncReviewsToDatabase } from './libs/syncReviewsToDatabase';
 import { runFullWebScraper } from './libs/seoScraper';
 import redisClient from './libs/redis';
@@ -53,7 +54,13 @@ app.use(logRequest);
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      // 🟢 ปรับตรงนี้: อนุญาตถ้าไม่มี origin (เช่น เครื่องมือทดสอบ/บราวเซอร์บางรุ่น)
+      // หรือถ้า origin เป็นคำว่า 'null' (มักเกิดจาก FormData บนมือถือบางค่าย)
+      if (
+        !origin ||
+        origin === 'null' ||
+        allowedOrigins.indexOf(origin) !== -1
+      ) {
         callback(null, true);
       } else {
         console.log('Blocked by CORS:', origin);
@@ -113,6 +120,7 @@ app.use(`${versionApi}/pdf`, pdfRouter);
 app.use(`${versionApi}/scrape`, scrapeRouter);
 app.use(`${versionApi}/report-used-car`, reportUsedCarRouter);
 app.use(`${versionApi}/items`, itemsRouter);
+app.use(`${versionApi}/quotation`, quotationRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

@@ -499,8 +499,9 @@ model InspectionReport {
 
   categoryResults InspectionCategoryResult[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  quotationReports QuotationReport[]
 
   @@index([templateId])
   @@index([customerName])
@@ -562,11 +563,54 @@ model InspectionCriteriaResult {
 }
 
 model Items {
-  id        String   @id @default(cuid())
-  imageUrl  String?
-  name      String
-  unit      String
-  price     Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                   String                @id @default(cuid())
+  imageUrl             String?
+  name                 String
+  unit                 String
+  price                Int
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  quotationReportItems QuotationReportItem[]
+}
+
+model QuotationReportItem {
+  id                String           @id @default(cuid())
+  quantity          Int
+  itemId            String
+  item              Items            @relation(fields: [itemId], references: [id])
+  quotationReport   QuotationReport? @relation(fields: [quotationReportId], references: [id], onDelete: Cascade)
+  quotationReportId String?          @db.Uuid // แก้ไข: ปรับให้ Type ตรงกับ id ของ QuotationReport
+}
+
+model References {
+  id                String          @id @default(uuid()) @db.Uuid // แนะนำ: ถ้าใช้ UUID ควรใส่ @db.Uuid ให้เหมือนกัน
+  refUrl            String?
+  refLogo           String?
+  carImageHight     String?
+  priceHight        Int?
+  carImageLow       String?
+  priceLow          Int?
+  averagePrice      Int?
+  quotationReportId String          @db.Uuid // แก้ไข: ต้องมี @db.Uuid เพื่อให้ผูกกับ QuotationReport ได้
+  quotationReport   QuotationReport @relation(fields: [quotationReportId], references: [id], onDelete: Cascade)
+}
+
+model QuotationReport {
+  id                 String    @id @default(uuid()) @db.Uuid
+  quotationId        String    @default(uuid()) @db.Uuid // แก้ไข: เปลี่ยนจาก cuid() เป็น uuid() เพื่อให้เข้ากับ @db.Uuid
+  inspectionReportId String
+  pdfUrl             String?
+  pdfExpireDate      DateTime? @default(now())
+  invoicePrice       Int       @default(0)
+  invoiceExpireDate  DateTime? @default(now())
+  remark             String?
+
+  // สมมติว่ามีโมเดล InspectionReport อยู่แล้ว
+  inspectionReport InspectionReport      @relation(fields: [inspectionReportId], references: [id])
+  items            QuotationReportItem[]
+  references       References[]
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  @@index([quotationId])
 }

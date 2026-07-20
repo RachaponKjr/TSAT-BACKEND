@@ -8,6 +8,7 @@ import {
   deleteReport,
   getReportById,
   getReportFull,
+  getReportList,
   openReport,
   updateReport
 } from '../service/report-main.service';
@@ -107,6 +108,22 @@ const getReportFullController = async (
   }
 };
 
+const getReportListController = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const reportRes = await getReportList();
+    res.status(200).json(reportRes);
+    return;
+  } catch (error) {
+    res.status(500).json({
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+    return;
+  }
+};
+
 const getReportByIdController = async (
   req: Request,
   res: Response
@@ -133,5 +150,6 @@ export {
   updateReportController,
   delReportController,
   getReportFullController,
-  getReportByIdController
+  getReportByIdController,
+  getReportListController
 };

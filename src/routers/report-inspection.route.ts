@@ -3,6 +3,7 @@ import {
   delReportController,
   getReportByIdController,
   getReportFullController,
+  getReportListController,
   openReportController,
   updateReportController
 } from '../controllers/report-main.controller';
@@ -55,6 +56,8 @@ route.get(
   isMechanic,
   getReportFullController
 );
+
+route.get('/report-list', getReportListController);
 route.get(
   '/report/:id',
   authenticateToken,

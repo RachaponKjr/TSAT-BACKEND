@@ -170,6 +170,20 @@ const getReportFull = async () => {
   return reportsWithScore;
 };
 
+const getReportList = async () => {
+  const reports = await db.inspectionReport.findMany({
+    select: {
+      id: true,
+      overallGrade: true,
+      carModel: true,
+      modelYear: true,
+      licensePlate: true
+    }
+  });
+
+  return reports;
+};
+
 const getReportById = async ({ id }: { id: string }) => {
   const report = await db.inspectionReport.findUnique({
     where: { id },
@@ -244,4 +258,11 @@ const getReportById = async ({ id }: { id: string }) => {
   };
 };
 
-export { openReport, updateReport, deleteReport, getReportFull, getReportById };
+export {
+  openReport,
+  updateReport,
+  deleteReport,
+  getReportFull,
+  getReportById,
+  getReportList
+};
