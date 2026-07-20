@@ -59,8 +59,8 @@ route.get(
 
 route.get(
   '/report-list',
-  authenticateToken,
-  isMechanic,
+  // authenticateToken,
+  // isMechanic,
   getReportListController
 );
 route.get(
