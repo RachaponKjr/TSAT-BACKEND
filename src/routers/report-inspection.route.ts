@@ -57,7 +57,12 @@ route.get(
   getReportFullController
 );
 
-route.get('/report-list', getReportListController);
+route.get(
+  '/report-list',
+  authenticateToken,
+  isMechanic,
+  getReportListController
+);
 route.get(
   '/report/:id',
   authenticateToken,

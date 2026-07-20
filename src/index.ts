@@ -37,25 +37,28 @@ const app = express();
 const PORT = 3131;
 const versionApi = '/api/v1';
 
-// ✅ CORS: ให้รองรับ cookie-based auth
+// 🟢 1. ย้ายการตั้งค่าขนาดไฟล์ (Body Parser) ขึ้นมาอยู่บนสุด เพื่อให้รับภาพขนาดใหญ่ได้ตั้งแต่แรกสุด
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(cookieParser());
+app.use(logRequest);
 
+// 🟢 2. ปรับการตั้งค่า CORS หลังบ้านให้ยืดหยุ่นและปลอดภัยร่วมกับ Credentials
 const allowedOrigins = [
   'http://tsat-front:3030',
   'http://150.95.26.51:3030',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'https://topserviceautotechnic.com',
-  'http://topserviceautotechnic.com', // เผื่อลูกค้าเข้าแบบไม่มี s
-  'https://www.topserviceautotechnic.com', // เผื่อมี www
+  'http://topserviceautotechnic.com',
+  'https://www.topserviceautotechnic.com',
   'http://www.topserviceautotechnic.com'
 ];
 
-app.use(logRequest);
 app.use(
   cors({
     origin: function (origin, callback) {
-      // 🟢 ปรับตรงนี้: อนุญาตถ้าไม่มี origin (เช่น เครื่องมือทดสอบ/บราวเซอร์บางรุ่น)
-      // หรือถ้า origin เป็นคำว่า 'null' (มักเกิดจาก FormData บนมือถือบางค่าย)
+      // ปรับให้ใจกว้างขึ้น: ถ้าไม่มี origin หรือถูกส่งผ่านเครื่องมือทดสอบ ยอมให้ผ่าน
       if (
         !origin ||
         origin === 'null' ||
@@ -63,9 +66,10 @@ app.use(
       ) {
         callback(null, true);
       } else {
+        // แทนที่จะสั่ง throw Error โหดๆ ซึ่งจะทำให้บราวเซอร์ติด CORS
+        // ให้ส่งค่า false กลับไปเพื่อให้ตัวแพ็กเกจปฏิเสธอย่างนุ่มนวลตามมาตรฐาน
         console.log('Blocked by CORS:', origin);
-        // พ่นคีย์ Error ออกไปเพื่อให้แพ็กเกจเคลียร์สิทธิ์ตัดรอบได้สมบูรณ์
-        callback(new Error('Not allowed by CORS'));
+        callback(null, false);
       }
     },
     credentials: true,
@@ -80,14 +84,6 @@ app.use(
     optionsSuccessStatus: 204
   })
 );
-
-// ✅ สำหรับ preflight requests
-app.options('*', cors());
-
-// ✅ Middleware ที่ควรอยู่ก่อน route ทุกตัว
-app.use(express.json({ limit: '50mb' })); // 🟢 ต้องระบุลิมิตตรงนี้ด้วย
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(cookieParser());
 
 // ✅ Static file serving
 app.use('/uploads', express.static('uploads'));
