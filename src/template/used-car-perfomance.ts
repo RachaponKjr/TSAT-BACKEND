@@ -109,6 +109,9 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
 <head>
   <meta charset="UTF-8">
   <title>ใบตรวจสภาพรถยนต์</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* นำเข้าฟอนต์ภาษาไทยมาตรฐาน */
     @import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@100..700&family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&display=swap');
@@ -120,7 +123,8 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
     }
 
     body {
-      font-family: 'Sarabun', sans-serif;
+      /* 🟢 2. กำหนด Font Family ให้ตรงกับที่โหลดมา (เลือกตัวใดตัวหนึ่งเป็นตัวหลัก) */
+      font-family: 'IBM Plex Sans Thai', 'Anuphan', 'Sarabun', sans-serif;
       margin: 0;
       padding: 0;
       background-color: #ffffff;
@@ -128,7 +132,7 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-
+      
     /* Container หลัก */
     .container {
       max-width: 100%;
@@ -408,21 +412,21 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
     <div style="display: flex; margin-bottom: 16px;">
       <!-- คอลัมน์ 1: ลูกค้า -->
       <div style="flex: 0 0 35%; padding-right: 10px;">
-        <div style="font-size: 0.9em; color: #777; margin-bottom: 4px;">ลูกค้า</div>
+        <div style="font-size: 1em; color: #777; margin-bottom: 4px;">ลูกค้า</div>
         <div style="font-weight: bold; font-size: 1.2em; color: #222;">คุณ${
           data.customerName
         }</div>
       </div>
       <!-- คอลัมน์ 2: รุ่นรถ -->
       <div style="flex: 0 0 40%; padding-right: 10px;">
-        <div style="font-size: 0.9em; color: #777; margin-bottom: 4px;">รุ่นรถ</div>
+        <div style="font-size: 1em; color: #777; margin-bottom: 4px;">รุ่นรถ</div>
         <div style="font-weight: bold; font-size: 1.2em; color: #222;">Porsche ${
           data.carModel
         }</div>
       </div>
       <!-- คอลัมน์ 3: รหัสตัวถัง -->
       <div style="flex: 0 0 25%;">
-        <div style="font-size: 0.9em; color: #777; margin-bottom: 4px;">รหัสตัวถัง (VIN)</div>
+        <div style="font-size: 1em; color: #777; margin-bottom: 4px;">รหัสตัวถัง (VIN)</div>
         <div style="font-weight: bold; font-size: 1.2em; color: #222;">${
           data.vin
         }</div>
@@ -434,19 +438,19 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
       <!-- คอลัมน์ 1: ทะเบียน / ปีรถ / เลขกิโลเมตร -->
       <div style="flex: 0 0 35%; display: flex; gap: 24px; padding-right: 10px;">
         <div>
-          <div style="font-size: 0.9em; color: #777; margin-bottom: 4px;">ทะเบียน</div>
+          <div style="font-size: 1em; color: #777; margin-bottom: 4px;">ทะเบียน</div>
           <div style="font-weight: bold; font-size: 1.2em; color: #222;">${
             data.licensePlate
           }</div>
         </div>
         <div>
-          <div style="font-size: 0.9em; color: #777; margin-bottom: 4px;">ปีรถ</div>
+          <div style="font-size: 1em; color: #777; margin-bottom: 4px;">ปีรถ</div>
           <div style="font-weight: bold; font-size: 1.2em; color: #222;">${
             data.modelYear
           }</div>
         </div>
         <div>
-          <div style="font-size: 0.9em; color: #777; margin-bottom: 4px;">เลขกิโลเมตร</div>
+          <div style="font-size: 1em; color: #777; margin-bottom: 4px;">เลขกิโลเมตร</div>
           <div style="font-weight: bold; font-size: 1.2em; color: #222;">${
             data.odometer
           } กม.</div>
@@ -454,7 +458,7 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
       </div>
       <!-- คอลัมน์ 2: ผู้ตรวจเช็ค -->
       <div style="flex: 0 0 40%; padding-right: 10px;">
-        <div style="font-size: 0.9em; color: #777; margin-bottom: 4px;">ผู้ตรวจเช็ค</div>
+        <div style="font-size: 1em; color: #777; margin-bottom: 4px;">ผู้ตรวจเช็ค</div>
         <div style="font-weight: bold; font-size: 1.2em; color: #222;">
           ${
             data.inspectorName
@@ -465,7 +469,7 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
       </div>
       <!-- คอลัมน์ 3: ผู้อนุมัติ -->
       <div style="flex: 0 0 25%;">
-        <div style="font-size: 0.85em; color: #777; margin-bottom: 4px;">ผู้อนุมัติ</div>
+        <div style="font-size: 1em; color: #777; margin-bottom: 4px;">ผู้อนุมัติ</div>
         <div style="font-weight: bold; font-size: 1.2em; color: #222;">
           ${data.approverName}
           <span style="font-weight: normal; color: #444; margin-left: 12px; font-size: 1em;">${formatThaiDate(
