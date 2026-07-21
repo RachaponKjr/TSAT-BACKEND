@@ -109,7 +109,7 @@ export function generatePDFQSShort(data: IDataService): string {
   <meta charset="UTF-8">
   <title>ใบตรวจสภาพรถยนต์ (ฉบับย่อ)</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@100..700&family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&display=swap');
 
     @page {
       size: A4 landscape;

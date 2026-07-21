@@ -59,8 +59,8 @@ route.get(
 
 route.get(
   '/report-list',
-  // authenticateToken,
-  // isMechanic,
+  authenticateToken,
+  isMechanic,
   getReportListController
 );
 route.get(
@@ -259,8 +259,8 @@ route.delete(
 
 route.get(
   '/get-report/:id',
-  authenticateToken,
-  isMechanic,
+  // authenticateToken,
+  // isMechanic,
   getReportController
 );
 

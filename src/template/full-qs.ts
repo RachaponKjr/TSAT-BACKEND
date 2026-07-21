@@ -12,8 +12,7 @@ export function generatePDFQS(data: IDataService): string {
   <title>ใบตรวจสภาพรถยนต์</title>
   <style>
     /* นำเข้าฟอนต์ภาษาไทยมาตรฐาน */
-    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
-
+   @import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@100..700&family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&display=swap');
     /* ตั้งค่าหน้ากระดาษและภาพรวม */
     @page {
       size: A4 portrait;
