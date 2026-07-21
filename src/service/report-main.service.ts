@@ -143,6 +143,9 @@ const getReportFull = async () => {
           }
         }
       }
+    },
+    orderBy: {
+      createdAt: 'desc'
     }
   });
 

@@ -488,7 +488,7 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
   
   <div style="width:100%;display:flex;gap:24px">
       <!--ภาพรูปรถ-->
-      <div style="width: 100%; height: 240px; background-color: lightblue; border-radius: 6px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+      <div style="width: 100%; height: 300px; background-color: lightblue; border-radius: 6px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
   <img 
     src='${convertLocalFileToBase64(data.imageCar)}'  
     alt="รูปรถ" 
