@@ -122,12 +122,16 @@ export function generatePDFQSShort(data: IDataService): string {
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Sarabun', sans-serif;
+      font-family: "IBM Plex Sans Thai", sans-serif;
       font-size: 11px;
       color: #222;
       background: #fff;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+    }
+
+    *, input, button, select, textarea, p, span,td {
+      font-family: 'IBM Plex Sans Thai', sans-serif !important;
     }
 
     .page {
