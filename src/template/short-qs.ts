@@ -119,8 +119,15 @@ export function generatePDFQSShort(data: IDataService): string {
       margin: 10mm;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
+    * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'IBM Plex Sans Thai', sans-serif !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  
     body {
       font-family: "IBM Plex Sans Thai", sans-serif;
       font-size: 11px;
@@ -128,10 +135,6 @@ export function generatePDFQSShort(data: IDataService): string {
       background: #fff;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-    }
-
-    *, input, button, select, textarea, p, span,td {
-      font-family: 'IBM Plex Sans Thai', sans-serif !important;
     }
 
     .page {

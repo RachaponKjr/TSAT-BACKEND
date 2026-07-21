@@ -259,8 +259,8 @@ route.delete(
 
 route.get(
   '/get-report/:id',
-  // authenticateToken,
-  // isMechanic,
+  authenticateToken,
+  isMechanic,
   getReportController
 );
 

@@ -123,6 +123,12 @@ export function generatePDFUsedCar(data: InspectionForm): string {
       margin: 10mm;
     }
 
+    * {
+      font-family: 'IBM Plex Sans Thai', sans-serif !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
     body {
       font-family: "IBM Plex Sans Thai", sans-serif;
       margin: 0;
@@ -131,10 +137,6 @@ export function generatePDFUsedCar(data: InspectionForm): string {
       color: #333333;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-    }
-
-    *, input, button, select, textarea, p, span,td {
-      font-family: 'IBM Plex Sans Thai', sans-serif !important;
     }
 
     /* Container หลัก */
