@@ -12,7 +12,8 @@ import {
   getQuotationItemsController,
   getQuotationItemByIdController,
   updateQuotationItemController,
-  deleteQuotationItemController
+  deleteQuotationItemController,
+  getQuotationItemByQuotationIdController
 } from '../controllers/quotation/quotation-item.controller';
 import {
   createReferenceController,
@@ -36,6 +37,7 @@ router.delete('/delete/:id', deleteQuotationReportController);
 router.post('/items/create', createQuotationItemController);
 router.get('/items', getQuotationItemsController);
 router.get('/items/:id', getQuotationItemByIdController);
+router.get('/item/quotation/:id', getQuotationItemByQuotationIdController);
 router.patch('/items/update/:id', updateQuotationItemController);
 router.delete('/items/delete/:id', deleteQuotationItemController);
 

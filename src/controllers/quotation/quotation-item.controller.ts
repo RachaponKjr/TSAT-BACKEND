@@ -78,3 +78,16 @@ export const deleteQuotationItemController = async (
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const getQuotationItemByQuotationIdController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { id } = req.params;
+    const result = await itemService.getQuotationItemByQuotationId(id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
