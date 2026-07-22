@@ -27,10 +27,10 @@ const router = Router();
 // Quotation Report
 router.post('/create', createQuotationReportController);
 router.get('/', getQuotationReportsController);
+router.get('/number', getQuotationNumber);
 router.get('/:id', getQuotationReportByIdController);
 router.patch('/update/:id', updateQuotationReportController);
 router.delete('/delete/:id', deleteQuotationReportController);
-router.get('/number', getQuotationNumber);
 
 // Quotation Report Items
 router.post('/items/create', createQuotationItemController);
