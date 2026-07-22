@@ -24,7 +24,8 @@ const convertLocalFileToBase64 = (relativePath: string): string => {
 
   // 4. ตรวจสอบและอ่านไฟล์ออกมาเป็น Base64
   if (!fs.existsSync(absolutePath)) {
-    throw new Error(`หาไฟล์ไม่เจอในระบบที่ตำแหน่ง: ${absolutePath}`);
+    console.warn(`[Warning] หาไฟล์ไม่เจอ: ${absolutePath}`);
+    return ''; // หรือจะใส่ Default Image Base64 แทนก็ได้ครับ
   }
 
   const fileBuffer = fs.readFileSync(absolutePath);

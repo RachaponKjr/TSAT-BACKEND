@@ -51,7 +51,6 @@ const getPromotion = async () => {
       isShow: true
     }
   });
-  console.log(res);
   return res;
 };
 

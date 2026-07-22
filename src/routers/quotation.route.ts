@@ -29,6 +29,7 @@ router.get('/', getQuotationReportsController);
 router.get('/:id', getQuotationReportByIdController);
 router.patch('/update/:id', updateQuotationReportController);
 router.delete('/delete/:id', deleteQuotationReportController);
+router.get('/number', () => {});
 
 // Quotation Report Items
 router.post('/items/create', createQuotationItemController);

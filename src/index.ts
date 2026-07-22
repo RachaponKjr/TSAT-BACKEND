@@ -43,6 +43,42 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 app.use(logRequest);
 
+const publicStaticCors = cors({ origin: '*' });
+const staticOptions = {
+  setHeaders: (res: any, path: string, stat: any) => {
+    // เพิ่ม Header นี้เพื่อให้ Safari บน iOS ยอมรับการโหลดรูปภาพข้ามโดเมน
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  }
+};
+
+// ✅ Static file serving
+app.use('/uploads', publicStaticCors, express.static('uploads', staticOptions));
+app.use(
+  '/public/products',
+  publicStaticCors,
+  express.static('public/products', staticOptions)
+);
+app.use(
+  '/uploads/works',
+  publicStaticCors,
+  express.static('uploads/works', staticOptions)
+);
+app.use(
+  '/uploads/reviews',
+  publicStaticCors,
+  express.static('uploads/reviews', staticOptions)
+);
+app.use(
+  '/uploads/edit-blogs',
+  publicStaticCors,
+  express.static('uploads/edit-blogs', staticOptions)
+);
+app.use(
+  '/uploads/subcarmodel',
+  publicStaticCors,
+  express.static('uploads/subcarmodel', staticOptions)
+);
+
 // 🟢 2. ปรับการตั้งค่า CORS หลังบ้านให้ยืดหยุ่นและปลอดภัยร่วมกับ Credentials
 const allowedOrigins = [
   'http://tsat-front:3030',
@@ -50,9 +86,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'https://topserviceautotechnic.com',
-  'http://topserviceautotechnic.com',
-  'https://www.topserviceautotechnic.com',
-  'http://www.topserviceautotechnic.com'
+  'https://www.topserviceautotechnic.com'
 ];
 
 app.use(
@@ -84,14 +118,6 @@ app.use(
     optionsSuccessStatus: 204
   })
 );
-
-// ✅ Static file serving
-app.use('/uploads', express.static('uploads'));
-app.use('/public/products', express.static('public/products'));
-app.use('/uploads/works', express.static('uploads/works'));
-app.use('/uploads/reviews', express.static('uploads/reviews'));
-app.use('/uploads/edit-blogs', express.static('uploads/edit-blogs'));
-app.use('/uploads/subcarmodel', express.static('uploads/subcarmodel'));
 
 // ✅ Routes
 app.use(`${versionApi}/cms`, cmsHomeRouter);

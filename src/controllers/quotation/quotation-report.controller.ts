@@ -84,3 +84,13 @@ export const deleteQuotationReportController = async (
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const getQuotationNumber = async (req: Request, res: Response) => {
+  try {
+    const result = await reportService.quotationNumber();
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error getting quotation number:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

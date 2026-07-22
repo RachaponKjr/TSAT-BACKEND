@@ -63,10 +63,39 @@ const deleteQuotationReport = async (id: string) => {
   }
 };
 
+const quotationNumber = async () => {
+  try {
+    const latestQuotation = await db.quotationReport.findFirst({
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    let nextNumber = 1;
+
+    if (latestQuotation && latestQuotation.quotationId) {
+      const currentCode = latestQuotation.quotationId; // สมมติเก็บฟิลด์นี้ไว้
+      const numberPart = parseInt(currentCode.replace('QT-', ''), 10);
+      if (!isNaN(numberPart)) {
+        nextNumber = numberPart + 1;
+      }
+    } else {
+      const count = await db.quotationReport.count();
+      nextNumber = count + 1;
+    }
+
+    return `QT-${nextNumber.toString().padStart(3, '0')}`;
+  } catch (error) {
+    console.error('Error generating quotation number:', error);
+    throw error;
+  }
+};
+
 export {
   createQuotationReport,
   getQuotationReports,
   getQuotationReportById,
   updateQuotationReport,
-  deleteQuotationReport
+  deleteQuotationReport,
+  quotationNumber
 };
