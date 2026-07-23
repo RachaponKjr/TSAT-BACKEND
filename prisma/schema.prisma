@@ -579,7 +579,7 @@ model QuotationReportItem {
   itemId            String
   item              Items            @relation(fields: [itemId], references: [id])
   quotationReport   QuotationReport? @relation(fields: [quotationReportId], references: [quotationId], onDelete: Cascade)
-  quotationReportId String?          @db.Uuid // แก้ไข: ปรับให้ Type ตรงกับ id ของ QuotationReport
+  quotationReportId String?
 }
 
 model References {
@@ -591,13 +591,13 @@ model References {
   carImageLow       String?
   priceLow          Int?
   averagePrice      Int?
-  quotationReportId String          @db.Uuid // แก้ไข: ต้องมี @db.Uuid เพื่อให้ผูกกับ QuotationReport ได้
+  quotationReportId String
   quotationReport   QuotationReport @relation(fields: [quotationReportId], references: [quotationId], onDelete: Cascade)
 }
 
 model QuotationReport {
   id                 String    @id @default(uuid()) @db.Uuid
-  quotationId        String    @unique @default(uuid()) @db.Uuid // แก้ไข: เปลี่ยนจาก cuid() เป็น uuid() เพื่อให้เข้ากับ @db.Uuid
+  quotationId        String    @unique
   inspectionReportId String
   pdfUrl             String?
   pdfExpireDate      DateTime? @default(now())
