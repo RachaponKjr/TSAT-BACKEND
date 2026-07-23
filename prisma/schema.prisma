@@ -597,7 +597,7 @@ model References {
 
 model QuotationReport {
   id                 String    @id @default(uuid()) @db.Uuid
-  quotationId        String    @default(uuid()) @db.Uuid // แก้ไข: เปลี่ยนจาก cuid() เป็น uuid() เพื่อให้เข้ากับ @db.Uuid
+  quotationId        String    @unique @default(uuid()) @db.Uuid // แก้ไข: เปลี่ยนจาก cuid() เป็น uuid() เพื่อให้เข้ากับ @db.Uuid
   inspectionReportId String
   pdfUrl             String?
   pdfExpireDate      DateTime? @default(now())
