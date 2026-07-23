@@ -12,7 +12,7 @@ export const QuotationReportSchema = z.object({
 
 export const QuotationItemSingleSchema = z.object({
   id: z.string().optional(),
-  quotationReportId: z.string().uuid(),
+  quotationReportId: z.string(),
   itemId: z.string(),
   quantity: z.number().int().positive()
 });
@@ -27,7 +27,7 @@ export const ReferencesSchema = z.object({
   carImageLow: z.string().optional().nullable(),
   priceLow: z.number().int().optional().nullable(),
   averagePrice: z.number().int().optional().nullable(),
-  quotationReportId: z.string().uuid()
+  quotationReportId: z.string()
 });
 
 export type ReqOpenQuotationReport = z.infer<typeof QuotationReportSchema>;
