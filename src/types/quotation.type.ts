@@ -23,8 +23,8 @@ export const QuotationItemArraySchema = z.array(QuotationItemSingleSchema);
 export const ReferencesSchema = z.object({
   refUrl: z.string().optional().nullable(),
   refLogo: z.string().optional().nullable(),
-  carImageHigh: z.string().optional().nullable(),
-  priceHigh: z.number().int().optional().nullable(),
+  carImageHight: z.string().optional().nullable(),
+  priceHight: z.number().int().optional().nullable(),
   carImageLow: z.string().optional().nullable(),
   priceLow: z.number().int().optional().nullable(),
   averagePrice: z.number().int().optional().nullable(),
