@@ -578,7 +578,7 @@ model QuotationReportItem {
   quantity          Int
   itemId            String
   item              Items            @relation(fields: [itemId], references: [id])
-  quotationReport   QuotationReport? @relation(fields: [quotationReportId], references: [id], onDelete: Cascade)
+  quotationReport   QuotationReport? @relation(fields: [quotationReportId], references: [quotationId], onDelete: Cascade)
   quotationReportId String?          @db.Uuid // แก้ไข: ปรับให้ Type ตรงกับ id ของ QuotationReport
 }
 
@@ -592,7 +592,7 @@ model References {
   priceLow          Int?
   averagePrice      Int?
   quotationReportId String          @db.Uuid // แก้ไข: ต้องมี @db.Uuid เพื่อให้ผูกกับ QuotationReport ได้
-  quotationReport   QuotationReport @relation(fields: [quotationReportId], references: [id], onDelete: Cascade)
+  quotationReport   QuotationReport @relation(fields: [quotationReportId], references: [quotationId], onDelete: Cascade)
 }
 
 model QuotationReport {

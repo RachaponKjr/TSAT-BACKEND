@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
-import { QuotationReportItemSchema } from '../../types/quotation.type';
+import {
+  QuotationItemArraySchema,
+  QuotationItemSingleSchema
+} from '../../types/quotation.type';
 import * as itemService from '../../service/quotation/quotation-item.service';
 
 export const createQuotationItemController = async (
@@ -7,14 +10,17 @@ export const createQuotationItemController = async (
   res: Response
 ) => {
   try {
-    const data = QuotationReportItemSchema.safeParse(req.body);
+    // 🟢 ใช้ Schema แบบ Array
+    const data = QuotationItemArraySchema.safeParse(req.body);
     if (!data.success) {
       res.status(400).json({ error: data.error.issues });
       return;
     }
+
     const result = await itemService.createQuotationItem(data.data);
     res.status(201).json(result);
   } catch (error) {
+    console.error('Error in createQuotationItemController:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -53,15 +59,19 @@ export const updateQuotationItemController = async (
   res: Response
 ) => {
   try {
-    const data = QuotationReportItemSchema.partial().safeParse(req.body);
     const { id } = req.params;
+
+    // 🟢 ใช้ Schema แบบเดี่ยว + .partial() เพื่อให้อัปเดตเฉพาะฟิลด์ที่ส่งมาได้
+    const data = QuotationItemSingleSchema.partial().safeParse(req.body);
     if (!data.success) {
       res.status(400).json({ error: data.error.issues });
       return;
     }
+
     const result = await itemService.updateQuotationItem(id, data.data);
     res.status(200).json(result);
   } catch (error) {
+    console.error('Error in updateQuotationItemController:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

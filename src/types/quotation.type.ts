@@ -10,11 +10,14 @@ export const QuotationReportSchema = z.object({
   remark: z.string().optional().nullable()
 });
 
-export const QuotationReportItemSchema = z.object({
+export const QuotationItemSingleSchema = z.object({
+  id: z.string().optional(),
   quotationReportId: z.string().uuid(),
-  itemId: z.string(), // แก้จาก .uuid() เพราะใน schema Items.id เป็น cuid()
+  itemId: z.string(),
   quantity: z.number().int().positive()
 });
+
+export const QuotationItemArraySchema = z.array(QuotationItemSingleSchema);
 
 export const ReferencesSchema = z.object({
   refUrl: z.string().optional().nullable(),
@@ -29,6 +32,6 @@ export const ReferencesSchema = z.object({
 
 export type ReqOpenQuotationReport = z.infer<typeof QuotationReportSchema>;
 export type ReqOpenQuotationReportItem = z.infer<
-  typeof QuotationReportItemSchema
+  typeof QuotationItemSingleSchema
 >;
 export type ReqReferences = z.infer<typeof ReferencesSchema>;

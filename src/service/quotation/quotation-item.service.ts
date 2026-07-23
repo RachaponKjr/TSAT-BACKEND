@@ -2,11 +2,17 @@
 import { prisma as db } from '../../libs/prisma';
 import { ReqOpenQuotationReportItem } from '../../types/quotation.type';
 
-const createQuotationItem = async (data: ReqOpenQuotationReportItem) => {
+const createQuotationItem = async (data: ReqOpenQuotationReportItem[]) => {
   try {
-    return await db.quotationReportItem.create({ data });
+    // 🟢 ใช้ createMany สำหรับบันทึกข้อมูลหลายแถวทีเดียว
+    const result = await db.quotationReportItem.createMany({
+      data: data,
+      skipDuplicates: true // (Optional) ถ้ามีข้อมูลซ้ำสามารถข้ามได้ตามต้องการ
+    });
+
+    return result;
   } catch (error) {
-    console.error('Error creating quotation item:', error);
+    console.error('Error creating quotation items:', error);
     throw error;
   }
 };
