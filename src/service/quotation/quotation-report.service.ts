@@ -95,7 +95,7 @@ const updateQuotationReport = async (
 ) => {
   try {
     return await db.quotationReport.update({
-      where: { id },
+      where: { quotationId: id },
       data
     });
   } catch (error) {
