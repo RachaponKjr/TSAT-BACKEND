@@ -7,7 +7,7 @@ const createReference = async (data: ReqReferences) => {
     return await db.references.create({ data });
   } catch (error) {
     console.error('Error creating reference:', error);
-    throw error;
+    return false;
   }
 };
 
@@ -16,7 +16,7 @@ const getReferences = async () => {
     return await db.references.findMany();
   } catch (error) {
     console.error('Error getting references:', error);
-    throw error;
+    return false;
   }
 };
 
@@ -25,7 +25,7 @@ const getReferenceById = async (id: string) => {
     return await db.references.findUnique({ where: { id } });
   } catch (error) {
     console.error('Error getting reference by id:', error);
-    throw error;
+    return false;
   }
 };
 
@@ -34,7 +34,7 @@ const updateReference = async (id: string, data: Partial<ReqReferences>) => {
     return await db.references.update({ where: { id }, data });
   } catch (error) {
     console.error('Error updating reference:', error);
-    throw error;
+    return false;
   }
 };
 
@@ -43,7 +43,7 @@ const deleteReference = async (id: string) => {
     return await db.references.delete({ where: { id } });
   } catch (error) {
     console.error('Error deleting reference:', error);
-    throw error;
+    return false;
   }
 };
 

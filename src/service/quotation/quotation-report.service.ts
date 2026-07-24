@@ -10,7 +10,7 @@ const createQuotationReport = async (data: ReqOpenQuotationReport) => {
     });
   } catch (error) {
     console.error('Error creating quotation report:', error);
-    throw error;
+    return false;
   }
 };
 
@@ -21,7 +21,7 @@ const getQuotationReports = async () => {
     });
   } catch (error) {
     console.error('Error getting quotation reports:', error);
-    throw error;
+    return false;
   }
 };
 
@@ -33,7 +33,7 @@ const getQuotationReportById = async (id: string) => {
     });
   } catch (error) {
     console.error('Error getting quotation report by ID:', error);
-    throw error;
+    return false;
   }
 };
 
@@ -48,7 +48,8 @@ const updateQuotationReport = async (
     });
   } catch (error) {
     console.error('Error updating quotation report:', error);
-    throw error;
+
+    return false;
   }
 };
 
@@ -59,35 +60,75 @@ const deleteQuotationReport = async (id: string) => {
     });
   } catch (error) {
     console.error('Error deleting quotation report:', error);
-    throw error;
+    return false;
   }
 };
 
-const quotationNumber = async () => {
+const quotationNumber = () => {
   try {
-    const latestQuotation = await db.quotationReport.findFirst({
-      orderBy: {
-        createdAt: 'desc'
+    const now = new Date();
+
+    const year = now.getFullYear().toString().slice(-2); // ได้ 26
+    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // ได้ 07
+    const day = now.getDate().toString().padStart(2, '0'); // ได้ 21
+
+    const hours = now.getHours().toString().padStart(2, '0'); // ได้ 09
+    const minutes = now.getMinutes().toString().padStart(2, '0'); // ได้ 47
+    const seconds = now.getSeconds().toString().padStart(2, '0'); // ได้ 31
+
+    const code = `QS${year}${month}${day}${hours}${minutes}${seconds}`;
+
+    return code;
+  } catch (error) {
+    console.error('Error generating quotation number:', error);
+    return false;
+  }
+};
+
+const getquotationInfo = async (id: string) => {
+  try {
+    const res = await db.quotationReport.findUnique({
+      where: { quotationId: id },
+      select: {
+        quotationId: true,
+        createdAt: true,
+        invoiceExpireDate: true,
+        invoicePrice: true,
+        items: {
+          select: {
+            quantity: true,
+            item: {
+              select: {
+                name: true,
+                price: true,
+                unit: true
+              }
+            }
+          }
+        }
       }
     });
 
-    let nextNumber = 1;
+    if (!res) return null;
 
-    if (latestQuotation && latestQuotation.quotationId) {
-      const currentCode = latestQuotation.quotationId; // สมมติเก็บฟิลด์นี้ไว้
-      const numberPart = parseInt(currentCode.replace('QT-', ''), 10);
-      if (!isNaN(numberPart)) {
-        nextNumber = numberPart + 1;
-      }
-    } else {
-      const count = await db.quotationReport.count();
-      nextNumber = count + 1;
-    }
+    const payload = {
+      quotationId: res.quotationId,
+      createdAt: res.createdAt,
+      invoiceExpireDate: res.invoiceExpireDate,
+      invoicePrice: res.invoicePrice,
+      items: res.items.map((i) => ({
+        name: i.item.name,
+        price: i.item.price,
+        unit: i.item.unit,
+        quantity: i.quantity,
+        totalPrice: i.item.price * i.quantity
+      }))
+    };
 
-    return `QT-${nextNumber.toString().padStart(3, '0')}`;
+    return payload;
   } catch (error) {
-    console.error('Error generating quotation number:', error);
-    throw error;
+    console.error('Error getting quotation info:', error);
+    return false;
   }
 };
 
@@ -97,5 +138,6 @@ export {
   getQuotationReportById,
   updateQuotationReport,
   deleteQuotationReport,
-  quotationNumber
+  quotationNumber,
+  getquotationInfo
 };

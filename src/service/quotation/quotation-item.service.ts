@@ -13,7 +13,7 @@ const createQuotationItem = async (data: ReqOpenQuotationReportItem[]) => {
     return result;
   } catch (error) {
     console.error('Error creating quotation items:', error);
-    throw error;
+    return false;
   }
 };
 
@@ -22,7 +22,7 @@ const getQuotationItems = async () => {
     return await db.quotationReportItem.findMany({ include: { item: true } });
   } catch (error) {
     console.error('Error getting quotation items:', error);
-    throw error;
+    return false;
   }
 };
 
@@ -34,7 +34,7 @@ const getQuotationItemById = async (id: string) => {
     });
   } catch (error) {
     console.error('Error getting quotation item by id:', error);
-    throw error;
+    return false;
   }
 };
 
@@ -46,7 +46,6 @@ const updateQuotationItem = async (
     return await db.quotationReportItem.update({ where: { id }, data });
   } catch (error) {
     console.error('Error updating quotation item:', error);
-    throw error;
   }
 };
 
@@ -55,7 +54,7 @@ const deleteQuotationItem = async (id: string) => {
     return await db.quotationReportItem.delete({ where: { id } });
   } catch (error) {
     console.error('Error deleting quotation item:', error);
-    throw error;
+    return false;
   }
 };
 
@@ -98,7 +97,11 @@ const getQuotationItemByQuotationId = async (quotationId: string) => {
     };
   } catch (error) {
     console.error('Error getting quotation item by quotation id:', error);
-    throw error;
+    return {
+      items: [],
+      totalQuantity: 0,
+      totalPrice: 0
+    };
   }
 };
 

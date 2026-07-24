@@ -5,7 +5,8 @@ import {
   getQuotationReportByIdController,
   updateQuotationReportController,
   deleteQuotationReportController,
-  getQuotationNumber
+  getQuotationNumber,
+  getQuotationInfoController
 } from '../controllers/quotation/quotation-report.controller';
 import {
   createQuotationItemController,
@@ -29,6 +30,7 @@ const router = Router();
 router.post('/create', createQuotationReportController);
 router.get('/', getQuotationReportsController);
 router.get('/number', getQuotationNumber);
+router.get('/quotation-info/:id', getQuotationInfoController);
 router.get('/:id', getQuotationReportByIdController);
 router.patch('/update/:id', updateQuotationReportController);
 router.delete('/delete/:id', deleteQuotationReportController);
