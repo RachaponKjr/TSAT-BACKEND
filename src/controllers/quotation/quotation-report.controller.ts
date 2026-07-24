@@ -100,15 +100,32 @@ export const getQuotationNumber = async (req: Request, res: Response) => {
 export const getQuotationInfoController = async (
   req: Request,
   res: Response
-) => {
+): Promise<void> => {
   try {
     const { id } = req.params as { id: string };
+
     const result = await reportService.getquotationInfo(id);
-    res.status(200).json(result);
+
+    if (!result) {
+      res.status(404).json({
+        status: false,
+        message: 'Quotation not found'
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: true,
+      message: 'Get quotation info successfully',
+      data: result
+    });
     return;
   } catch (error) {
-    console.error('Error getting quotation number:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error getting quotation info:', error);
+    res.status(500).json({
+      status: false,
+      message: 'Internal server error'
+    });
     return;
   }
 };
