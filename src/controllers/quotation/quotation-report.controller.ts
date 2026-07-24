@@ -23,24 +23,44 @@ export const createQuotationReportController = async (
 };
 
 export const getQuotationReportsController = async (
-  _req: Request,
+  req: Request,
   res: Response
 ) => {
   try {
-    const result = await reportService.getQuotationReports();
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = (req.query.search as string) || '';
+
+    const { data, totalItems } = await reportService.getQuotationReports({
+      page,
+      limit,
+      search
+    });
+
+    const totalPages = Math.ceil(totalItems / limit);
+
     const payload = {
       status: true,
-      message: 'Get quotation reports successfully',
-      data: result
+      message: 'Get quotation successfully',
+      data,
+      pagination: {
+        currentPage: page,
+        pageSize: limit,
+        totalItems,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      }
     };
+
     res.status(200).json(payload);
   } catch (error) {
     console.error('Error getting quotation reports:', error);
-    const payload = {
+
+    res.status(500).json({
       status: false,
       message: 'Internal server error'
-    };
-    res.status(500).json(payload);
+    });
   }
 };
 

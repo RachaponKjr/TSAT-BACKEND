@@ -14,27 +14,69 @@ const createQuotationReport = async (data: ReqOpenQuotationReport) => {
   }
 };
 
-const getQuotationReports = async () => {
+// 1. สร้าง Interface สำหรับรับ Params เข้ามาจาก Controller
+interface GetQuotationReportsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+const getQuotationReports = async (params: GetQuotationReportsParams = {}) => {
   try {
-    const res = await db.quotationReport.findMany({
-      include: { items: true, references: true }
-    });
+    const page = params.page || 1;
+    const limit = params.limit || 10;
+    const search = params.search || '';
 
-    const payload = res.map((item) => {
-      return {
-        quotationId: item.quotationId,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
-        invoiceExpireDate: item.invoiceExpireDate,
-        invoicePrice: item.invoicePrice,
-        remark: item.remark ?? ''
-      };
-    });
+    // คำนวณข้ามจำนวนแถว (Offset)
+    const skip = (page - 1) * limit;
 
-    return payload;
+    // 2. สร้างเงื่อนไขการค้นหา (Where condition)
+    const whereCondition = search
+      ? {
+          OR: [
+            { quotationId: { contains: search, mode: 'insensitive' as const } },
+            { remark: { contains: search, mode: 'insensitive' as const } }
+          ]
+        }
+      : {};
+
+    // 3. ดึงข้อมูลแบบดึงพร้อมกัน 2 คำสั่ง (ดึงข้อมูล + นับจำนวนทั้งหมด) เพื่อประสิทธิภาพ
+    const [reports, totalItems] = await Promise.all([
+      db.quotationReport.findMany({
+        where: whereCondition,
+        skip: skip,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc' // เรียงจากล่าสุดไปเก่าสุด
+        },
+        include: { items: true, references: true }
+      }),
+      db.quotationReport.count({
+        where: whereCondition
+      })
+    ]);
+
+    // 4. Map โครงสร้างข้อมูลส่งกลับ
+    const data = reports.map((item) => ({
+      quotationId: item.quotationId,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+      invoiceExpireDate: item.invoiceExpireDate,
+      invoicePrice: item.invoicePrice,
+      remark: item.remark ?? '',
+      items: item.items, // (ใส่เพิ่มไว้ให้ เผื่อหน้าบ้านใช้)
+      references: item.references // (ใส่เพิ่มไว้ให้ เผื่อหน้าบ้านใช้)
+    }));
+
+    // 5. คืนค่าเป็นก้อน Object ให้ Controller นำไปใช้ทำ Pagination
+    return {
+      data,
+      totalItems
+    };
   } catch (error) {
     console.error('Error getting quotation reports:', error);
-    return false;
+    // แนะนำให้ throw error ออกไปเพื่อให้ catch ใน controller ดักจับได้สมบูรณ์
+    throw error;
   }
 };
 
