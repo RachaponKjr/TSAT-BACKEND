@@ -92,20 +92,9 @@ const getquotationInfo = async (id: string) => {
       select: {
         quotationId: true,
         createdAt: true,
+        updatedAt: true,
         invoiceExpireDate: true,
-        invoicePrice: true,
-        items: {
-          select: {
-            quantity: true,
-            item: {
-              select: {
-                name: true,
-                price: true,
-                unit: true
-              }
-            }
-          }
-        }
+        invoicePrice: true
       }
     });
 
@@ -114,15 +103,9 @@ const getquotationInfo = async (id: string) => {
     const payload = {
       quotationId: res.quotationId,
       createdAt: res.createdAt,
+      updatedAt: res.updatedAt,
       invoiceExpireDate: res.invoiceExpireDate,
-      invoicePrice: res.invoicePrice,
-      items: res.items.map((i) => ({
-        name: i.item.name,
-        price: i.item.price,
-        unit: i.item.unit,
-        quantity: i.quantity,
-        totalPrice: i.item.price * i.quantity
-      }))
+      invoicePrice: res.invoicePrice
     };
 
     return payload;
