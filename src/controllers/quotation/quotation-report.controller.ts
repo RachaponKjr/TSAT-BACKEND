@@ -28,9 +28,19 @@ export const getQuotationReportsController = async (
 ) => {
   try {
     const result = await reportService.getQuotationReports();
-    res.status(200).json(result);
+    const payload = {
+      status: true,
+      message: 'Get quotation reports successfully',
+      data: result
+    };
+    res.status(200).json(payload);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error getting quotation reports:', error);
+    const payload = {
+      status: false,
+      message: 'Internal server error'
+    };
+    res.status(500).json(payload);
   }
 };
 

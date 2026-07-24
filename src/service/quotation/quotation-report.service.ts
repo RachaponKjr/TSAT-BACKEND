@@ -16,9 +16,22 @@ const createQuotationReport = async (data: ReqOpenQuotationReport) => {
 
 const getQuotationReports = async () => {
   try {
-    return await db.quotationReport.findMany({
+    const res = await db.quotationReport.findMany({
       include: { items: true, references: true }
     });
+
+    const payload = res.map((item) => {
+      return {
+        quotationId: item.quotationId,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+        invoiceExpireDate: item.invoiceExpireDate,
+        invoicePrice: item.invoicePrice,
+        remark: item.remark ?? ''
+      };
+    });
+
+    return payload;
   } catch (error) {
     console.error('Error getting quotation reports:', error);
     return false;
