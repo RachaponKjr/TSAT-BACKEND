@@ -48,8 +48,7 @@ const getQuotationReports = async (params: GetQuotationReportsParams = {}) => {
         take: limit,
         orderBy: {
           createdAt: 'desc' // เรียงจากล่าสุดไปเก่าสุด
-        },
-        include: { items: true, references: true }
+        }
       }),
       db.quotationReport.count({
         where: whereCondition
@@ -63,9 +62,7 @@ const getQuotationReports = async (params: GetQuotationReportsParams = {}) => {
       updatedAt: item.updatedAt,
       invoiceExpireDate: item.invoiceExpireDate,
       invoicePrice: item.invoicePrice,
-      remark: item.remark ?? '',
-      items: item.items, // (ใส่เพิ่มไว้ให้ เผื่อหน้าบ้านใช้)
-      references: item.references // (ใส่เพิ่มไว้ให้ เผื่อหน้าบ้านใช้)
+      remark: item.remark ?? ''
     }));
 
     // 5. คืนค่าเป็นก้อน Object ให้ Controller นำไปใช้ทำ Pagination
