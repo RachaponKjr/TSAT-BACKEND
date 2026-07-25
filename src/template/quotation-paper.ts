@@ -386,7 +386,7 @@ export function generateQuotationPaper(data: IQuotation): string {
                 <div class="flex flex-col items-start gap-2 w-full">
                   <img
                     class="bg-gray-100 w-full aspect-video relative overflow-hidden flex items-center justify-center text-[#AAAAAA] text-sm"
-                    src="${convertLocalFileToBase64(ref.carImageLow || '')}"
+                    src="${ref.carImageLow}"
                     alt=""
                   />
                   <div class="flex flex-col gap-1 w-full">
@@ -401,7 +401,7 @@ export function generateQuotationPaper(data: IQuotation): string {
                 <div class="flex flex-col items-start gap-2 w-full">
                   <img
                     class="bg-gray-100 w-full aspect-video relative overflow-hidden flex items-center justify-center text-[#AAAAAA] text-sm"
-                    src="${convertLocalFileToBase64(ref.carImageHight || '')}"
+                    src="${ref.carImageHight}"
                     alt=""
                   />
                   <div class="flex flex-col gap-1 w-full">
