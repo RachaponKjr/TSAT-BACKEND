@@ -38,30 +38,42 @@ export interface IQuotation extends ReqOpenQuotationReport {
   }[];
 }
 
+const safeImgSrc = (value?: string | null): string => {
+  if (!value || value.trim() === '') {
+    return PLACEHOLDER_IMG_BASE64;
+  }
+  return value;
+};
+
+const PLACEHOLDER_IMG_BASE64 =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+
 const convertLocalFileToBase64 = (relativePath: string): string => {
-  // 1. ตัดส่วนหัวเว็บไซต์และคำว่า uploads ตัวแรกออกให้หมด ให้เหลือแค่ชื่อไฟล์เพียวๆ
+  if (!relativePath || relativePath.trim() === '') {
+    return PLACEHOLDER_IMG_BASE64; // เดิม return '' ทำให้ <img src=""> เกิด infinite reload loop
+  }
+
   const fileName = relativePath.replace(
     /^https?:\/\/topserviceautotechnic\.com\/uploads\/(uploads\/)?/,
     ''
   );
-
-  // 2. เอาชื่อไฟล์มาต่อเข้ากับโฟลเดอร์ uploads ตรงๆ (ไม่มีคำว่า pdf แล้ว)
   const cleanPath = path.join('uploads', fileName);
-
-  // 3. ชี้พาร์ทจากโฟลเดอร์นอกสุดของโปรเจกต์ (TSAT-BACKEND)
   const absolutePath = path.join(process.cwd(), cleanPath);
 
-  // 4. ตรวจสอบและอ่านไฟล์ออกมาเป็น Base64
   if (!fs.existsSync(absolutePath)) {
     console.warn(`[Warning] หาไฟล์ไม่เจอ: ${absolutePath}`);
-    return ''; // หรือจะใส่ Default Image Base64 แทนก็ได้ครับ
+    return PLACEHOLDER_IMG_BASE64; // <-- เปลี่ยนจาก '' เป็น placeholder
   }
 
-  const fileBuffer = fs.readFileSync(absolutePath);
-  const ext = path.extname(absolutePath).toLowerCase().replace('.', '');
-  const mimeType = ext === 'jpg' ? 'jpeg' : ext || 'jpeg';
-
-  return `data:image/${mimeType};base64,${fileBuffer.toString('base64')}`;
+  try {
+    const fileBuffer = fs.readFileSync(absolutePath);
+    const ext = path.extname(absolutePath).toLowerCase().replace('.', '');
+    const mimeType = ext === 'jpg' ? 'jpeg' : ext || 'jpeg';
+    return `data:image/${mimeType};base64,${fileBuffer.toString('base64')}`;
+  } catch (readError) {
+    console.error(`[Error] อ่านไฟล์ไม่สำเร็จ: ${absolutePath}`, readError);
+    return PLACEHOLDER_IMG_BASE64;
+  }
 };
 
 export const calculateSingleAveragePrice = ({
@@ -369,7 +381,7 @@ export function generateQuotationPaper(data: IQuotation): string {
                   <!-- Logo Uploader (small) -->
                   <img
                     class="w-14 bg-gray-100 aspect-square shrink-0 rounded-md flex items-center justify-center text-[10px] text-[#AAAAAA] cursor-pointer"
-                    src="${ref.refLogo}"
+                    src="${safeImgSrc(ref.refLogo)}" 
                     alt=""
                   />
                   <span class="text-[#666666] text-sm">${ref.refUrl}</span>
@@ -386,7 +398,7 @@ export function generateQuotationPaper(data: IQuotation): string {
                 <div class="flex flex-col items-start gap-2 w-full">
                   <img
                     class="bg-gray-100 w-full aspect-video relative overflow-hidden flex items-center justify-center text-[#AAAAAA] text-sm"
-                    src="${ref.carImageLow}"
+                    src="${safeImgSrc(ref.carImageLow)}"
                     alt=""
                   />
                   <div class="flex flex-col gap-1 w-full">
@@ -401,7 +413,7 @@ export function generateQuotationPaper(data: IQuotation): string {
                 <div class="flex flex-col items-start gap-2 w-full">
                   <img
                     class="bg-gray-100 w-full aspect-video relative overflow-hidden flex items-center justify-center text-[#AAAAAA] text-sm"
-                    src="${ref.carImageHight}"
+                    src="${safeImgSrc(ref.carImageHight)}"
                     alt=""
                   />
                   <div class="flex flex-col gap-1 w-full">
