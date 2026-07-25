@@ -321,9 +321,9 @@ export function generateQuotationPaper(data: IQuotation): string {
                     data.report.overallGrade ?? 'A'
                   )}; font-size: 54px"
                   >${data.report.overallGrade}</span>
-                  <span style="font-size: 18px; font-weight: 700; color: #1CA44D;">${getGradeLabel(
+                  <span style="font-size: 18px; font-weight: 700; color: ${getGradeColor(
                     data.report.overallGrade ?? 'A'
-                  )}</span>
+                  )};">${getGradeLabel(data.report.overallGrade ?? 'A')}</span>
                 </div>
                 <!-- Score Right Side -->
                 <div style="display: flex; flex: 1; flex-direction: column; align-items: flex-end; justify-content: center; gap: 4px;">
