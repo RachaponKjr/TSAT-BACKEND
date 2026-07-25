@@ -230,7 +230,7 @@ export function generateQuotationPaper(data: IQuotation): string {
     <!-- ============================= -->
     <!-- CreateSide (ฝั่งซ้าย)          -->
     <!-- ============================= -->
-    <div style="flex: 1; display: flex; flex-direction: column; padding: 8px 16px; max-width: 90%; margin: auto;">
+    <div style="flex: 1; display: flex; flex-direction: column; padding: 8px 16px; max-width: 80%; width:100%; margin: auto;">
 
       <!-- Header Section -->
       <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; border-bottom: 1px solid #EEEEEE; padding-bottom: 8px;">
@@ -405,7 +405,7 @@ export function generateQuotationPaper(data: IQuotation): string {
               ${data.references
                 .map(
                   (ref, idx) => `
-            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; gap: 16px; color: #333333;">
+            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; gap: 8px; color: #333333;">
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                 <div style="display: flex; gap: 8px; align-items: center; flex: 1;">
                   <!-- Logo Uploader (small) -->
@@ -436,7 +436,7 @@ export function generateQuotationPaper(data: IQuotation): string {
                     src="${safeImgSrc(ref.carImageLow)}"
                     alt=""
                   />
-                  <div style="display: flex; flex-direction: column; gap: 0; width: 100%;">
+                  <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px; width: 100%;">
                     <span style="font-size: 14px; color: #666666;">ต่ำสุด</span>
                     <div style="display: flex; flex-direction: row; align-items: center; font-size: 18px; font-weight: 600; gap: 8px;">
                      <span>${formatNumber(ref.priceLow, 0)}</span>
@@ -451,7 +451,7 @@ export function generateQuotationPaper(data: IQuotation): string {
                     src="${safeImgSrc(ref.carImageHight)}"
                     alt=""
                   />
-                  <div style="display: flex; flex-direction: column; gap: 0; width: 100%;">
+                  <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px; width: 100%;">
                     <span style="font-size: 14px; color: #666666;">สูงสุด</span>
                     <div style="display: flex; flex-direction: row; align-items: center; font-size: 18px; font-weight: 600; gap: 8px;">
                      <span>${formatNumber(ref.priceHight, 0)}</span>
@@ -463,7 +463,7 @@ export function generateQuotationPaper(data: IQuotation): string {
             </div>
                 `
                 )
-                .join('')}}
+                .join('')}
            </div>
         </div>
 
