@@ -6,7 +6,8 @@ import {
   updateQuotationReportController,
   deleteQuotationReportController,
   getQuotationNumber,
-  getQuotationInfoController
+  getQuotationInfoController,
+  getPdfQuotationController
 } from '../controllers/quotation/quotation-report.controller';
 import {
   createQuotationItemController,
@@ -49,5 +50,7 @@ router.get('/references', getReferencesController);
 router.get('/references/:id', getReferenceByIdController);
 router.patch('/references/update/:id', updateReferenceController);
 router.delete('/references/delete/:id', deleteReferenceController);
+
+router.get('/quotation-pdf/:id', getPdfQuotationController);
 
 export default router;

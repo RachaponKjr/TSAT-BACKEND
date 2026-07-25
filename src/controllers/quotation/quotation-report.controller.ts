@@ -1,7 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import { Request, Response } from 'express';
 import { QuotationReportSchema } from '../../types/quotation.type';
 import * as reportService from '../../service/quotation/quotation-report.service';
+import {
+  generateQuotationPaper,
+  IQuotation
+} from '../../template/quotation-paper';
+import { generatePdfFromTemplate } from '../../service/main-pdf.service';
+import { deletePdfFile } from '../../libs/del-pdffile';
 
 export const createQuotationReportController = async (
   req: Request,
@@ -143,6 +150,65 @@ export const getQuotationInfoController = async (
       });
       return;
     }
+
+    res.status(200).json({
+      status: true,
+      message: 'Get quotation info successfully',
+      data: result
+    });
+    return;
+  } catch (error) {
+    console.error('Error getting quotation info:', error);
+    res.status(500).json({
+      status: false,
+      message: 'Internal server error'
+    });
+    return;
+  }
+};
+
+export const getPdfQuotationController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params as { id: string };
+    const result = await reportService.getQuotationReportById(id);
+    const items = await fetch(`https://tsatdata.com/api/quotations/${id}`);
+    const itemsData = await items.json();
+    if (!result) {
+      res.status(404).json({
+        status: false,
+        message: 'Quotation not found'
+      });
+      return;
+    }
+
+    const payload: IQuotation = {
+      id: result.id,
+      createdAt: result.createdAt,
+      references: result.references,
+      report: result.inspectionReport,
+      items: itemsData.data,
+      quotationId: id,
+      inspectionReportId: result.inspectionReportId,
+      invoicePrice: result.invoicePrice
+    };
+
+    const { fileUrl } = await generatePdfFromTemplate(
+      generateQuotationPaper,
+      payload
+    );
+
+    let deleted = false;
+    if (result.pdfUrl) {
+      const { deleted: del } = deletePdfFile(result.pdfUrl);
+      deleted = del;
+    }
+
+    await reportService.updateQuotationReport(id, {
+      pdfUrl: fileUrl
+    });
 
     res.status(200).json({
       status: true,

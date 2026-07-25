@@ -81,7 +81,7 @@ const getQuotationReportById = async (id: string) => {
   try {
     return await db.quotationReport.findUnique({
       where: { quotationId: id },
-      include: { references: true }
+      include: { references: true, inspectionReport: true }
     });
   } catch (error) {
     console.error('Error getting quotation report by ID:', error);
