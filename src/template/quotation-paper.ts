@@ -124,8 +124,12 @@ export function generateQuotationPaper(data: IQuotation): string {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ใบเสนอราคา / รายการประเมินมูลค่ารถ</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<!-- 1. ดึง Tailwind CSS (ไฟล์ Minified ปลอดภัย ไม่กิน Spec เครื่อง) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" />
+
+<!-- 2. ดึง Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   body {
@@ -382,7 +386,7 @@ export function generateQuotationPaper(data: IQuotation): string {
                 <div class="flex flex-col items-start gap-2 w-full">
                   <img
                     class="bg-gray-100 w-full aspect-video relative overflow-hidden flex items-center justify-center text-[#AAAAAA] text-sm"
-                    src="${ref.carImageLow}"
+                    src="${convertLocalFileToBase64(ref.carImageLow || '')}"
                     alt=""
                   />
                   <div class="flex flex-col gap-1 w-full">
@@ -397,13 +401,13 @@ export function generateQuotationPaper(data: IQuotation): string {
                 <div class="flex flex-col items-start gap-2 w-full">
                   <img
                     class="bg-gray-100 w-full aspect-video relative overflow-hidden flex items-center justify-center text-[#AAAAAA] text-sm"
-                    src="${ref.carImageHight}"
+                    src="${convertLocalFileToBase64(ref.carImageHight || '')}"
                     alt=""
                   />
                   <div class="flex flex-col gap-1 w-full">
                     <span class="text-sm text-[#666666]">สูงสุด</span>
                     <div class="flex flex-row items-center text-lg font-semibold gap-2">
-                     <span>${ref.carImageHight}</span>
+                     <span>${ref.priceHight}</span>
                       <span class="text-nowrap">บาท</span>
                     </div>
                   </div>
