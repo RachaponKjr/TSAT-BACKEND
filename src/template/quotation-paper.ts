@@ -139,6 +139,10 @@ export function generateQuotationPaper(data: IQuotation): string {
   }
 
   const hasItems = data && data.items && data.items.length > 0;
+  const tailwindCss = fs.readFileSync(
+    path.join(__dirname, '../assets/tailwind.min.css'),
+    'utf8'
+  );
   return `
   <!DOCTYPE html>
 <html lang="th">
@@ -146,15 +150,8 @@ export function generateQuotationPaper(data: IQuotation): string {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ใบเสนอราคา / รายการประเมินมูลค่ารถ</title>
-<!-- 1. ดึง Tailwind CSS (ไฟล์ Minified ปลอดภัย ไม่กิน Spec เครื่อง) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" />
-
-<!-- 2. ดึง Google Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-
+${tailwindCss}
     @page {
       size: A4 portrait;
       margin: 10mm;
