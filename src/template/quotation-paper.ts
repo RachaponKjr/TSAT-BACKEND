@@ -233,29 +233,36 @@ export function generateQuotationPaper(data: IQuotation): string {
     <div style="flex: 1; display: flex; flex-direction: column; padding: 8px 16px; max-width: 90%; margin: auto;">
 
       <!-- Header Section -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-        <span style="font-size: 16px; color: #666666; font-weight: 600;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; border-bottom: 1px solid #EEEEEE; padding-bottom: 8px;">
+        <span style="font-size: 16px; color: #666666; font-weight: 600; white-space: nowrap; flex-shrink: 0;">
           ใบเสนอราคา / รายการประเมินมูลค่ารถ
         </span>
-        <div style="display: flex; flex-direction: row; gap: 48px;">
-          <!-- เลขที่ (disabled) -->
-          <div style="display: flex; flex-direction: column;">
-            <label style="font-size: 10px; color: #666666;">เลขที่:</label>
-            <span style="font-size: 14px; font-weight: 600; color: #333333;">${data?.quotationId}</span>
+        
+        <div style="display: flex; flex-direction: row; gap: 24px; align-items: flex-end;">
+          <!-- เลขที่ -->
+          <div style="display: flex; flex-direction: column; text-align: right;">
+            <label style="font-size: 10px; color: #666666;">เลขที่</label>
+            <span style="font-size: 13px; font-weight: 600; color: #333333; white-space: nowrap;">${
+              data?.quotationId || '-'
+            }</span>
           </div>
-          <!-- วันที่ (disabled) -->
-          <div style="display: flex; flex-direction: column;">
+          <!-- วันที่ -->
+          <div style="display: flex; flex-direction: column; text-align: right;">
             <label style="font-size: 10px; color: #666666;">วันที่</label>
-            <span style="font-size: 14px; font-weight: 600; color: #333333;">${dayjs(
+            <span style="font-size: 13px; font-weight: 600; color: #333333; white-space: nowrap;">${
               data?.createdAt
-            ).format('D MMMM BBBB')}</span>
+                ? dayjs(data.createdAt).format('D MMMM BBBB')
+                : '-'
+            }</span>
           </div>
           <!-- วันที่หมดอายุ -->
-          <div style="display: flex; flex-direction: column;">
+          <div style="display: flex; flex-direction: column; text-align: right;">
             <label style="font-size: 10px; color: #666666;">วันที่หมดอายุ</label>
-            <span style="font-size: 14px; font-weight: 600; color: #333333;">${dayjs(
+            <span style="font-size: 13px; font-weight: 600; color: #333333; white-space: nowrap;">${
               data?.invoiceExpireDate
-            ).format('D MMMM BBBB')}</span>
+                ? dayjs(data.invoiceExpireDate).format('D MMMM BBBB')
+                : '-'
+            }</span>
           </div>
         </div>
       </div>
@@ -395,8 +402,9 @@ export function generateQuotationPaper(data: IQuotation): string {
         <div style="display: flex; flex-direction: column; justify-content: center; width: 100%; margin-top: 8px;">
           <span style="text-align: center; font-size: 18px; font-weight: 400; color: #666666;">ราคาอ้างอิง</span>
           <div style="display: flex; flex-direction: row; align-items: center; gap: 16px; width: 100%; height: 100%;">
-              ${data.references.map(
-                (ref, idx) => `
+              ${data.references
+                .map(
+                  (ref, idx) => `
             <div style="width: 100%; height: 100%; display: flex; flex-direction: column; gap: 16px; color: #333333;">
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                 <div style="display: flex; gap: 8px; align-items: center; flex: 1;">
@@ -454,7 +462,8 @@ export function generateQuotationPaper(data: IQuotation): string {
               </div>
             </div>
                 `
-              )}
+                )
+                .join('')}}
            </div>
         </div>
 
