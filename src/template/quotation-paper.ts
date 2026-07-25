@@ -139,10 +139,11 @@ export function generateQuotationPaper(data: IQuotation): string {
   }
 
   const hasItems = data && data.items && data.items.length > 0;
-  const tailwindCss = fs.readFileSync(
-    path.join(__dirname, '../assets/tailwind.min.css'),
-    'utf8'
+  const tailwindCssPath = path.join(
+    process.cwd(),
+    'src/assets/tailwind.min.css'
   );
+  const tailwindCss = fs.readFileSync(tailwindCssPath, 'utf8');
   return `
   <!DOCTYPE html>
 <html lang="th">
