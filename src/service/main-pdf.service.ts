@@ -46,7 +46,7 @@ export async function generatePdfFromTemplate(
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage'
       ],
-      timeout: 120000
+      timeout: 360000
     }
   };
 
