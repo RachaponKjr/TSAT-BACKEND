@@ -124,9 +124,9 @@ export function generateQuotationPaper(data: IQuotation): string {
   function getGradeColor(grade: string): string {
     const map: Record<string, string> = {
       A: '#28a745',
-      B: '#28a745',
-      C: '#fd7e14',
-      D: '#C21A20'
+      B: '#fd7e14',
+      C: '#C21A20',
+      D: '#666666'
     };
     return map[grade] ?? '#333333';
   }
@@ -230,7 +230,7 @@ export function generateQuotationPaper(data: IQuotation): string {
     <!-- ============================= -->
     <!-- CreateSide (ฝั่งซ้าย)          -->
     <!-- ============================= -->
-    <div style="flex: 1; display: flex; flex-direction: column; padding: 8px 16px; max-width: 80%; margin: auto;">
+    <div style="flex: 1; display: flex; flex-direction: column; padding: 8px 16px; max-width: 90%; margin: auto;">
 
       <!-- Header Section -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
