@@ -174,8 +174,26 @@ export const getPdfQuotationController = async (
   try {
     const { id } = req.params as { id: string };
     const result = await reportService.getQuotationReportById(id);
-    const items = await fetch(`https://tsatdata.com/api/quotations/${id}`);
-    const itemsData = await items.json();
+    let itemsDataList = [];
+    try {
+      const itemsResponse = await fetch(
+        `https://tsatdata.com/api/quotations/${id}`
+      );
+
+      if (itemsResponse.ok) {
+        const itemsData = await itemsResponse.json();
+        itemsDataList = itemsData.data || [];
+      } else {
+        // Log ดูว่า API ส่ง HTML หรือ Error อะไรกลับมา
+        const errorText = await itemsResponse.text();
+        console.error(
+          `Fetch items failed [Status ${itemsResponse.status}]:`,
+          errorText
+        );
+      }
+    } catch (fetchError) {
+      console.error('Fetch items network error:', fetchError);
+    }
     if (!result) {
       res.status(404).json({
         status: false,
@@ -189,7 +207,7 @@ export const getPdfQuotationController = async (
       createdAt: result.createdAt,
       references: result.references,
       report: result.inspectionReport,
-      items: itemsData.data,
+      items: itemsDataList || [],
       quotationId: id,
       inspectionReportId: result.inspectionReportId,
       invoicePrice: result.invoicePrice
