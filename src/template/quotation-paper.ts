@@ -233,7 +233,7 @@ export function generateQuotationPaper(data: IQuotation): string {
     <div style="flex: 1; display: flex; flex-direction: column; padding: 8px 16px; max-width: 80%; margin: auto;">
 
       <!-- Header Section -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
         <span style="font-size: 16px; color: #666666; font-weight: 600;">
           ใบเสนอราคา / รายการประเมินมูลค่ารถ
         </span>
@@ -370,7 +370,7 @@ export function generateQuotationPaper(data: IQuotation): string {
           <!-- Right Card: Empty Space for other info -->
           <div style="border: 1px solid #DDDDDD; flex: 1; border-radius: 8px; background-color: #ffffff; display: flex; flex-direction: column; gap: 0;">
             <img
-              style="flex: 1; width: 100%; height: 100%; object-fit: cover; position: relative;"
+              style=" width: 100%; height: 250px; object-fit: cover; position: relative;"
               src="${convertLocalFileToBase64(data?.report?.imageCar || '')}"
               alt=""
             />
