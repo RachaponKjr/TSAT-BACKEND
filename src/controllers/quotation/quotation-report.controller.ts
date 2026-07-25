@@ -7,8 +7,8 @@ import {
   generateQuotationPaper,
   IQuotation
 } from '../../template/quotation-paper';
-import { generatePdfFromTemplate } from '../../service/main-pdf.service';
 import { deletePdfFile } from '../../libs/del-pdffile';
+import { generatePdfFromTemplate } from '../../service/main-pdf.service';
 
 export const createQuotationReportController = async (
   req: Request,
@@ -215,7 +215,8 @@ export const getPdfQuotationController = async (
 
     const { fileUrl } = await generatePdfFromTemplate(
       generateQuotationPaper,
-      payload
+      payload,
+      { landscape: true }
     );
 
     let deleted = false;
@@ -228,12 +229,10 @@ export const getPdfQuotationController = async (
       pdfUrl: fileUrl
     });
 
-    console.log(payload);
-
     res.status(200).json({
       status: true,
       message: 'Get quotation info successfully',
-      data: result
+      data: fileUrl
     });
     return;
   } catch (error) {
