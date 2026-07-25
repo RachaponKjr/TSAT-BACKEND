@@ -228,6 +228,8 @@ export const getPdfQuotationController = async (
       pdfUrl: fileUrl
     });
 
+    console.log(payload);
+
     res.status(200).json({
       status: true,
       message: 'Get quotation info successfully',
