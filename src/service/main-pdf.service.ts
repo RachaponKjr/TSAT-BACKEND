@@ -29,39 +29,46 @@ export async function generatePdfFromTemplate(
 
   const htmlContent = templateFn(data);
 
-  // 1. ตรวจสอบสภาพแวดล้อม (Mac OS vs Docker Linux)
+  // 1. ตรวจสอบสภาพแวดล้อม
   const isMac = process.platform === 'darwin';
 
-  // เช็ค Path ของ Google Chrome บน Mac (ทั้ง Intel และ Apple Silicon M1/M2/M3)
   const macChromePaths = [
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
     '/Applications/Chromium.app/Contents/MacOS/Chromium'
   ];
 
+  // Path ของ Chromium บน Linux (กรณีไม่ได้ตั้ง PUPPETEER_EXECUTABLE_PATH)
+  const linuxChromePaths = [
+    '/usr/bin/google-chrome',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser'
+  ];
+
   let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
 
-  if (!executablePath && isMac) {
-    executablePath = macChromePaths.find((p) => fs.existsSync(p));
+  if (!executablePath) {
+    if (isMac) {
+      executablePath = macChromePaths.find((p) => fs.existsSync(p));
+    } else {
+      executablePath = linuxChromePaths.find((p) => fs.existsSync(p));
+    }
   }
 
-  // 2. Flags บังคับรันแบบประหยัด Resource
+  // 2. Flags ปลอดภัยสำหรับทั้ง Linux และ Mac
+  // ⚠️ ตัด '--single-process' และ '--no-zygote' ออก เพราะทำให้ Linux Crash
   const chromiumArgs = [
     '--no-sandbox',
     '--disable-setuid-sandbox',
     '--disable-dev-shm-usage',
     '--disable-gpu',
     '--no-first-run',
-    '--no-zygote',
-    '--single-process',
     '--disable-extensions'
   ];
 
-  const file = {
-    content: htmlContent
-  };
+  const file = { content: htmlContent };
 
-  // 3. กำหนด launchOptions ที่แก้ไขปัญหาการ Launch ค้างบน Mac
+  // 3. กำหนด launchOptions ตาม OS
   const pdfOptions: any = {
     format: 'A4',
     landscape: !!options.landscape,
@@ -71,7 +78,8 @@ export async function generatePdfFromTemplate(
     launchOptions: {
       args: chromiumArgs,
       headless: true,
-      pipe: true, // 🔴 บังคับใช้ Pipe แทน WebSocket ป้องกัน Connection Timeout บน macOS
+      // 🟢 บน Mac ใช้ pipe: true ได้ แต่บน Linux ให้ปิดเป็น false
+      pipe: isMac,
       ...(executablePath ? { executablePath } : {}),
       timeout: 60000
     }
