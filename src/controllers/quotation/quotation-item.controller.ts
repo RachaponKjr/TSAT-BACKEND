@@ -75,7 +75,6 @@ export const updateQuotationItemController = async (
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 export const deleteQuotationItemController = async (
   req: Request,
   res: Response

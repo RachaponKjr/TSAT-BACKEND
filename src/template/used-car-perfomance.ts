@@ -10,17 +10,20 @@ function getScoreColor(score: number): string {
 }
 
 const convertLocalFileToBase64 = (relativePath: string): string => {
-  if (!relativePath) return '';
+  // รูป 1x1 Transparent GIF สำหรับ fallback เพื่อไม่ให้ Chromium ค้างรอ Network
+  const EMPTY_GIF =
+    'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+  if (!relativePath) return EMPTY_GIF;
 
   try {
     // 1. ดึงเฉพาะชื่อไฟล์ท้ายสุด เช่น "1784863583696-22454088.jpg"
-    // (ตัดส่วน URL และ Query String ออกทั้งหมด)
     const fileName = path.basename(relativePath.split('?')[0]);
 
     // 2. ชี้ Path ไปยังโฟลเดอร์ uploads ที่ไฟล์อยู่จริง
     const possiblePaths = [
-      path.join(process.cwd(), 'uploads', fileName), // <project-root>/uploads/fileName
-      path.join('/app/uploads', fileName), // Path ใน Docker Container
+      path.join(process.cwd(), 'uploads', fileName),
+      path.join('/app/uploads', fileName),
       path.join(__dirname, '../../uploads', fileName)
     ];
 
@@ -32,10 +35,9 @@ const convertLocalFileToBase64 = (relativePath: string): string => {
       }
     }
 
-    // 3. ป้องกัน Timeout: ถ้าหาไฟล์ไม่เจอจริงๆ ให้ส่งรูปใส 1x1 ไปแทน (ไม่พ่น URL เปล่าให้ Chromium ค้างรอ)
+    // 3. ถ้าหาไฟล์ไม่เจอ ไม่ต้องพ่น console.warn ให้ส่ง GIF ใสกลับไปเงียบๆ
     if (!absolutePath) {
-      console.warn(`⚠️ [PDF] หาไฟล์รูปไม่เจอใน /uploads: ${fileName}`);
-      return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+      return EMPTY_GIF;
     }
 
     // 4. อ่านไฟล์และแปลงเป็น Base64
@@ -45,9 +47,9 @@ const convertLocalFileToBase64 = (relativePath: string): string => {
       ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext || 'png'}`;
 
     return `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
-  } catch (error) {
-    console.error(`❌ Error converting image (${relativePath}):`, error);
-    return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  } catch (_err) {
+    // 5. หากเกิดข้อผิดพลาดใดๆ ให้ข้าม error ไปเงียบๆ และคืนค่ารูปใสเช่นกัน
+    return EMPTY_GIF;
   }
 };
 
