@@ -110,7 +110,7 @@ const updateQuotationReport = async (
 const deleteQuotationReport = async (id: string) => {
   try {
     return await db.quotationReport.delete({
-      where: { id }
+      where: { quotationId: id }
     });
   } catch (error) {
     console.error('Error deleting quotation report:', error);

@@ -184,7 +184,6 @@ export const getPdfQuotationController = async (
         const itemsData = await itemsResponse.json();
         itemsDataList = itemsData.data || [];
       } else {
-        // Log ดูว่า API ส่ง HTML หรือ Error อะไรกลับมา
         const errorText = await itemsResponse.text();
         console.error(
           `Fetch items failed [Status ${itemsResponse.status}]:`,
@@ -225,8 +224,15 @@ export const getPdfQuotationController = async (
       deleted = del;
     }
 
+    const add7Days = (date: Date) => {
+      const newDate = new Date(date);
+      newDate.setDate(newDate.getDate() + 14);
+      return newDate;
+    };
+
     await reportService.updateQuotationReport(id, {
-      pdfUrl: fileUrl
+      pdfUrl: fileUrl,
+      pdfExpireDate: add7Days(new Date())
     });
 
     res.status(200).json({
