@@ -1,9 +1,8 @@
-// services/pdf.service.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import htmlPdf from 'html-pdf-node';
+import fs from 'fs';
 
 const UPLOAD_DIR = path.join(__dirname, '../../uploads/pdf');
 
@@ -15,7 +14,7 @@ type TemplateFn = (data: any) => string;
 
 interface GeneratePdfOptions {
   landscape?: boolean;
-  fileName?: string;
+  fileName?: string; // ถ้าอยากตั้งชื่อเองยังใส่ได้ ไม่บังคับ
 }
 
 export async function generatePdfFromTemplate(
@@ -23,45 +22,29 @@ export async function generatePdfFromTemplate(
   data: any,
   options: GeneratePdfOptions = {}
 ): Promise<{ fileUrl: string }> {
+  // gen ชื่อไม่ซ้ำทุกครั้ง: timestamp + random hex
   const uniqueId = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
   const fileName = options.fileName ?? `${uniqueId}.pdf`;
   const targetFilePath = path.join(UPLOAD_DIR, fileName);
 
   const htmlContent = templateFn(data);
 
-  // ตรวจสอบ OS: ใช้ Chrome ของ Mac Specific เฉพาะตอน Dev บนเครื่อง Mac
-  const isMac = process.platform === 'darwin';
-  const macChromePath =
-    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-
-  // ลำดับการหา Executable Path:
-  // 1. จาก ENV PUPPETEER_EXECUTABLE_PATH (ตั้งค่าไว้ใน Dockerfile คือ /usr/bin/chromium-browser)
-  // 2. Path Chrome ของ Mac
-  // 3. undefined ให้ Puppeteer หาเอง
-  const executablePath =
-    process.env.PUPPETEER_EXECUTABLE_PATH ||
-    (isMac && fs.existsSync(macChromePath) ? macChromePath : undefined);
-
-  // Flags ที่จำเป็นอย่างยิ่งสำหรับ Alpine Linux Container & Docker Environment
-  const chromiumArgs = [
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-    '--disable-dev-shm-usage',
-    '--disable-gpu',
-    '--no-first-run',
-    '--no-zygote',
-    '--single-process' // 👈 สำคัญมากสำหรับ Node Alpine ป้องกัน Chromium crash
-  ];
-
-  const pdfOptions: any = {
+  const pdfOptions = {
     format: 'A4',
     landscape: !!options.landscape,
-    printBackground: true,
-    args: chromiumArgs,
-    waitUntil: 'domcontentloaded', // ไม่ค้างรอภาพ/ฟอนต์ภายนอกจนเกิน Timeout
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage'
+    ],
     launchOptions: {
-      args: chromiumArgs,
-      ...(executablePath ? { executablePath } : {}),
+      executablePath:
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage'
+      ],
       timeout: 60000
     }
   };
