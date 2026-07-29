@@ -10,29 +10,45 @@ function getScoreColor(score: number): string {
 }
 
 const convertLocalFileToBase64 = (relativePath: string): string => {
-  // 1. ตัดส่วนหัวเว็บไซต์และคำว่า uploads ตัวแรกออกให้หมด ให้เหลือแค่ชื่อไฟล์เพียวๆ
-  const fileName = relativePath.replace(
-    /^https?:\/\/topserviceautotechnic\.com\/uploads\/(uploads\/)?/,
-    ''
-  );
+  if (!relativePath) return '';
 
-  // 2. เอาชื่อไฟล์มาต่อเข้ากับโฟลเดอร์ uploads ตรงๆ (ไม่มีคำว่า pdf แล้ว)
-  const cleanPath = path.join('uploads', fileName);
+  try {
+    // 1. ดึงเฉพาะชื่อไฟล์ท้ายสุด เช่น "1784863583696-22454088.jpg"
+    // (ตัดส่วน URL และ Query String ออกทั้งหมด)
+    const fileName = path.basename(relativePath.split('?')[0]);
 
-  // 3. ชี้พาร์ทจากโฟลเดอร์นอกสุดของโปรเจกต์ (TSAT-BACKEND)
-  const absolutePath = path.join(process.cwd(), cleanPath);
+    // 2. ชี้ Path ไปยังโฟลเดอร์ uploads ที่ไฟล์อยู่จริง
+    const possiblePaths = [
+      path.join(process.cwd(), 'uploads', fileName), // <project-root>/uploads/fileName
+      path.join('/app/uploads', fileName), // Path ใน Docker Container
+      path.join(__dirname, '../../uploads', fileName)
+    ];
 
-  // 4. ตรวจสอบและอ่านไฟล์ออกมาเป็น Base64
-  if (!fs.existsSync(absolutePath)) {
-    console.warn(`[Warning] หาไฟล์ไม่เจอ: ${absolutePath}`);
-    return ''; // หรือจะใส่ Default Image Base64 แทนก็ได้ครับ
+    let absolutePath = '';
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p) && fs.statSync(p).isFile()) {
+        absolutePath = p;
+        break;
+      }
+    }
+
+    // 3. ป้องกัน Timeout: ถ้าหาไฟล์ไม่เจอจริงๆ ให้ส่งรูปใส 1x1 ไปแทน (ไม่พ่น URL เปล่าให้ Chromium ค้างรอ)
+    if (!absolutePath) {
+      console.warn(`⚠️ [PDF] หาไฟล์รูปไม่เจอใน /uploads: ${fileName}`);
+      return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    }
+
+    // 4. อ่านไฟล์และแปลงเป็น Base64
+    const fileBuffer = fs.readFileSync(absolutePath);
+    const ext = path.extname(absolutePath).toLowerCase().replace('.', '');
+    const mimeType =
+      ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext || 'png'}`;
+
+    return `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
+  } catch (error) {
+    console.error(`❌ Error converting image (${relativePath}):`, error);
+    return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
   }
-
-  const fileBuffer = fs.readFileSync(absolutePath);
-  const ext = path.extname(absolutePath).toLowerCase().replace('.', '');
-  const mimeType = ext === 'jpg' ? 'jpeg' : ext || 'jpeg';
-
-  return `data:image/${mimeType};base64,${fileBuffer.toString('base64')}`;
 };
 
 // คำอธิบายเกรดรวม
