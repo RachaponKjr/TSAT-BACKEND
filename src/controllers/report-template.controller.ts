@@ -112,7 +112,8 @@ const deactivateTemplateController = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const template = await deactivateTemplate({ id });
+    const del = await getTemplateById({ id });
+    const template = await deactivateTemplate({ id, del: !del?.isActive });
     res.status(200).json({ data: template });
     return;
   } catch (error) {

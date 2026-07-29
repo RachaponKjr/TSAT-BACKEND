@@ -64,7 +64,8 @@ const createTemplate = async ({ data }: { data: ReqCreateTemplate }) => {
 
 const getTemplateList = async () => {
   const list = await db.inspectionTemplate.findMany({
-    select: { id: true, name: true, isActive: true, createdAt: true }
+    select: { id: true, name: true, isActive: true, createdAt: true },
+    orderBy: { isActive: 'asc' }
   });
   return list;
 };
@@ -93,10 +94,16 @@ const getTemplateById = async ({ id }: { id: string }) => {
 };
 
 // ปิด template เก่า (ไม่ลบ เพราะใบตรวจเก่ายังอ้างอิงอยู่)
-const deactivateTemplate = async ({ id }: { id: string }) => {
+const deactivateTemplate = async ({
+  id,
+  del
+}: {
+  id: string;
+  del: boolean;
+}) => {
   const template = await db.inspectionTemplate.update({
     where: { id },
-    data: { isActive: false }
+    data: { isActive: del }
   });
   return template;
 };
@@ -385,6 +392,7 @@ const deleteTemplateById = async ({ id }: { id: string }) => {
   const template = await db.inspectionTemplate.delete({
     where: { id }
   });
+  console.log(template);
   return template;
 };
 
