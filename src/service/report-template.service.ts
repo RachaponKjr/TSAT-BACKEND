@@ -64,7 +64,6 @@ const createTemplate = async ({ data }: { data: ReqCreateTemplate }) => {
 
 const getTemplateList = async () => {
   const list = await db.inspectionTemplate.findMany({
-    where: { isActive: true },
     select: { id: true, name: true, isActive: true, createdAt: true }
   });
   return list;
