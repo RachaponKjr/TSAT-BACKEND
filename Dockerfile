@@ -9,7 +9,8 @@ RUN apk add --no-cache \
     freetype \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-freefont \
+    font-noto-thai
 
 # 🏎️ 2. บังคับให้ Puppeteer ใช้ Chromium ของระบบ (แทนการโหลดตัวใหม่ขนาดยักษ์มาเอง)
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
