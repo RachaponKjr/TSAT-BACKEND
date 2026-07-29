@@ -110,12 +110,8 @@ export function generatePDFUsedCar(data: InspectionForm): string {
 <head>
   <meta charset="UTF-8">
   <title>ใบตรวจสภาพรถยนต์</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* นำเข้าฟอนต์ภาษาไทยมาตรฐาน */
-    @import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@100..700&family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&display=swap');
 
     /* ตั้งค่าหน้ากระดาษและภาพรวม */
     @page {
