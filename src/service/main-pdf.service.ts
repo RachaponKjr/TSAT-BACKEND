@@ -1,8 +1,8 @@
-// services/pdf.service.ts
+// services/main-pdf.service.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import path from 'path';
 import crypto from 'crypto';
-import htmlPdf from 'html-pdf-node';
+import puppeteer from 'puppeteer';
 import fs from 'fs';
 
 const UPLOAD_DIR = path.join(__dirname, '../../uploads/pdf');
@@ -66,33 +66,49 @@ export async function generatePdfFromTemplate(
     '--disable-extensions'
   ];
 
-  const file = { content: htmlContent };
-
-  // 3. กำหนด launchOptions ตาม OS
-  const pdfOptions: any = {
-    format: 'A4',
-    landscape: !!options.landscape,
-    printBackground: true,
+  // ⚠️ เดิมใช้ html-pdf-node ซึ่ง bundle puppeteer เวอร์ชันเก่าของตัวเอง (v10) แยกจาก
+  // top-level puppeteer (v24) ที่เราติดตั้งไว้ และมันไม่รับ waitUntil/launchOptions/timeout
+  // ที่เราส่งไปเลย (hardcode 'networkidle0' + timeout 30s เสมอ) ทำให้เวลา resource ภายนอก
+  // ในเทมเพลต (เช่นรูปรถ) โหลดช้า/โหลดไม่ได้ มันจะ throw TimeoutError ก่อนที่ callback จะถูกเรียก
+  // -> กลายเป็น unhandled rejection ที่ทำให้ process ทั้งตัวล่ม จึงเปลี่ยนมาคุม puppeteer เอง
+  // เพื่อดัก timeout ได้จริง และปิด browser ได้แน่นอนทุก path (สำเร็จ/พัง)
+  const browser = await puppeteer.launch({
     args: chromiumArgs,
-    waitUntil: 'domcontentloaded',
-    launchOptions: {
-      args: chromiumArgs,
-      headless: true,
-      // 🟢 บน Mac ใช้ pipe: true ได้ แต่บน Linux ให้ปิดเป็น false
-      pipe: isMac,
-      ...(executablePath ? { executablePath } : {}),
-      timeout: 60000
-    }
-  };
-
-  const pdfBuffer: Buffer = await new Promise((resolve, reject) => {
-    htmlPdf.generatePdf(file, pdfOptions, (err: any, buffer: Buffer) => {
-      if (err) return reject(err);
-      resolve(buffer);
-    });
+    headless: true,
+    pipe: isMac,
+    ...(executablePath ? { executablePath } : {}),
+    timeout: 60000
   });
 
-  fs.writeFileSync(targetFilePath, pdfBuffer as any);
+  try {
+    const page = await browser.newPage();
+
+    try {
+      // รอโหลดจน network idle เพื่อให้รูป/ฟอนต์ภายนอกทันโหลดครบ แต่จำกัดเวลาไว้ไม่ให้ค้าง
+      // ตลอดไปถ้ามี resource ที่โหลดไม่สำเร็จ (unreachable/ช้า)
+      await page.setContent(htmlContent, {
+        waitUntil: 'networkidle0',
+        timeout: 20000
+      });
+    } catch (err) {
+      const isTimeout = err instanceof Error && err.name === 'TimeoutError';
+      if (!isTimeout) {
+        throw err;
+      }
+      // resource บางอย่างโหลดไม่ทันใน 20s (เช่น รูปภาพภายนอก) -> ไปต่อด้วยเนื้อหาที่โหลดได้
+      // ตอนนี้ แทนที่จะปล่อยให้ทั้ง request ค้าง/ล้มทั้งกระบวนการ
+    }
+
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      landscape: !!options.landscape,
+      printBackground: true
+    });
+
+    fs.writeFileSync(targetFilePath, pdfBuffer);
+  } finally {
+    await browser.close();
+  }
 
   return { fileUrl: `/uploads/pdf/${fileName}` };
 }
