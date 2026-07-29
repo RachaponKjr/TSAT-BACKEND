@@ -10,47 +10,28 @@ function getScoreColor(score: number): string {
 }
 
 const convertLocalFileToBase64 = (relativePath: string): string => {
-  // รูป 1x1 Transparent GIF สำหรับ fallback เพื่อไม่ให้ Chromium ค้างรอ Network
-  const EMPTY_GIF =
-    'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  // 1. ตัดส่วนหัวเว็บไซต์และคำว่า uploads ตัวแรกออกให้หมด ให้เหลือแค่ชื่อไฟล์เพียวๆ
+  const fileName = relativePath.replace(
+    /^https?:\/\/topserviceautotechnic\.com\/uploads\/(uploads\/)?/,
+    ''
+  );
 
-  if (!relativePath) return EMPTY_GIF;
+  // 2. เอาชื่อไฟล์มาต่อเข้ากับโฟลเดอร์ uploads ตรงๆ (ไม่มีคำว่า pdf แล้ว)
+  const cleanPath = path.join('uploads', fileName);
 
-  try {
-    // 1. ดึงเฉพาะชื่อไฟล์ท้ายสุด เช่น "1784863583696-22454088.jpg"
-    const fileName = path.basename(relativePath.split('?')[0]);
+  // 3. ชี้พาร์ทจากโฟลเดอร์นอกสุดของโปรเจกต์ (TSAT-BACKEND)
+  const absolutePath = path.join(process.cwd(), cleanPath);
 
-    // 2. ชี้ Path ไปยังโฟลเดอร์ uploads ที่ไฟล์อยู่จริง
-    const possiblePaths = [
-      path.join(process.cwd(), 'uploads', fileName),
-      path.join('/app/uploads', fileName),
-      path.join(__dirname, '../../uploads', fileName)
-    ];
-
-    let absolutePath = '';
-    for (const p of possiblePaths) {
-      if (fs.existsSync(p) && fs.statSync(p).isFile()) {
-        absolutePath = p;
-        break;
-      }
-    }
-
-    // 3. ถ้าหาไฟล์ไม่เจอ ไม่ต้องพ่น console.warn ให้ส่ง GIF ใสกลับไปเงียบๆ
-    if (!absolutePath) {
-      return EMPTY_GIF;
-    }
-
-    // 4. อ่านไฟล์และแปลงเป็น Base64
-    const fileBuffer = fs.readFileSync(absolutePath);
-    const ext = path.extname(absolutePath).toLowerCase().replace('.', '');
-    const mimeType =
-      ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext || 'png'}`;
-
-    return `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
-  } catch (_err) {
-    // 5. หากเกิดข้อผิดพลาดใดๆ ให้ข้าม error ไปเงียบๆ และคืนค่ารูปใสเช่นกัน
-    return EMPTY_GIF;
+  // 4. ตรวจสอบและอ่านไฟล์ออกมาเป็น Base64
+  if (!fs.existsSync(absolutePath)) {
+    throw new Error(`หาไฟล์ไม่เจอในระบบที่ตำแหน่ง: ${absolutePath}`);
   }
+
+  const fileBuffer = fs.readFileSync(absolutePath);
+  const ext = path.extname(absolutePath).toLowerCase().replace('.', '');
+  const mimeType = ext === 'jpg' ? 'jpeg' : ext || 'jpeg';
+
+  return `data:image/${mimeType};base64,${fileBuffer.toString('base64')}`;
 };
 
 // คำอธิบายเกรดรวม
