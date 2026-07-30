@@ -609,7 +609,11 @@ const getReportData = async ({ id }: { id: string }) => {
     where: { id },
     include: {
       categoryResults: {
-        orderBy: { id: 'asc' }, // หรือ field ที่กำหนดลำดับ category
+        orderBy: {
+          category: {
+            name: 'asc' // หรือเรียงตามฟิลด์ชื่อในตาราง Category เช่น categoryName
+          }
+        }, // หรือ field ที่กำหนดลำดับ category
         include: {
           category: true,
           itemResults: {

@@ -194,8 +194,8 @@ route.patch(
 );
 route.delete(
   '/del-template/:id',
-  // authenticateToken,
-  // isMechanic,
+  authenticateToken,
+  isMechanic,
   deleteTemplateController
 );
 

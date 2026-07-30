@@ -71,4 +71,4 @@ async function deleteTemplateCascade(templateId) {
 }
 
 // 📌 ระบุ ID ที่ต้องการลบ
-deleteTemplateCascade('cms2oc1jm0000ox01l6f82m9w');
+deleteTemplateCascade('cms75ixoy0067s601xqb5xuxl');
