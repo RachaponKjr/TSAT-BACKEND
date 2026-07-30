@@ -165,6 +165,7 @@ export function generateQuotationPaper(data: IQuotation): string {
   //   'src/assets/tailwind.min.css'
   // );
   // const tailwindCss = fs.readFileSync(tailwindCssPath, 'utf8');
+
   return `
   <!DOCTYPE html>
 <html lang="th">
@@ -174,10 +175,9 @@ export function generateQuotationPaper(data: IQuotation): string {
 <title>ใบเสนอราคา / รายการประเมินมูลค่ารถ</title>
 <style>
     @page {
-      size: A4 portrait;
+      size: A4 landscape;
       margin: 10mm;
     }
-
     * {
       font-family: 'IBM Plex Sans Thai', sans-serif !important;
       -webkit-print-color-adjust: exact;
