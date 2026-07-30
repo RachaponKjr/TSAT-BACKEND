@@ -103,6 +103,7 @@ function formatThaiDate(iso: string): string {
 
 // 2. ฟังก์ชัน HTML Template ที่รับ Object ทั้งก้อนไปใช้งาน
 export function generatePDFUsedCar(data: InspectionForm): string {
+  console.log(data, 'DATA');
   return `
  <!DOCTYPE html>
 <html lang="th">
@@ -441,7 +442,7 @@ export function generatePDFUsedCar(data: InspectionForm): string {
 
   <!-- แถวที่ 2: ผลการประเมิน -->
   <div style="display: flex; align-items: center;">
-    <div style="flex: 0.8;">
+    <div style="flex: 0.8; min-width: 240px">
       <div style="font-size: 0.85em; color: #666;">ผลการประเมิน</div>
       <div style="font-weight: bold; font-size: 1.1em;">${getGradeLabelUsedCar(
         data.overallGrade
@@ -496,16 +497,17 @@ export function generatePDFUsedCar(data: InspectionForm): string {
       </tr>
     </thead>
     <tbody>
-      ${data.categoryResults
+      ${[...data.categoryResults]
+        .sort((a, b) => {
+          const numA = parseInt(a.categoryName, 10) || 0;
+          const numB = parseInt(b.categoryName, 10) || 0;
+          return numA - numB;
+        })
         .map((category, dx) => {
           const headerRow = `
           <tr style="background-color: #ffffff;border-bottom: 1px solid #eee;">
           <th colspan="6" style="padding: 10px 10px 4px 10px; text-align: left; border-bottom: 1px solid #ddd;">
-          ${dx + 1}.${
-            category.categoryName
-          } <span style="float: right;">คะแนนรวม : ${category.score} / ${
-            category.maxScore
-          } คะแนน</span>
+          ${category.categoryName} <span style="float: right;">คะแนนรวม : ${category.score} / ${category.maxScore} คะแนน</span>
           </th>
           </tr>`;
 
