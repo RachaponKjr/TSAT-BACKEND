@@ -9,34 +9,34 @@ function getScoreColor(score: number): string {
   return '#C21A20';
 }
 
-const convertLocalFileToBase64 = (relativePath: string): string => {
-  // ภาพใสขนาด 1x1 pixel (Transparent PNG) สำหรับ fallback เมื่อหาภาพไม่เจอ
-  const EMPTY_IMAGE_BASE64 =
-    'data:image/png;base64,iVBORw00KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+// ภาพใสขนาด 1x1 pixel (Transparent PNG)
+const EMPTY_IMAGE_BASE64 =
+  'data:image/png;base64,iVBORw00KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
-  // กรณีเป็นค่าว่าง/null/undefined หรือส่ง '-' มา
-  if (!relativePath || relativePath === '-') {
+// 🟢 ตัวเก็บ Cache สำหรับไฟล์ที่หาไม่เจอ เพื่อไม่ให้ Node.js ต้องวิ่งไปเช็ค Disk ซ้ำๆ
+const missingFilesCache = new Set<string>();
+
+const convertLocalFileToBase64 = (relativePath: string): string => {
+  // 1. ดักจับค่าว่าง / null / undefined / '-'
+  if (!relativePath || relativePath === '-' || relativePath.trim() === '') {
     return EMPTY_IMAGE_BASE64;
   }
 
-  // 1. ตัดส่วนหัวเว็บไซต์และคำว่า uploads ตัวแรกออกให้หมด ให้เหลือแค่ชื่อไฟล์เพียวๆ
+  // 2. ตัดส่วนหัว URL
   const fileName = relativePath.replace(
     /^https?:\/\/topserviceautotechnic\.com\/uploads\/(uploads\/)?/,
     ''
   );
 
-  // 2. เอาชื่อไฟล์มาต่อเข้ากับโฟลเดอร์ uploads ตรงๆ
   const cleanPath = path.join('uploads', fileName);
-
-  // 3. ชี้พาร์ทจากโฟลเดอร์นอกสุดของโปรเจกต์ (TSAT-BACKEND)
   const absolutePath = path.join(process.cwd(), cleanPath);
 
-  // 4. ตรวจสอบไฟล์ ถ้าหาไม่เจอ ให้ return ภาพใสแทนการ throw Error
-  if (!fs.existsSync(absolutePath)) {
-    console.warn(`[Warning] หาไฟล์ไม่เจอที่ตำแหน่ง: ${absolutePath}`);
+  // 3. 🟢 เช็คจาก Cache ก่อน ถ้าเคยหาไม่เจอแล้ว ให้ return ภาพใสทันที (ช่วยเซฟเวลาไปเยอะมาก!)
+  if (missingFilesCache.has(absolutePath)) {
     return EMPTY_IMAGE_BASE64;
   }
 
+  // 4. ลองอ่านไฟล์โดยตรงผ่าน try-catch (เร็วกว่า existsSync + readFileSync)
   try {
     const fileBuffer = fs.readFileSync(absolutePath);
     const ext = path.extname(absolutePath).toLowerCase().replace('.', '');
@@ -44,8 +44,12 @@ const convertLocalFileToBase64 = (relativePath: string): string => {
 
     return `data:image/${mimeType};base64,${fileBuffer.toString('base64')}`;
   } catch (error) {
-    // กรณีเกิด error ตอนอ่านไฟล์ ก็ให้ return ภาพใสด้วยเช่นกัน
-    console.error(`[Error] ไม่สามารถอ่านไฟล์ได้: ${absolutePath}`, error);
+    // 5. หากอ่านไฟล์ไม่ได้ (หาไม่เจอ/ไม่มีสิทธิ์) บันทึกลง Cache ไว้เพื่อครั้งต่อไปจะได้ไม่ต้องหาอีก
+    missingFilesCache.add(absolutePath);
+
+    // พิมพ์ log แค่ครั้งแรกครั้งเดียว
+    console.warn(`[Warning] หาไฟล์ไม่เจอที่ตำแหน่ง: ${absolutePath}`);
+
     return EMPTY_IMAGE_BASE64;
   }
 };
@@ -721,15 +725,16 @@ ${data.categoryResults
 
     <!-- Card 1: ระบบสตาร์ทเครื่องยนต์ (All Green) -->
     ${item.itemResults
-      .map((itemRes, index) => {
+      .map((itemRes) => {
+        const base64Image = convertLocalFileToBase64(
+          itemRes?.selectScore?.[0]?.image ?? ''
+        );
         return `
       <div style="border: 1px solid #eaeaea; border-radius: 8px; overflow: hidden; background: #fff; padding: 8px;page-break-inside: avoid; break-inside: avoid;">
       <div style="display: flex; gap: 8px;margin-bottom:8px">
         <!-- Placeholder Image -->
         <div style="width: 130px; height: 80px; background-color: #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888;">
-        <img src="${convertLocalFileToBase64(
-          itemRes.selectScore[0].image
-        )}" alt="" />
+        <img src="${base64Image}" alt="" />
         </div>
         <div style="flex: 1;">
           <div style="font-size: 15px; color: #666; margin-bottom: 4px;"><strong style="color: #333;">${

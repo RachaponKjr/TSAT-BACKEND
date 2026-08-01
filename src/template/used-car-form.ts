@@ -107,7 +107,6 @@ function formatThaiDate(iso: string): string {
 
 // 2. ฟังก์ชัน HTML Template ที่รับ Object ทั้งก้อนไปใช้งาน
 export function generatePDFUsedCar(data: InspectionForm): string {
-  console.log(data, 'DATA');
   return `
  <!DOCTYPE html>
 <html lang="th">

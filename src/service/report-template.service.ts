@@ -392,7 +392,6 @@ const deleteTemplateById = async ({ id }: { id: string }) => {
   const template = await db.inspectionTemplate.delete({
     where: { id }
   });
-  console.log(template);
   return template;
 };
 
