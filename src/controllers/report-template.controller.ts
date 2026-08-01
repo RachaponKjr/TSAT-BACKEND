@@ -520,38 +520,41 @@ const getReportController = async (
     const { id } = req.params;
     const result = await getReportData({ id });
 
-    const { fileUrl } = await generatePdfFromTemplate(
-      generatePDFUsedCar,
-      result
-    );
+    // const { fileUrl } = await generatePdfFromTemplate(
+    //   generatePDFUsedCar,
+    //   result
+    // );
 
-    const { fileUrl: performanceFileUrl } = await generatePdfFromTemplate(
-      generatePDFUsedCarPerformace,
-      result
-    );
+    // const { fileUrl: performanceFileUrl } = await generatePdfFromTemplate(
+    //   generatePDFUsedCarPerformace,
+    //   result
+    // );
 
-    let deleted = false;
-    if (result.pdfUrl) {
-      const { deleted: del } = deletePdfFile(result.pdfUrl);
-      if (result.performancePdfUrl) {
-        const { deleted: delPerformance } = deletePdfFile(
-          result.performancePdfUrl
-        );
-        deleted = del && delPerformance;
-      } else {
-        deleted = del;
-      }
-    }
+    // let deleted = false;
+    // if (result.pdfUrl) {
+    //   const { deleted: del } = deletePdfFile(result.pdfUrl);
+    //   if (result.performancePdfUrl) {
+    //     const { deleted: delPerformance } = deletePdfFile(
+    //       result.performancePdfUrl
+    //     );
+    //     deleted = del && delPerformance;
+    //   } else {
+    //     deleted = del;
+    //   }
+    // }
 
-    await updateReportCarUsedPdf({
-      id,
-      url: fileUrl,
-      performanceUrl: performanceFileUrl
-    });
+    // await updateReportCarUsedPdf({
+    //   id,
+    //   url: fileUrl,
+    //   performanceUrl: performanceFileUrl
+    // });
 
+    // res.status(200).json({
+    //   url: fileUrl,
+    //   performanceUrl: performanceFileUrl
+    // });
     res.status(200).json({
-      url: fileUrl,
-      performanceUrl: performanceFileUrl
+      result: result
     });
     return;
   } catch (error) {

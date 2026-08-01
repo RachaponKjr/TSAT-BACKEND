@@ -1,11 +1,15 @@
 type SelectScore = {
   score: number;
   description: string;
+  image: string;
+  label: string;
 };
 
 type itemResults = {
   item: string;
   description: string;
+  maxScore: number;
+  totalScore: number;
   selectScore: SelectScore[];
 };
 

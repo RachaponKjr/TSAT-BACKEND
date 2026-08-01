@@ -633,6 +633,8 @@ const getReportData = async ({ id }: { id: string }) => {
     }
   });
 
+  console.log(template, 'TEM');
+
   const payload = {
     customerName: template?.customerName || '-',
     carModel: template?.carModel || '-',
@@ -657,9 +659,13 @@ const getReportData = async ({ id }: { id: string }) => {
       itemResults: category.itemResults.map((item) => ({
         item: item.item.name,
         description: item.description || '-',
+        maxScore: item.maxScore,
+        totalScore: item.score,
         selectScore: item.criteriaResults.map((cri) => ({
           score: cri.selectedOption?.score,
-          description: item.description || '-'
+          description: item.description || '-',
+          image: item.imageUrl || '-',
+          label: cri.description
         }))
       }))
     }))

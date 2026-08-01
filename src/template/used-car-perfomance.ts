@@ -64,6 +64,23 @@ function getGradeColor(grade: string): string {
   return map[grade] ?? '#333333';
 }
 
+function getColorScoreItem(score: number, maxScore: number): string {
+  const percentage = score / maxScore;
+  if (percentage >= 0.75) return '#28a745';
+  if (percentage >= 0.5) return '#fd7e14';
+  return '#C21A20';
+}
+
+function getColorScore(score: number): string {
+  if (score >= 3) {
+    return '#28a745';
+  }
+  if (score === 2) {
+    return '#fd7e14';
+  }
+  return '#C21A20';
+}
+
 const THAI_MONTHS = [
   'มกราคม',
   'กุมภาพันธ์',
@@ -88,6 +105,14 @@ function formatThaiDate(iso: string): string {
   const month = THAI_MONTHS[d.getMonth()];
   const year = d.getFullYear() + 543;
   return `${day} ${month} ${year}`;
+}
+function labelindex(index: number): string {
+  if (index === 1) {
+    return 'คะแนนประเมินสภาพ';
+  } else if (index === 2) {
+    return 'คะแนนระยะทาง (เลขไมล์)';
+  }
+  return 'คะแนนอายุการใช้งาน';
 }
 
 function mapIconService(index: number): string {
@@ -136,6 +161,11 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
       color: #333333;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+    }
+
+    .page-break {
+      break-before: page !important;
+      page-break-before: always !important;
     }
       
     /* Container หลัก */
@@ -391,6 +421,7 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
         break-before: page !important;
         page-break-before: always !important;
       }
+        
     }
   </style>
 </head>
@@ -646,6 +677,81 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
 
     </div>
   </div>
+
+${data.categoryResults
+  .map((item, index) => {
+    return `
+  // หนา้สอง
+    <div class="page-break" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1200px; margin: 0 auto; color: #333; padding: 16px; background-color: #ffffff;">
+  <!-- Header Section -->
+  <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px;">
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <!-- Steering Wheel Icon -->
+      ${mapIconService(index)}
+      <h2 style="margin: 0; font-size: 18px; color: #444; font-weight: 600;">
+        ${item.categoryName} <span style="font-weight: normal; color: #888;">(${
+          item.itemResults.length
+        } รายการ)</span>
+      </h2>
+    </div>
+    <div style="font-size: 18px; color: #888;">
+      <strong style="color: #333; font-size: 24px;">${item.score}</strong> / ${
+        item.maxScore
+      } คะแนน
+    </div>
+  </div>
+
+  <!-- Cards Grid Container -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+
+    <!-- Card 1: ระบบสตาร์ทเครื่องยนต์ (All Green) -->
+    ${item.itemResults.map((itemRes, index) => {
+      return `
+      <div style="border: 1px solid #eaeaea; border-radius: 8px; overflow: hidden; background: #fff; padding: 8px;">
+      <div style="display: flex; gap: 8px;margin-bottom:8px">
+        <!-- Placeholder Image -->
+        <div style="width: 130px; height: 80px; background-color: #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888;">
+        <img src="" alt="" />
+        </div>
+        <div style="flex: 1;">
+          <div style="font-size: 15px; color: #666; margin-bottom: 4px;"><strong style="color: #333;">${
+            itemRes.totalScore
+          }</strong>/${itemRes.maxScore} คะแนน</div>
+          <div style="font-size: 14px; color: #333; margin-bottom: 2px;">${itemRes?.item}</div>
+          <div style="font-size: 14px; font-weight: bold; color: ${getColorScoreItem(
+            itemRes.totalScore,
+            itemRes.maxScore
+          )};">${itemRes?.description || '-'}</div>
+        </div>
+      </div>
+      <!-- Row 1 -->
+      ${itemRes.selectScore.map((score, index) => {
+        return `
+        <div style="display: flex; align-items: center; justify-content: space-between;border-radius: 6px;margin-bottom: 2px; padding: 6px; background-color: #f0fdf4; font-size: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="background-color: ${getColorScore(
+              score.score
+            )}; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;">+${
+              score.score
+            }</span>
+            <span style="color: #666;">${labelindex(index + 1)}</span>
+          </div>
+          <span style="color: ${getColorScore(
+            score.score
+          )}; font-weight: bold;">${score.label}</span>
+        </div>
+        `;
+      })}
+    </div>
+      `;
+    })}
+  </div>
+    `;
+  })
+  ?.join('')}  
+</div>
+
+
 
 </body>
 
