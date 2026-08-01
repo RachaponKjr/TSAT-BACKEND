@@ -10,28 +10,44 @@ function getScoreColor(score: number): string {
 }
 
 const convertLocalFileToBase64 = (relativePath: string): string => {
+  // ภาพใสขนาด 1x1 pixel (Transparent PNG) สำหรับ fallback เมื่อหาภาพไม่เจอ
+  const EMPTY_IMAGE_BASE64 =
+    'data:image/png;base64,iVBORw00KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
+  // กรณีเป็นค่าว่าง/null/undefined หรือส่ง '-' มา
+  if (!relativePath || relativePath === '-') {
+    return EMPTY_IMAGE_BASE64;
+  }
+
   // 1. ตัดส่วนหัวเว็บไซต์และคำว่า uploads ตัวแรกออกให้หมด ให้เหลือแค่ชื่อไฟล์เพียวๆ
   const fileName = relativePath.replace(
     /^https?:\/\/topserviceautotechnic\.com\/uploads\/(uploads\/)?/,
     ''
   );
 
-  // 2. เอาชื่อไฟล์มาต่อเข้ากับโฟลเดอร์ uploads ตรงๆ (ไม่มีคำว่า pdf แล้ว)
+  // 2. เอาชื่อไฟล์มาต่อเข้ากับโฟลเดอร์ uploads ตรงๆ
   const cleanPath = path.join('uploads', fileName);
 
   // 3. ชี้พาร์ทจากโฟลเดอร์นอกสุดของโปรเจกต์ (TSAT-BACKEND)
   const absolutePath = path.join(process.cwd(), cleanPath);
 
-  // 4. ตรวจสอบและอ่านไฟล์ออกมาเป็น Base64
+  // 4. ตรวจสอบไฟล์ ถ้าหาไม่เจอ ให้ return ภาพใสแทนการ throw Error
   if (!fs.existsSync(absolutePath)) {
-    throw new Error(`หาไฟล์ไม่เจอในระบบที่ตำแหน่ง: ${absolutePath}`);
+    console.warn(`[Warning] หาไฟล์ไม่เจอที่ตำแหน่ง: ${absolutePath}`);
+    return EMPTY_IMAGE_BASE64;
   }
 
-  const fileBuffer = fs.readFileSync(absolutePath);
-  const ext = path.extname(absolutePath).toLowerCase().replace('.', '');
-  const mimeType = ext === 'jpg' ? 'jpeg' : ext || 'jpeg';
+  try {
+    const fileBuffer = fs.readFileSync(absolutePath);
+    const ext = path.extname(absolutePath).toLowerCase().replace('.', '');
+    const mimeType = ext === 'jpg' ? 'jpeg' : ext || 'jpeg';
 
-  return `data:image/${mimeType};base64,${fileBuffer.toString('base64')}`;
+    return `data:image/${mimeType};base64,${fileBuffer.toString('base64')}`;
+  } catch (error) {
+    // กรณีเกิด error ตอนอ่านไฟล์ ก็ให้ return ภาพใสด้วยเช่นกัน
+    console.error(`[Error] ไม่สามารถอ่านไฟล์ได้: ${absolutePath}`, error);
+    return EMPTY_IMAGE_BASE64;
+  }
 };
 
 // คำอธิบายเกรดรวม

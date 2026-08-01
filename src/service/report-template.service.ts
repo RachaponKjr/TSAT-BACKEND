@@ -633,8 +633,6 @@ const getReportData = async ({ id }: { id: string }) => {
     }
   });
 
-  console.log(template, 'TEM');
-
   const payload = {
     customerName: template?.customerName || '-',
     carModel: template?.carModel || '-',
