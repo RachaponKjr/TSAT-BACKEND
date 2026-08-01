@@ -160,7 +160,7 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
     /* ตั้งค่าหน้ากระดาษและภาพรวม */
     @page {
       size: A4 portrait;
-      margin: 10mm;
+      margin: 8mm;
     }
 
     * {
@@ -697,7 +697,6 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
 ${data.categoryResults
   .map((item, index) => {
     return `
-  // หนา้สอง
     <div class="page-break" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1200px; margin: 0 auto; color: #333; padding: 16px; background-color: #ffffff;">
   <!-- Header Section -->
   <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px;">
@@ -718,11 +717,12 @@ ${data.categoryResults
   </div>
 
   <!-- Cards Grid Container -->
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
 
     <!-- Card 1: ระบบสตาร์ทเครื่องยนต์ (All Green) -->
-    ${item.itemResults.map((itemRes, index) => {
-      return `
+    ${item.itemResults
+      .map((itemRes, index) => {
+        return `
       <div style="border: 1px solid #eaeaea; border-radius: 8px; overflow: hidden; background: #fff; padding: 8px;">
       <div style="display: flex; gap: 8px;margin-bottom:8px">
         <!-- Placeholder Image -->
@@ -737,13 +737,20 @@ ${data.categoryResults
           <div style="font-size: 14px; font-weight: bold; color: ${getColorScoreItem(
             itemRes.totalScore,
             itemRes.maxScore
-          )};">${itemRes?.description || '-'}</div>
+          )};">${itemRes?.description || 'ไม่มีข้อมูล'}</div>
         </div>
       </div>
       <!-- Row 1 -->
-      ${itemRes.selectScore.map((score, index) => {
-        return `
-        <div style="display: flex; align-items: center; justify-content: space-between;border-radius: 6px;margin-bottom: 2px; padding: 6px; background-color: #f0fdf4; font-size: 10px;">
+      ${itemRes.selectScore
+        .map((score, index) => {
+          return `
+        <div style="display: flex; align-items: center; justify-content: space-between;border-radius: 6px;margin-bottom: 2px; padding: 6px; background-color: ${
+          score.score === 3
+            ? '#EAFFFB'
+            : score.score === 2
+            ? '#FFF5E5'
+            : '#FFF2F6'
+        }; font-size: 10px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span style="background-color: ${getColorScore(
               score.score
@@ -757,10 +764,12 @@ ${data.categoryResults
           )}; font-weight: bold;">${score.label}</span>
         </div>
         `;
-      })}
+        })
+        .join('')}
     </div>
       `;
-    })}
+      })
+      .join('')}
   </div>
     `;
   })
