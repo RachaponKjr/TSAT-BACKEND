@@ -655,13 +655,13 @@ const getReportData = async ({ id }: { id: string }) => {
       maxScore: category.maxScore,
       itemResults: category.itemResults.map((item) => ({
         item: item.item.name,
-        description: item.description || '-',
+        description: item.description || 'ไม่ข้อมูล',
         maxScore: item.maxScore,
         totalScore: item.score,
         selectScore: item.criteriaResults.map((cri) => ({
           score: cri.selectedOption?.score,
-          description: item.description || '-',
-          image: item.imageUrl || '-',
+          description: item.description || 'ไม่ข้อมูล',
+          image: item.imageUrl,
           label: cri.description
         }))
       }))
