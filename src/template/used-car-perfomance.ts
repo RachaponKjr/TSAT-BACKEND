@@ -481,7 +481,7 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
         }</div>
       </div>
       <!-- คอลัมน์ 3: รหัสตัวถัง -->
-      <div style="flex: 0 0 25%;">
+      <div style="flex: 0 0 30%;">
         <div style="font-size: 1em; color: #777; margin-bottom: 4px;">รหัสตัวถัง (VIN)</div>
         <div style="font-weight: bold; font-size: 1.2em; color: #222;">${
           data.vin
@@ -524,7 +524,7 @@ export function generatePDFUsedCarPerformace(data: InspectionForm): string {
         </div>
       </div>
       <!-- คอลัมน์ 3: ผู้อนุมัติ -->
-      <div style="flex: 0 0 25%;">
+      <div style="flex: 0 0 30%;">
         <div style="font-size: 1em; color: #777; margin-bottom: 4px;">ผู้อนุมัติ</div>
         <div style="font-weight: bold; font-size: 1.2em; color: #222;">
           ${data.approverName}

@@ -520,6 +520,12 @@ const getReportController = async (
     const { id } = req.params;
     const result = await getReportData({ id });
 
+    if (!result) {
+      res.status(404).json({ message: 'ไม่พบข้อมูลรายงาน' });
+      return;
+    }
+
+    // 1. สร้าง PDF ใหม่
     const { fileUrl } = await generatePdfFromTemplate(
       generatePDFUsedCar,
       result
@@ -530,34 +536,38 @@ const getReportController = async (
       result
     );
 
-    let deleted = false;
-    if (result.pdfUrl) {
-      const { deleted: del } = deletePdfFile(result.pdfUrl);
-      if (result.performancePdfUrl) {
-        const { deleted: delPerformance } = deletePdfFile(
-          result.performancePdfUrl
-        );
-        deleted = del && delPerformance;
-      } else {
-        deleted = del;
+    // 2. ลบไฟล์ PDF เก่าอย่างปลอดภัย (ไม่ให้ throw error ไปขัดจังหวะ response)
+    const safeDelete = (url: string | null | undefined) => {
+      if (!url) return false;
+      try {
+        return deletePdfFile(url).deleted;
+      } catch (err) {
+        console.warn(`[Delete PDF Warning] ไม่สามารถลบไฟล์ ${url} ได้:`, err);
+        return false;
       }
-    }
+    };
 
+    safeDelete(result.pdfUrl);
+    safeDelete(result.performancePdfUrl);
+
+    // 3. อัปเดต DB ด้วย URL ของ PDF ชุดใหม่
     await updateReportCarUsedPdf({
       id,
       url: fileUrl,
       performanceUrl: performanceFileUrl
     });
 
+    // 4. ส่ง response กลับ
     res.status(200).json({
       url: fileUrl,
       performanceUrl: performanceFileUrl
     });
     return;
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: error instanceof Error ? error.message : error });
+    console.error('Error in getReportController:', error);
+    res.status(500).json({
+      message: error instanceof Error ? error.message : 'Internal Server Error'
+    });
     return;
   }
 };
