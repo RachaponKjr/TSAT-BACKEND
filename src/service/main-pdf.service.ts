@@ -87,7 +87,7 @@ export async function generatePdfFromTemplate(
       // รอโหลดจน network idle เพื่อให้รูป/ฟอนต์ภายนอกทันโหลดครบ แต่จำกัดเวลาไว้ไม่ให้ค้าง
       // ตลอดไปถ้ามี resource ที่โหลดไม่สำเร็จ (unreachable/ช้า)
       await page.setContent(htmlContent, {
-        waitUntil: 'networkidle0',
+        waitUntil: 'domcontentloaded',
         timeout: 20000
       });
     } catch (err) {

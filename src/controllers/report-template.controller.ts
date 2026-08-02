@@ -525,16 +525,10 @@ const getReportController = async (
       return;
     }
 
-    // 1. สร้าง PDF ใหม่
-    const { fileUrl } = await generatePdfFromTemplate(
-      generatePDFUsedCar,
-      result
-    );
-
-    const { fileUrl: performanceFileUrl } = await generatePdfFromTemplate(
-      generatePDFUsedCarPerformace,
-      result
-    );
+    const [{ fileUrl }, { fileUrl: performanceFileUrl }] = await Promise.all([
+      generatePdfFromTemplate(generatePDFUsedCar, result),
+      generatePdfFromTemplate(generatePDFUsedCarPerformace, result)
+    ]);
 
     // 2. ลบไฟล์ PDF เก่าอย่างปลอดภัย (ไม่ให้ throw error ไปขัดจังหวะ response)
     const safeDelete = (url: string | null | undefined) => {
