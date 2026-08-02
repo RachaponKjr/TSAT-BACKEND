@@ -250,7 +250,7 @@ export function generateQuotationPaper(data: IQuotation): string {
     <div style="flex: 1; display: flex; flex-direction: column; padding: 8px 16px; max-width: 80%; width:100%; margin: auto;">
 
       <!-- Header Section -->
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; border-bottom: 1px solid #EEEEEE; padding-bottom: 8px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4px;">
         <span style="font-size: 16px; color: #666666; font-weight: 600; white-space: nowrap; flex-shrink: 0;">
           ใบเสนอราคา / รายการประเมินมูลค่ารถ
         </span>

@@ -208,6 +208,7 @@ export const getPdfQuotationController = async (
       report: result.inspectionReport,
       items: itemsDataList || [],
       quotationId: id,
+      invoiceExpireDate: result.invoiceExpireDate,
       inspectionReportId: result.inspectionReportId,
       invoicePrice: result.invoicePrice
     };
