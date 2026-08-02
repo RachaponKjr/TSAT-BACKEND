@@ -176,7 +176,6 @@ export function generateQuotationPaper(data: IQuotation): string {
 <style>
     @page {
       size: A4 landscape;
-      margin: 10mm;
     }
     * {
       font-family: 'IBM Plex Sans Thai', sans-serif !important;
@@ -336,7 +335,7 @@ export function generateQuotationPaper(data: IQuotation): string {
             </div>
 
             <!-- Section 2: ผลการประเมิน -->
-            <div style="padding: 8px; display: flex; flex-direction: column; gap: 0;">
+            <div style="padding: 0px 8px; display: flex; flex-direction: column; gap: 0;">
               <span style="color: #333333; font-weight: 700; font-size: 18px;">ผลการประเมิน</span>
               <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
                 <!-- Grade Left Side -->
