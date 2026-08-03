@@ -61,6 +61,7 @@ const getQuotationReports = async (params: GetQuotationReportsParams = {}) => {
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
       invoiceExpireDate: item.invoiceExpireDate,
+      quotationItemId: item.quotationItemId,
       invoicePrice: item.invoicePrice,
       pdfUrl: item.pdfUrl,
       pdfExpireDate: item.pdfExpireDate,
