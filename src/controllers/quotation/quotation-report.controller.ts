@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import { Request, Response } from 'express';
@@ -174,10 +175,20 @@ export const getPdfQuotationController = async (
   try {
     const { id } = req.params as { id: string };
     const result = await reportService.getQuotationReportById(id);
+
+    if (!result) {
+      res.status(404).json({
+        success: false,
+        message: 'ไม่พบข้อมูล หรือ ทำรายการไม่สำเร็จ'
+      });
+      return;
+      // หรือ throw new Error("Not found"); ขึ้นอยู่กับโครงสร้างโปรเจกต์ของคุณ
+    }
+
     let itemsDataList = [];
     try {
       const itemsResponse = await fetch(
-        `https://tsatdata.com/api/quotations/${id}`
+        `https://tsatdata.com/api/quotations/${result.quotationItemId!}`
       );
 
       if (itemsResponse.ok) {
