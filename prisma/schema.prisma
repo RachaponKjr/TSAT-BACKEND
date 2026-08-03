@@ -598,6 +598,7 @@ model References {
 model QuotationReport {
   id                 String    @id @default(uuid()) @db.Uuid
   quotationId        String    @unique
+  quotationItemId    String?
   inspectionReportId String
   pdfUrl             String?
   pdfExpireDate      DateTime? @default(now())

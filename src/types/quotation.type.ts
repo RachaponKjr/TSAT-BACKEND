@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const QuotationReportSchema = z.object({
   quotationId: z.string(),
+  quotationItemId: z.string().optional(),
   inspectionReportId: z.string(),
   pdfUrl: z.string().optional().nullable(),
   invoicePrice: z.number().int().nonnegative(),
