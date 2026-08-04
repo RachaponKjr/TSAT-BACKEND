@@ -123,31 +123,73 @@ const calculateGrade = (percentage: number): string => {
   return 'C';
 };
 
-const getReportFull = async () => {
-  const reports = await db.inspectionReport.findMany({
-    include: {
-      template: true,
-      categoryResults: {
-        include: {
-          category: true,
-          itemResults: {
-            include: {
-              item: true,
-              criteriaResults: {
-                include: {
-                  criteria: true,
-                  selectedOption: true
+const getReportFull = async ({
+  page,
+  limit,
+  search
+}: {
+  page: number;
+  limit: number;
+  search: string;
+}) => {
+  const skip = (page - 1) * limit;
+  const take = Number(limit);
+
+  const whereCondition = search
+    ? {
+        quotationReports: {
+          some: {
+            quotationId: {
+              contains: search
+            }
+          }
+        }
+      }
+    : {};
+
+  const [reports, totalItems] = await db.$transaction([
+    db.inspectionReport.findMany({
+      where: whereCondition,
+      skip,
+      take,
+      include: {
+        quotationReports: {
+          select: {
+            id: true,
+            quotationId: true,
+            invoicePrice: true,
+            invoiceExpireDate: true,
+            pdfExpireDate: true,
+            pdfUrl: true,
+            createdAt: true
+          }
+        },
+        template: true,
+        categoryResults: {
+          include: {
+            category: true,
+            itemResults: {
+              include: {
+                item: true,
+                criteriaResults: {
+                  include: {
+                    criteria: true,
+                    selectedOption: true
+                  }
                 }
               }
             }
           }
         }
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
-    },
-    orderBy: {
-      createdAt: 'desc'
-    }
-  });
+    }),
+    db.inspectionReport.count({
+      where: whereCondition // 🌟 ต้องใส่ตรงนี้ด้วย เพื่อให้ count นับเฉพาะตัวที่ค้นหาเจอ
+    })
+  ]);
 
   const reportsWithScore = reports.map((report) => {
     const totalScore = report.categoryResults.reduce(
@@ -170,7 +212,15 @@ const getReportFull = async () => {
     };
   });
 
-  return reportsWithScore;
+  return {
+    data: reportsWithScore,
+    pagination: {
+      totalItems,
+      currentPage: Number(page),
+      itemsPerPage: take,
+      totalPages: Math.ceil(totalItems / take)
+    }
+  };
 };
 
 const getReportList = async () => {

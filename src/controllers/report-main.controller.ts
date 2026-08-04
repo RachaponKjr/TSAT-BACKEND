@@ -93,11 +93,16 @@ const delReportController = async (
 };
 
 const getReportFullController = async (
-  _req: Request,
+  req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const reportRes = await getReportFull();
+    const { page = 1, limit = 10, search = '' } = req.query;
+    const reportRes = await getReportFull({
+      page: Number(page),
+      limit: Number(limit),
+      search: search as string
+    });
     res.status(200).json({ data: reportRes });
     return;
   } catch (error) {
