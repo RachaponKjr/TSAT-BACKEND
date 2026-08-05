@@ -428,7 +428,7 @@ export function generateQuotationPaper(data: IQuotation): string {
                   <!-- Logo Uploader (small) -->
                   <img
                   style="width: 48px; height: 36px; object-fit: contain; flex-shrink: 0; border-radius: 6px; display: flex; align-items: center; justify-content: center;"
-                    src="${safeImgSrc(ref.refLogo)}"
+                    src="${ref.refLogo}"
                     alt=""
                   />
                   <span style="color: #666666; font-size: 14px;">${
@@ -450,7 +450,7 @@ export function generateQuotationPaper(data: IQuotation): string {
                 <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0; width: 100%;">
                   <img
                   style="width: 100%; height: 150px; object-fit: cover; position: relative; display: flex; align-items: center; justify-content: center; color: #AAAAAA; font-size: 14px;"
-                    src="${safeImgSrc(ref.carImageLow)}"
+                    src="${convertLocalFileToBase64(ref.carImageLow as string)}"
                     alt=""
                   />
                   <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 2px; width: 100%;">
@@ -465,7 +465,9 @@ export function generateQuotationPaper(data: IQuotation): string {
                 <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0; width: 100%;">
                   <img
                   style="width: 100%; height: 150px; object-fit: cover; position: relative; display: flex; align-items: center; justify-content: center; color: #AAAAAA; font-size: 14px;"
-                    src="${safeImgSrc(ref.carImageHight)}"
+                    src="${convertLocalFileToBase64(
+                      ref.carImageHight as string
+                    )}"
                     alt=""
                   />
                   <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 2px; width: 100%;">
