@@ -175,7 +175,7 @@ export function generateQuotationPaper(data: IQuotation): string {
 <title>ใบเสนอราคา / รายการประเมินมูลค่ารถ</title>
 <style>
     @page {
-      size: A4 landscape;
+      size: A4 portrait;
     }
     * {
       font-family: 'IBM Plex Sans Thai', sans-serif !important;
@@ -247,10 +247,10 @@ export function generateQuotationPaper(data: IQuotation): string {
     <!-- ============================= -->
     <!-- CreateSide (ฝั่งซ้าย)          -->
     <!-- ============================= -->
-    <div style="flex: 1; display: flex; flex-direction: column; padding: 8px 16px; max-width: 80%; width:100%; margin: auto;">
+    <div style="flex: 1; display: flex; flex-direction: column;  margin-top: 8px; width:100%;">
 
       <!-- Header Section -->
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
         <span style="font-size: 16px; color: #666666; font-weight: 600; white-space: nowrap; flex-shrink: 0;">
           ใบเสนอราคา / รายการประเมินมูลค่ารถ
         </span>
@@ -284,7 +284,7 @@ export function generateQuotationPaper(data: IQuotation): string {
         </div>
       </div>
 
-      <div style="flex: 1;">
+      <div>
         <div style="display: flex; flex-direction: row; gap: 16px;">
 
           <!-- Left Card: Car Info & Evaluation -->
@@ -416,9 +416,9 @@ export function generateQuotationPaper(data: IQuotation): string {
         <!-- ============================= -->
         <!-- ReferralFormSection            -->
         <!-- ============================= -->
-        <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
-          <span style="text-align: center; font-size: 18px; font-weight: 400; color: #666666;">ราคาอ้างอิง</span>
-          <div style="display: flex; flex-direction: row; align-items: center; gap: 16px; width: 100%; height: 100%;">
+        <div style="display: flex; flex-direction: column; justify-content: center; width: 100%; ">
+          <span style="text-align: center; font-size: 18px; font-weight: 400; color: #666666;margin:8px 0px;">ราคาอ้างอิง</span>
+          <div style="display: flex; flex-direction: row; align-items: center; gap: 16px; width: 100%;">
               ${data.references
                 .map(
                   (ref, idx) => `
@@ -488,16 +488,20 @@ export function generateQuotationPaper(data: IQuotation): string {
       <!-- ============================= -->
         <!-- รายการคำนวณ ค่างานซ่อมทั้งหมด    -->
         <!-- ============================= -->
-        <div style="padding: 8px 16px; margin-top: 16px;">
-        <div style="margin-top: 0; border: 1px solid #DDDDDD; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 16px; font-family: sans-serif;">
-  <span style="color: #333333; font-weight: 600; font-size: 16px;">
+        <div>
+        <!-- 🔴 จุดที่ 1: ลบ display: flex และ gap ออก เปลี่ยนมาใช้ block ปกติ -->
+        <div style="margin-top: 24px; border: 1px solid #DDDDDD; border-radius: 6px; padding: 12px; display: block; font-family: sans-serif;">
+          
+  <!-- 🔴 จุดที่ 2: เปลี่ยน span เป็น div และใส่ margin-bottom แทน gap -->
+  <div style="color: #333333; font-weight: 600; font-size: 16px; margin-bottom: 16px;">
     รายการคำนวน ค่างานซ่อมทั้งหมด
-  </span>
+  </div>
 
-  <div>
+  <div style="margin-bottom: 16px;">
     <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
       <thead>
-        <tr style="background-color: #F5F5F5; color: #333333;">
+        <!-- 🔴 จุดที่ 3: ใส่คำสั่งกันหัวตารางโดนตัด -->
+        <tr style="background-color: #F5F5F5; color: #333333; page-break-inside: avoid; break-inside: avoid;">
           <th style="width: 40px; text-align: left; font-weight: 600; padding: 8px 12px;"></th>
           <th style="text-align: left; font-weight: 600; padding: 8px 12px;">รายการ</th>
           <th style="text-align: right; font-weight: 600; padding: 8px 12px; width: 112px;">จำนวน</th>
@@ -510,9 +514,10 @@ export function generateQuotationPaper(data: IQuotation): string {
             ? data.items
                 .map(
                   (item, index) => `
+                <!-- 🔴 จุดที่ 4: ใส่คำสั่งกันแถวตารางโดนตัดครึ่งบรรทัด -->
                 <tr style="background-color: ${
                   index % 2 === 1 ? '#F5F5F5' : 'transparent'
-                };">
+                }; page-break-inside: avoid; break-inside: avoid;">
                   <td style="padding: 8px 12px; color: #666666;">${
                     index + 1
                   }</td>
@@ -531,7 +536,7 @@ export function generateQuotationPaper(data: IQuotation): string {
                 .join('')
             : `
                 <!-- กรณีไม่มีรายการใน Array -->
-                <tr>
+                <tr style="page-break-inside: avoid; break-inside: avoid;">
                   <td colspan="4" style="padding: 16px; text-align: center; color: #666666;">
                     ไม่มีรายการคำนวณ
                   </td>
@@ -543,7 +548,8 @@ export function generateQuotationPaper(data: IQuotation): string {
   </div>
 
   <!-- กล่องสรุปยอด -->
-  <div style="display: flex; justify-content: flex-end;">
+  <!-- 🔴 จุดที่ 5: ใส่คำสั่ง page-break-inside: avoid; ไว้ที่กล่องสรุปยอด เพื่อให้มันเกาะไปด้วยกันท้ังกล่อง ไม่ถูกตัดครึ่ง -->
+  <div style="display: flex; justify-content: flex-end; page-break-inside: avoid; break-inside: avoid;">
     <div style="width: 100%; max-width: 320px; border: 1px solid #DDDDDD; font-size: 14px;">
       <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px;">
         <span style="color: #333333;">รวม</span>
@@ -569,10 +575,7 @@ export function generateQuotationPaper(data: IQuotation): string {
     </div>
   </div>
 </div>
-
-      </div>
-    </div>
-    </div>
+</div>
             </div>
 
     
