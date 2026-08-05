@@ -159,6 +159,7 @@ const getReportFull = async ({
             quotationId: true,
             invoicePrice: true,
             invoiceExpireDate: true,
+            quotationItemId: true,
             pdfExpireDate: true,
             pdfUrl: true,
             createdAt: true

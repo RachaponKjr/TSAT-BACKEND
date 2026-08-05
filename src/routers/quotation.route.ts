@@ -24,33 +24,119 @@ import {
   updateReferenceController,
   deleteReferenceController
 } from '../controllers/quotation/quotation-reference.controller';
+import { authenticateToken, isMechanic } from '../middlewares/auth-admin';
 
 const router = Router();
 
 // Quotation Report
-router.post('/create', createQuotationReportController);
+router.post(
+  '/create',
+  authenticateToken,
+  isMechanic,
+  createQuotationReportController
+);
 router.get('/', getQuotationReportsController);
-router.get('/number', getQuotationNumber);
-router.get('/quotation-info/:id', getQuotationInfoController);
-router.get('/:id', getQuotationReportByIdController);
-router.patch('/update/:id', updateQuotationReportController);
-router.delete('/delete/:id', deleteQuotationReportController);
+router.get('/number', authenticateToken, isMechanic, getQuotationNumber);
+router.get(
+  '/quotation-info/:id',
+  authenticateToken,
+  isMechanic,
+  getQuotationInfoController
+);
+router.get(
+  '/:id',
+  authenticateToken,
+  isMechanic,
+  getQuotationReportByIdController
+);
+router.patch(
+  '/update/:id',
+  authenticateToken,
+  isMechanic,
+  updateQuotationReportController
+);
+router.delete(
+  '/delete/:id',
+  authenticateToken,
+  isMechanic,
+  deleteQuotationReportController
+);
 
 // Quotation Report Items
-router.post('/items/create', createQuotationItemController);
-router.get('/items', getQuotationItemsController);
-router.get('/items/:id', getQuotationItemByIdController);
-router.get('/item/quotation/:id', getQuotationItemByQuotationIdController);
-router.patch('/items/update/:id', updateQuotationItemController);
-router.delete('/items/delete/:id', deleteQuotationItemController);
+router.post(
+  '/items/create',
+  authenticateToken,
+  isMechanic,
+  createQuotationItemController
+);
+router.get(
+  '/items',
+  authenticateToken,
+  isMechanic,
+  getQuotationItemsController
+);
+router.get(
+  '/items/:id',
+  authenticateToken,
+  isMechanic,
+  getQuotationItemByIdController
+);
+router.get(
+  '/item/quotation/:id',
+  authenticateToken,
+  isMechanic,
+  getQuotationItemByQuotationIdController
+);
+router.patch(
+  '/items/update/:id',
+  authenticateToken,
+  isMechanic,
+  updateQuotationItemController
+);
+router.delete(
+  '/items/delete/:id',
+  authenticateToken,
+  isMechanic,
+  deleteQuotationItemController
+);
 
 // Quotation Report References
-router.post('/references/create', createReferenceController);
-router.get('/references', getReferencesController);
-router.get('/references/:id', getReferenceByIdController);
-router.patch('/references/update/:id', updateReferenceController);
-router.delete('/references/delete/:id', deleteReferenceController);
+router.post(
+  '/references/create',
+  authenticateToken,
+  isMechanic,
+  createReferenceController
+);
+router.get(
+  '/references',
+  authenticateToken,
+  isMechanic,
+  getReferencesController
+);
+router.get(
+  '/references/:id',
+  authenticateToken,
+  isMechanic,
+  getReferenceByIdController
+);
+router.patch(
+  '/references/update/:id',
+  authenticateToken,
+  isMechanic,
+  updateReferenceController
+);
+router.delete(
+  '/references/delete/:id',
+  authenticateToken,
+  isMechanic,
+  deleteReferenceController
+);
 
-router.get('/quotation-pdf/:id', getPdfQuotationController);
+router.get(
+  '/quotation-pdf/:id',
+  authenticateToken,
+  isMechanic,
+  getPdfQuotationController
+);
 
 export default router;
